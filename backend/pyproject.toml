@@ -2,3 +2,6 @@
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-q"
+markers = [
+  "live_gemini: opt-in live integration test using real Gemini/ADK calls",
+]

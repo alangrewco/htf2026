@@ -155,3 +155,70 @@ def test_research_task_processing_respects_batch_loops(client, app, monkeypatch)
         done = ResearchTask.query.filter_by(status='done').count()
         assert done == 4
         assert queued == 2
+
+
+def test_research_task_trace_endpoint_returns_stage_meta(client, app, monkeypatch):
+    with app.app_context():
+        event = RiskEvent(
+            event_type='NEWS',
+            title='Trace test event',
+            summary='Trace summary',
+            severity=50,
+            confidence=0.5,
+            source='gdelt',
+            source_url='https://example.com/trace',
+            published_at=datetime(2026, 3, 3),
+            impacted_ports=[],
+            impacted_countries=[],
+            impacted_keywords=['trace'],
+            dedupe_key='research-trace-1',
+            metadata_json={},
+        )
+        db.session.add(event)
+        db.session.commit()
+
+    task_resp = client.post('/api/research/tasks', json={'event_id': 1, 'mode': 'enrich'})
+    assert task_resp.status_code == 201
+    task_id = task_resp.get_json()['id']
+
+    fixed = {
+        'event_type': 'NEWS',
+        'title': 'Trace enriched',
+        'summary': 'Trace summary enriched',
+        'severity': 64,
+        'confidence': 0.77,
+        'impacted': {'ports': ['USLAX'], 'countries': ['US'], 'keywords': ['trace']},
+        'time_window': {'start': '2026-03-03T00:00:00', 'end': '2026-03-10T00:00:00'},
+        'recommended_actions': [{'action': 'Shift lane', 'rationale': 'Trace test'}],
+        'citations': [{'url': 'https://example.com/trace', 'note': 'source'}],
+        '_meta': {
+            'agent_path': 'relevance->impact->action',
+            'stage_status': {'relevance': 'ok', 'impact': 'ok', 'action': 'ok'},
+            'enrichment_source': 'adk',
+            'latency_ms_total': 123,
+            'latency_ms_by_agent': {'relevance': 10, 'impact': 40, 'action': 73},
+            'stage_outputs': {
+                'relevance_raw': {'is_relevant': True, 'relevance_score': 0.91, 'reason': 'Maritime operations impact'},
+                'impact_raw': {'severity': 64, 'impacted': {'ports': ['USLAX']}},
+                'action_raw': {'recommended_actions': [{'action': 'Shift lane', 'rationale': 'Trace test'}]},
+            },
+            'is_relevant': True,
+            'relevance_score': 0.91,
+            'relevance_reason': 'Maritime operations impact',
+        },
+    }
+    monkeypatch.setattr('jobs.enrich_news_event', lambda **_: fixed)
+
+    with app.app_context():
+        processed = process_research_tasks()
+        assert processed == 1
+
+    trace_resp = client.get(f'/api/research/tasks/{task_id}/trace')
+    assert trace_resp.status_code == 200
+    trace = trace_resp.get_json()
+    assert trace['task_id'] == task_id
+    assert trace['agent_path'] == 'relevance->impact->action'
+    assert trace['stage_status']['relevance'] == 'ok'
+    assert trace['stage_outputs']['relevance_raw']['is_relevant'] is True
+    assert trace['relevance']['is_relevant'] is True
+    assert trace['enrichment_source'] == 'adk'

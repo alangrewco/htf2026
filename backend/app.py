@@ -18,6 +18,7 @@ from models import (
 )
 from routes.events import blp as events_blp
 from routes.health import blp as health_blp
+from routes.admin import blp as admin_blp
 from routes.preferences import blp as preferences_blp
 from routes.recommendations import blp as recommendations_blp
 from routes.research import blp as research_blp
@@ -131,6 +132,12 @@ def create_app(test_config: dict | None = None) -> Flask:
         SQLALCHEMY_DATABASE_URI=os.getenv("DATABASE_URL", "sqlite:///backend.db"),
         ENABLE_SCHEDULER=True,
         BOOTSTRAP_LIVE_ON_START=os.getenv("BOOTSTRAP_LIVE_ON_START", "true").lower() == "true",
+        ENABLE_ADMIN_API=os.getenv("ENABLE_ADMIN_API", "false").lower() == "true",
+        GDELT_MAIN_QUERY=os.getenv("GDELT_MAIN_QUERY", os.getenv("GDELT_STARTUP_QUERY", DEFAULT_QUERY)),
+        GDELT_FOLLOWUP_QUERY=os.getenv(
+            "GDELT_FOLLOWUP_QUERY",
+            "maritime OR shipping OR port congestion OR logistics disruption",
+        ),
     )
 
     if test_config:
@@ -146,6 +153,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     api.register_blueprint(recommendations_blp)
     api.register_blueprint(preferences_blp)
     api.register_blueprint(research_blp)
+    api.register_blueprint(admin_blp)
 
     with app.app_context():
         db.create_all()

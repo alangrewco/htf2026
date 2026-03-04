@@ -266,6 +266,14 @@ def process_research_tasks() -> int:
                     )
                 )
 
+                finding_meta = finding.get("_meta", {}) if isinstance(finding, dict) else {}
+                is_relevant = finding_meta.get("is_relevant", True)
+                if not is_relevant:
+                    task.status = "done"
+                    task.error = None
+                    processed += 1
+                    continue
+
                 event.summary = finding.get("summary", event.summary)
                 event.severity = _normalize_severity(finding.get("severity"), event.severity)
                 event.confidence = _normalize_confidence(

@@ -145,6 +145,25 @@ class ResearchFindingSchema(Schema):
     created_at = fields.DateTime(dump_only=True)
 
 
+class ResearchTaskTraceSchema(Schema):
+    task_id = fields.Integer(required=True)
+    event_id = fields.Integer(required=True)
+    status = fields.String(required=True)
+    error = fields.String(allow_none=True)
+    finding_id = fields.Integer(allow_none=True)
+    enrichment_source = fields.String(allow_none=True)
+    model = fields.String(allow_none=True)
+    agent_path = fields.String(allow_none=True)
+    stage_status = fields.Dict(keys=fields.String(), values=fields.String(), allow_none=True)
+    latency_ms_total = fields.Integer(allow_none=True)
+    latency_ms_by_agent = fields.Dict(
+        keys=fields.String(), values=fields.Integer(), allow_none=True
+    )
+    stage_outputs = fields.Dict(allow_none=True)
+    relevance = fields.Dict(allow_none=True)
+    finding = fields.Dict(allow_none=True)
+
+
 class ResearchFailureSchema(Schema):
     task_id = fields.Integer(required=True)
     error = fields.String(allow_none=True)
@@ -165,3 +184,54 @@ class ResearchProgressSchema(Schema):
     last_processed_at = fields.DateTime(allow_none=True)
     recent_failures = fields.List(fields.Nested(ResearchFailureSchema), required=True)
     worker_config = fields.Nested(ResearchWorkerConfigSchema, required=True)
+
+
+class AdminIngestionPollSchema(Schema):
+    weather = fields.Boolean(load_default=True)
+    news = fields.Boolean(load_default=True)
+    news_target_count = fields.Integer(load_default=5, validate=validate.Range(min=1, max=20))
+    gdelt_max_records = fields.Integer(load_default=None, allow_none=True)
+    include_followup = fields.Boolean(load_default=False)
+
+
+class AdminIngestionPollResponseSchema(Schema):
+    weather_created = fields.Integer(required=True)
+    news_created = fields.Integer(required=True)
+    total_created = fields.Integer(required=True)
+    source = fields.String(required=True)
+    details = fields.Dict(required=True)
+
+
+class MockNewsArticleSchema(Schema):
+    title = fields.String(required=True)
+    summary = fields.String(required=True)
+    source_url = fields.String(required=True)
+    published_at = fields.DateTime(allow_none=True, load_default=None)
+    severity = fields.Integer(load_default=50, validate=validate.Range(min=0, max=100))
+    confidence = fields.Float(load_default=0.7, validate=validate.Range(min=0.0, max=1.0))
+    impacted_ports = fields.List(fields.String(), load_default=list)
+    impacted_countries = fields.List(fields.String(), load_default=list)
+    impacted_keywords = fields.List(fields.String(), load_default=list)
+
+
+class AdminMockNewsCreateSchema(Schema):
+    articles = fields.List(fields.Nested(MockNewsArticleSchema), required=True)
+    source = fields.String(load_default="mock")
+    pack_name = fields.String(load_default="custom")
+
+
+class AdminMockNewsCreateResponseSchema(Schema):
+    created_count = fields.Integer(required=True)
+    skipped_duplicates = fields.Integer(required=True)
+    created_event_ids = fields.List(fields.Integer(), required=True)
+
+
+class AdminMockNewsDefaultRequestSchema(Schema):
+    pack_name = fields.String(load_default="asia_us_disruptions_v1")
+
+
+class AdminMockNewsDefaultResponseSchema(Schema):
+    pack_name = fields.String(required=True)
+    created_count = fields.Integer(required=True)
+    skipped_duplicates = fields.Integer(required=True)
+    created_event_ids = fields.List(fields.Integer(), required=True)

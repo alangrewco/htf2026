@@ -14,6 +14,7 @@ from schemas import (
     ResearchFindingSchema,
     ResearchProgressSchema,
     ResearchTaskCreateSchema,
+    ResearchTaskTraceSchema,
     ResearchTaskSchema,
 )
 
@@ -146,6 +147,49 @@ class ResearchTaskDetailResource(MethodView):
         if not task:
             abort(404, "Task not found")
         return task
+
+
+@blp.route("/tasks/<int:task_id>/trace")
+class ResearchTaskTraceResource(MethodView):
+    @blp.response(200, ResearchTaskTraceSchema)
+    @blp.doc(tags=["research"])
+    def get(self, task_id: int):
+        task = ResearchTask.query.get(task_id)
+        if not task:
+            abort(404, "Task not found")
+
+        finding = (
+            ResearchFinding.query.filter_by(task_id=task.id)
+            .order_by(ResearchFinding.id.desc())
+            .first()
+        )
+        finding_json = finding.finding_json if finding and isinstance(finding.finding_json, dict) else None
+        meta = (finding_json or {}).get("_meta", {}) if finding_json else {}
+
+        relevance = None
+        if meta:
+            relevance = {
+                "is_relevant": meta.get("is_relevant"),
+                "relevance_score": meta.get("relevance_score"),
+                "relevance_reason": meta.get("relevance_reason"),
+            }
+
+        return {
+            "task_id": task.id,
+            "event_id": task.event_id,
+            "status": task.status,
+            "error": task.error,
+            "finding_id": finding.id if finding else None,
+            "enrichment_source": meta.get("enrichment_source"),
+            "model": meta.get("model"),
+            "agent_path": meta.get("agent_path"),
+            "stage_status": meta.get("stage_status"),
+            "latency_ms_total": meta.get("latency_ms_total"),
+            "latency_ms_by_agent": meta.get("latency_ms_by_agent"),
+            "stage_outputs": meta.get("stage_outputs"),
+            "relevance": relevance,
+            "finding": finding_json,
+        }
 
 
 @blp.route("/findings")

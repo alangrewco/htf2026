@@ -43,6 +43,25 @@ cd backend
 pytest -q
 ```
 
+### Live Gemini E2E test (opt-in)
+
+This test uses real Gemini/ADK calls and is intentionally excluded from default test runs.
+
+```bash
+cd backend
+source .venv/bin/activate
+export RUN_LIVE_GEMINI_TESTS=1
+export GOOGLE_API_KEY=your_key_here
+pytest -q -m live_gemini tests/test_e2e_live_gemini.py
+```
+
+Optional strict mode (fail if no `adk`-sourced findings are produced):
+
+```bash
+export REQUIRE_ADK_SOURCE=1
+pytest -q -m live_gemini tests/test_e2e_live_gemini.py
+```
+
 ## Environment variables
 
 The project now reads `backend/.env` automatically on startup.
@@ -59,6 +78,8 @@ Important keys:
 - `ENRICHMENT_MAX_WORKERS` (default `50`)
 - `ENRICHMENT_BATCH_SIZE` (default `200`)
 - `ENRICHMENT_MAX_BATCH_LOOPS` (default `5`)
+- `ENABLE_ADMIN_API` (default `false`) enables demo admin endpoints for Postman live/mock orchestration
+- `ENRICHMENT_INCLUDE_STAGE_OUTPUTS` (default `true`) includes `relevance_raw` / `impact_raw` / `action_raw` in trace metadata
 
 ## See live events right now
 
@@ -129,6 +150,41 @@ curl -X POST http://localhost:5001/api/research/tasks/bulk \
 curl http://localhost:5001/api/research/progress
 curl -N 'http://localhost:5001/api/research/stream/progress?interval_seconds=1'
 ```
+
+## Postman E2E Suite (Live + Mock Articles)
+
+Artifacts:
+
+- `backend/postman/Maritime_Risk_E2E.postman_collection.json`
+- `backend/postman/Maritime_Risk_Local.postman_environment.json`
+
+Before running the collection:
+
+```bash
+cd backend
+source .venv/bin/activate
+export ENABLE_ADMIN_API=true
+python app.py
+```
+
+The collection demonstrates:
+
+1. Force live ingest (target ~5 live NEWS rows),
+2. inject 5 mock NEWS rows,
+3. bulk enqueue enrichment on live+mock events,
+4. inspect `/api/research/tasks/<id>/trace` with all three agent stage outputs:
+   - `stage_outputs.relevance_raw`
+   - `stage_outputs.impact_raw`
+   - `stage_outputs.action_raw`
+5. run shipment risk lookup,
+6. generate recommendations,
+7. submit feedback (`too_expensive`) and verify preference change.
+
+Admin endpoints used by Postman:
+
+- `POST /api/admin/ingestion/poll`
+- `POST /api/admin/events/mock-news`
+- `POST /api/admin/events/mock-news/default-set`
 
 ## End-to-End Bulk Enrichment Flow (Runbook)
 
@@ -264,6 +320,7 @@ curl -X POST http://localhost:5001/api/recommendations/generate \
 
 - POST /api/research/tasks/bulk (bulk enqueue)
 - GET /api/research/stream/progress (live progress)
+- GET /api/research/tasks/<id>/trace (stage-level enrichment trace)
 - GET /api/research/findings
 - GET /api/events/<id>
 - GET /api/shipments/<id>/risks
