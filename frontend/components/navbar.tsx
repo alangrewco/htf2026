@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import {
   Search,
   User,
@@ -23,23 +24,24 @@ import {
 } from "@/components/ui/command";
 
 const navLinks = [
-  { label: "SKUs", icon: Package, href: "/#data", tab: "skus" },
-  { label: "Shipments", icon: Truck, href: "/#data", tab: "shipments" },
-  { label: "Suppliers", icon: Users, href: "/#data", tab: "suppliers" },
+  { label: "SKUs", icon: Package, href: "/?tab=skus#data-section", tab: "skus" },
+  { label: "Shipments", icon: Truck, href: "/?tab=shipments#data-section", tab: "shipments" },
+  { label: "Suppliers", icon: Users, href: "/?tab=suppliers#data-section", tab: "suppliers" },
   { label: "News", icon: Newspaper, href: "/news" },
   { label: "Analytics", icon: BarChart3, href: "/analytics" },
 ] as const;
 
 export function Navbar() {
   const [commandOpen, setCommandOpen] = useState(false);
+  const pathname = usePathname();
 
   const handleNavClick = useCallback(
     (e: React.MouseEvent, link: (typeof navLinks)[number]) => {
-      if ("tab" in link && link.tab) {
+      if ("tab" in link && link.tab && pathname === "/") {
         e.preventDefault();
         const dataSection = document.getElementById("data-section");
 
-        // Dispatch custom event to switch tab
+        // Dispatch custom event to switch tab (for same-page interaction)
         window.dispatchEvent(
           new CustomEvent("switch-tab", { detail: link.tab })
         );
@@ -49,7 +51,7 @@ export function Navbar() {
         }
       }
     },
-    []
+    [pathname]
   );
 
   return (

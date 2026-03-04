@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -197,11 +198,21 @@ function SupplierRow({ supplier, index }: { supplier: Supplier; index: number })
 
 // ── Main Data Section ────────────────────────────────────
 
-export function DataSection() {
-  const [activeTab, setActiveTab] = useState("skus");
+function DataSectionContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "skus");
   const [search, setSearch] = useState("");
 
-  // Listen for navbar tab-switch events
+  // Sync state with URL search params
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && (tab === "skus" || tab === "shipments" || tab === "suppliers")) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  // Listen for navbar tab-switch events (for same-page navigation)
   useEffect(() => {
     function handleTabSwitch(e: Event) {
       const customEvent = e as CustomEvent<string>;
@@ -210,6 +221,14 @@ export function DataSection() {
     window.addEventListener("switch-tab", handleTabSwitch);
     return () => window.removeEventListener("switch-tab", handleTabSwitch);
   }, []);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL without full refresh to keep state in sync
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", value);
+    router.replace(`/?${params.toString()}#data-section`, { scroll: false });
+  };
 
   const filteredSKUs = useMemo(() => {
     if (!search) return skus;
@@ -246,7 +265,7 @@ export function DataSection() {
 
   return (
     <div id="data-section" className="snap-section flex flex-col px-5 pt-6 pb-8">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col">
         {/* Tab bar + search */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
           <TabsList className="bg-muted/50 border border-border/50">
@@ -341,5 +360,13 @@ export function DataSection() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export function DataSection() {
+  return (
+    <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Loading data...</div>}>
+      <DataSectionContent />
+    </Suspense>
   );
 }
