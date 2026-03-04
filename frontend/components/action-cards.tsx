@@ -333,6 +333,152 @@ function ActionDetailModal({
   );
 }
 
+/* Vertical sidebar panel for Action Required cards */
+function ActionCardItemCompact({
+  card,
+  index,
+  onClick,
+}: {
+  card: ActionCard;
+  index: number;
+  onClick: () => void;
+}) {
+  const conf = typeConfig[card.type];
+  const Icon = conf.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.06, duration: 0.35 }}
+      onClick={onClick}
+      className="group relative cursor-pointer rounded-lg border border-border/50 bg-card/50 overflow-hidden transition-all duration-300 hover:bg-accent/50 hover:border-border"
+    >
+      {/* Gradient accent */}
+      <div
+        className={`absolute inset-0 bg-gradient-to-br ${conf.gradient} pointer-events-none`}
+      />
+
+      <div className="relative p-3 flex flex-col">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-2">
+          <Badge
+            variant="outline"
+            className={`${conf.badge} text-[10px] font-medium`}
+          >
+            <Icon className="mr-1 h-3 w-3" />
+            {conf.label}
+          </Badge>
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </div>
+
+        {/* Title */}
+        <h3 className="text-xs font-semibold leading-snug mb-1.5 line-clamp-2">
+          {card.title}
+        </h3>
+
+        {/* Summary */}
+        <p className="text-[10px] text-muted-foreground leading-relaxed mb-3 line-clamp-2">
+          {card.summary}
+        </p>
+
+        {/* Meta */}
+        <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground mb-2">
+          <span className="flex items-center gap-1">
+            <Clock className="h-2.5 w-2.5" />
+            {card.impactTimeframe}
+          </span>
+          <span className="flex items-center gap-1">
+            <DollarSign className="h-2.5 w-2.5" />$
+            {(card.affectedValue / 1_000).toFixed(0)}K
+          </span>
+          <span className="flex items-center gap-1">
+            <Package className="h-2.5 w-2.5" />
+            {card.affectedSKUs} SKUs
+          </span>
+        </div>
+
+        {/* Quick actions */}
+        <div className="flex gap-2">
+          {card.type === "autonomous" ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-6 text-[10px] text-urgency-safe border-urgency-safe/30 hover:bg-urgency-safe/10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Check className="mr-1 h-2.5 w-2.5" />
+              Acknowledge
+            </Button>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-6 text-[10px] text-primary border-primary/30 hover:bg-primary/10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Eye className="mr-1 h-2.5 w-2.5" />
+                Review
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 text-[10px] text-muted-foreground hover:text-foreground"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <X className="mr-1 h-2.5 w-2.5" />
+                Dismiss
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+export function ActionCardsSidebar() {
+  const [selectedCard, setSelectedCard] = useState<ActionCard | null>(null);
+
+  return (
+    <>
+      <div className="glass flex h-full flex-col rounded-xl overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-urgency-warning animate-pulse" />
+            <h2 className="text-sm font-semibold">Action Required</h2>
+          </div>
+          <span className="text-[10px] text-muted-foreground">
+            {actionCards.length} items
+          </span>
+        </div>
+
+        {/* Scrollable card feed */}
+        <ScrollArea className="flex-1 px-3 py-3">
+          <div className="space-y-2">
+            {actionCards.map((card, index) => (
+              <ActionCardItemCompact
+                key={card.id}
+                card={card}
+                index={index}
+                onClick={() => setSelectedCard(card)}
+              />
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+
+      <ActionDetailModal
+        card={selectedCard}
+        open={selectedCard !== null}
+        onClose={() => setSelectedCard(null)}
+      />
+    </>
+  );
+}
+
 export function ActionCardsCarousel() {
   const [selectedCard, setSelectedCard] = useState<ActionCard | null>(null);
 

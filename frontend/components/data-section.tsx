@@ -1,22 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useMemo, Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
-  Filter,
-  ArrowUpDown,
   Package,
   Truck,
   Users,
   ChevronRight,
   MapPin,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { CommandBar } from "@/components/command-bar";
 import {
   skus,
   shipments,
@@ -200,7 +196,8 @@ function DataSectionContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = searchParams.get("tab") || "skus";
-  const [search, setSearch] = useState("");
+  // Search is driven by the `q` URL param, set by CommandBar
+  const search = searchParams.get("q") || "";
 
   // Listen for navbar tab-switch events (for same-page navigation)
   useEffect(() => {
@@ -259,56 +256,13 @@ function DataSectionContent() {
   }, [search]);
 
   return (
-    <div id="data-section" className="snap-section flex flex-col px-5 pt-6 pb-8">
+    <div id="data-section" className="snap-section flex flex-col px-5 pt-4 pb-8">
+      {/* Command Bar at top of page 2 */}
+      <div className="mb-4">
+        <CommandBar variant="page2" />
+      </div>
+
       <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col">
-        {/* Tab bar + search */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-          <TabsList className="bg-muted/50 border border-border/50">
-            <TabsTrigger value="skus" className="gap-1.5 text-xs cursor-pointer">
-              <Package className="h-3.5 w-3.5" />
-              SKUs
-              <Badge variant="secondary" className="ml-1 text-[10px] h-4 px-1.5">
-                {skus.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="shipments" className="gap-1.5 text-xs cursor-pointer">
-              <Truck className="h-3.5 w-3.5" />
-              Shipments
-              <Badge variant="secondary" className="ml-1 text-[10px] h-4 px-1.5">
-                {shipments.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="suppliers" className="gap-1.5 text-xs cursor-pointer">
-              <Users className="h-3.5 w-3.5" />
-              Suppliers
-              <Badge variant="secondary" className="ml-1 text-[10px] h-4 px-1.5">
-                {suppliers.length}
-              </Badge>
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Fuzzy search…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="h-8 w-56 pl-8 text-xs bg-input/30 border-border/50"
-              />
-            </div>
-            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
-              <Filter className="h-3.5 w-3.5" />
-              Filter
-            </Button>
-            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
-              <ArrowUpDown className="h-3.5 w-3.5" />
-              Sort
-            </Button>
-          </div>
-        </div>
-
-        {/* Tab content */}
         <TabsContent value="skus" className="flex-1 mt-0">
           <AnimatePresence mode="wait">
             <div className="space-y-2">
