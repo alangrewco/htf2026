@@ -1,0 +1,115 @@
+# Supply Chain Resilience Dashboard: Wireframe Plan
+
+## 1. Global Navigation / Header (Sticky Navbar)
+- **Logo / Brand** (top left): "HARBORGUARD AI" (with a placeholder logo icon).
+- **Navigation Links** (left/center): 
+  - **SKUs**: Scrolls down to Page 2 and activates the SKUs tab.
+  - **Shipments**: Scrolls down to Page 2 and activates the Shipments tab.
+  - **Suppliers**: Scrolls down to Page 2 and activates the Suppliers tab.
+  - **News**: Navigates to the News Dashboard.
+  - **Detailed Data**: Navigates to the Detailed Data Dashboard.
+- **Global Search / Command Bar** (center right): Search across SKUs, Suppliers, Shipments, News, and execute quick commands.
+- **User Profile & Settings** (top right): Placeholders for now.
+
+## 2. Main Dashboard (Home)
+
+### Page 1 (Top fold - Immediate View)
+*The primary landing view focusing on immediate alerts and high-level health.*
+
+#### A. KPI "Big Numbers" Bar (Top)
+Displays key health metrics.  
+**Interaction**: Clicking any metric navigates to the **Detailed Data Dashboard**.
+- **Revenue at Risk**: Total monetary value currently threatened by active disruptions.
+- **Active Disruptions**: Count of ongoing events (e.g., port strikes, weather).
+- **Affected SKUs**: Count or percentage of SKUs impacted.
+
+#### B. "Live Signals" Pane (Right Side)
+A vertically scrollable feed of recent, relevant news.
+- **Features**: Keyword search, filter toggles by news type (e.g., Geopolitical, Weather, Financial).
+- **Interaction**: 
+  - Clicking the "Live Signals" header navigates to the **News Dashboard**.
+  - Clicking a specific news item navigates to the **News Dashboard**, automatically scrolls to, and opens that relevant item.
+
+#### C. Action Cards Carousel (Center-Bottom)
+Takes up the majority of the first page area. Displays cards sorted from left to right by urgency.
+- **Card Types**: Active Disruption (Highest Urgency), Risk Exposure (Medium Urgency), Autonomous Action (Low Urgency / Informational).
+- **Card Content**: Title, Event category icon, Impact timeframe, Affected Value/SKUs, Quick Action Buttons (e.g., "Approve", "Review", "Dismiss").
+- **Card Interaction**: Clicking the card content opens a **Detailed Action Modal**.
+
+##### Detailed Action Modal (Opened from Card)
+Contains deep-dive information on the disruption and actionable choices.
+- **What happened**: Summary of the event (e.g., "Workers on strike at Port Blah", "Handling rate degraded", "Expected to continue for weeks"). *Hovering over text shows relevant news articles as clickable tooltips.*
+- **How it affects**: Specific impact on the supply chain (e.g., "LEDs shipped by Supplier Foo planned to pass Port Blah", "Calculated 3-week delay"). *Entities like LEDs, suppliers, etc., are clickable links to their respective detail pages. Calculation details can also be clicked.*
+- **Possible Actions**: A list of options (e.g., "Do nothing", "Emergency shipment from Supplier Bar", "Contact Supplier Foo to change routes"). *Clicking each brings up more exact details of what will be done and why.*
+- **Pros/Cons Matrix**: A comparison table evaluating all possible actions against each other based on cost, time, risk, etc.
+
+---
+
+### Page 2 (Bottom fold - Snap Scroll Transition)
+*Accessed via snap-scrolling down from Page 1, or clicking the Navbar links. Focuses on tabular data and deep-dives.*
+
+#### Tabbed Interface
+Three main tabs spanning the page. Initially, each row entry shows the top 3 relevant items inline.
+
+**Tab 1: SKUs (Default View)**
+- **Sorting**: Most at risk to most safe (default).
+- **Features**: Fuzzy search, filters (category, risk level), sort options.
+- **Inline Info**: SKU Name, Risk Score, Top 3 Affected Shipments/Suppliers.
+- **Interaction**: Click opens **SKU Details Page**.
+
+**Tab 2: Shipments**
+- **Context**: LTL (Less-than-Truckload) shipments containing multiple SKUs.
+- **Features**: Fuzzy search, filter by status (In-transit, Delayed, Planned).
+- **Inline Info**: Shipment ID, Status, Top 3 SKUs contained in this shipment.
+- **Interaction**: Click opens **Shipment Details Page**.
+
+**Tab 3: Suppliers**
+- **Context**: Supplier overview and their active deliverables.
+- **Features**: Fuzzy search, filter by region, average risk rating.
+- **Inline Info**: Supplier Name, Current/Planned/Recurring shipments count, Top 3 SKUs provided.
+- **Interaction**: Click opens **Supplier Details Page**.
+
+---
+
+## 3. Secondary Pages (Placeholders)
+
+### A. News Dashboard
+- **Content**: Expanded view of live signals. Advanced filtering (date range, impact radius). Map overlay showing disruption epicenters relative to supply chains.
+
+### B. Detailed Data Dashboard
+- **Content**: Historical trend data, revenue projection charts, historical disruption vs. resolution performance graphs. Reached via the KPI bar or Navbar.
+
+### C. Details Modals & Pages (Drill-downs)
+Clicking on Action Cards or Page 2 row entries initially opens a **Modal** with granular details. Modals contain an "Expand" button to navigate to a dedicated full-page view of the identical content. 
+*Implementation Note*: The content blocks for these should be built as reusable React components that can be seamlessly embedded within either a Dialog/Modal wrapper or a Page layout wrapper.
+- **SKU Details**: Inventory levels, alternate suppliers, demand forecast, current risk factors.
+- **Shipment Details**: Tracking map, full list of SKUs in the LTL shipment, estimated delay impact.
+- **Supplier Details**: Full catalog of SKUs provided, historical reliability score, geographic risk footprint.
+
+---
+
+## 4. Technology Stack & Aesthetics
+
+### Tech Stack
+- **Framework:** Next.js (App Router)
+- **Styling:** Tailwind CSS + shadcn/ui (initialized with the 'slate' color theme)
+- **Icons:** `lucide-react`
+- **Animations / Interactions:** `framer-motion` (for micro-animations, snap-scrolling transitions, and hover effects)
+- **Data Visualization:** `recharts` (for Detailed Data Dashboard charts)
+- **Map Integration:** Future dependency required (e.g., Leaflet, Mapbox) for plotting disruptions/news as activity bubbles on shipping routes.
+
+### Visual Aesthetics & Vibe
+- **Theme:** Dark mode ("command center" feel).
+- **Colors:**
+  - Backgrounds: Deep charcoal or navy (e.g., `#0f172a` or `#0a0a0a`).
+  - Brand: Sleek, electric blue/violet representing the "AI" aspect.
+  - Urgency Accents: Vibrant crimson/neon orange (High/Active Disruption), Amber/Gold (Warning/Risk), Emerald green/cool cyan (Safe/Autonomous Actions).
+- **Typography:** Modern, technical sans-serif (e.g., Inter, Geist).
+- **Textures:** Subtle glassmorphism (translucency + background blur) on the header, modals, and Live Signals pane to create depth.
+
+### Development Reminders
+- **Agent Skills**: Leverage the available workspace skills to write high-quality, idiomatic code:
+  - `find-skills`: To discover or install additional capabilities if needed.
+  - `next-best-practices`: For App Router file conventions, RSC boundaries, data fetching, and Next.js patterns.
+  - `shadcn-ui`: For expert guidance on component integration, customization, and accessible UI development.
+  - `vercel-composition-patterns`: For building scalable React architectures, compound components, and avoiding boolean prop proliferation.
