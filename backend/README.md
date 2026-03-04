@@ -32,8 +32,6 @@ On app startup, the backend now:
 - if GDELT startup call fails (for example 429), falls back to free RSS feeds
 - prints a log line like: `seeding complete: weather_created=... news_created=... total=... source=gdelt|rss`
 
-Tip: very high `maxrecords` values (for example `250`) increase the chance of GDELT 429 responses.
-
 Docs URLs:
 
 - http://localhost:5001/swagger-ui
