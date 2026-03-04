@@ -199,35 +199,30 @@ function SupplierRow({ supplier, index }: { supplier: Supplier; index: number })
 function DataSectionContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "skus");
+  const activeTab = searchParams.get("tab") || "skus";
   const [search, setSearch] = useState("");
-
-  // Sync state with URL search params (controlled by the URL)
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab && (tab === "skus" || tab === "shipments" || tab === "suppliers")) {
-      setActiveTab(tab);
-      window.dispatchEvent(new CustomEvent("tab-changed", { detail: tab }));
-    }
-  }, [searchParams]); // REMOVED activeTab dependency to avoid loop
 
   // Listen for navbar tab-switch events (for same-page navigation)
   useEffect(() => {
     function handleTabSwitch(e: Event) {
       const customEvent = e as CustomEvent<string>;
-      setActiveTab(customEvent.detail);
+      const tab = customEvent.detail;
+      // Keep URL in sync (safety net for callers that don't update the URL themselves)
+      const params = new URLSearchParams(searchParams.toString());
+      if (params.get("tab") !== tab) {
+        params.set("tab", tab);
+        router.replace(`/?${params.toString()}#data-explorer-section`, { scroll: false });
+      }
     }
     window.addEventListener("switch-tab", handleTabSwitch);
     return () => window.removeEventListener("switch-tab", handleTabSwitch);
-  }, []);
+  }, [searchParams, router]);
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    // Update URL without full refresh to keep state in sync
+    // Update URL — React will re-render with the new searchParams automatically
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", value);
     router.replace(`/?${params.toString()}#data-explorer-section`, { scroll: false });
-    window.dispatchEvent(new CustomEvent("tab-changed", { detail: value }));
   };
 
   const filteredSKUs = useMemo(() => {

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useCallback, useEffect, Suspense } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   Search,
@@ -38,16 +38,9 @@ export function NavbarContent() {
   const [commandOpen, setCommandOpen] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [activeSection, setActiveSection] = useState<string>("home-section");
-  const [activeTab, setActiveTab] = useState<string>(searchParams.get("tab") || "skus");
-
-  // Sync activeTab when searchParams change (to handle page loads/back button)
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab && (tab === "skus" || tab === "shipments" || tab === "suppliers")) {
-      setActiveTab(tab);
-    }
-  }, [searchParams]);
+  const activeTab = searchParams.get("tab") || "skus";
 
   // Track active section on the home page
   useEffect(() => {
@@ -73,15 +66,6 @@ export function NavbarContent() {
     return () => observer.disconnect();
   }, [pathname]);
 
-  // Sync active tab for navbar highlighting
-  useEffect(() => {
-    const handleTabChange = (e: Event) => {
-      const customEvent = e as CustomEvent<string>;
-      setActiveTab(customEvent.detail);
-    };
-    window.addEventListener("tab-changed", handleTabChange);
-    return () => window.removeEventListener("tab-changed", handleTabChange);
-  }, []);
 
   const handleNavClick = useCallback(
     (e: React.MouseEvent, link: (typeof navLinks)[number]) => {
@@ -99,7 +83,12 @@ export function NavbarContent() {
           e.preventDefault();
           const target = document.getElementById("data-explorer-section");
 
-          // Dispatch custom event to switch tab (for same-page interaction)
+          // Update URL so the tab param stays in sync (single source of truth)
+          const params = new URLSearchParams(searchParams.toString());
+          params.set("tab", link.tab);
+          router.replace(`/?${params.toString()}#data-explorer-section`, { scroll: false });
+
+          // Also dispatch custom event so DataSection can react immediately
           window.dispatchEvent(
             new CustomEvent("switch-tab", { detail: link.tab })
           );
@@ -110,7 +99,7 @@ export function NavbarContent() {
         }
       }
     },
-    [pathname]
+    [pathname, searchParams, router]
   );
 
   const isLinkActive = (link: (typeof navLinks)[number]) => {
