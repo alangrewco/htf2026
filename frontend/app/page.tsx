@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="snap-container">
       {/* ── Page 1: Command Center ─────────────────────────── */}
-      <section className="snap-section flex flex-col pt-14">
+      <section id="home-section" className="snap-section flex flex-col pt-14">
         <div className="flex flex-1 gap-4 p-5 overflow-hidden">
           {/* Left: KPIs + Action Cards */}
           <div className="flex flex-1 flex-col gap-4 min-w-0">
@@ -25,7 +25,7 @@ export default function Home() {
       </section>
 
       {/* ── Page 2: Data Explorer ──────────────────────────── */}
-      <section className="snap-section pt-14">
+      <section id="data-explorer-section" className="snap-section pt-14">
         <DataSection />
       </section>
     </div>

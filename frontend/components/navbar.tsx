@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useCallback } from "react";
-import { usePathname } from "next/navigation";
+import { useState, useCallback, useEffect, Suspense } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   Search,
   User,
@@ -13,6 +14,7 @@ import {
   Users,
   Newspaper,
   BarChart3,
+  Home as HomeIcon,
 } from "lucide-react";
 import {
   CommandDialog,
@@ -24,35 +26,103 @@ import {
 } from "@/components/ui/command";
 
 const navLinks = [
-  { label: "SKUs", icon: Package, href: "/?tab=skus#data-section", tab: "skus" },
-  { label: "Shipments", icon: Truck, href: "/?tab=shipments#data-section", tab: "shipments" },
-  { label: "Suppliers", icon: Users, href: "/?tab=suppliers#data-section", tab: "suppliers" },
-  { label: "News", icon: Newspaper, href: "/news" },
-  { label: "Analytics", icon: BarChart3, href: "/analytics" },
+  { label: "Home", icon: HomeIcon, href: "/", id: "home" },
+  { label: "SKUs", icon: Package, href: "/?tab=skus#data-explorer-section", id: "skus", tab: "skus" },
+  { label: "Shipments", icon: Truck, href: "/?tab=shipments#data-explorer-section", id: "shipments", tab: "shipments" },
+  { label: "Suppliers", icon: Users, href: "/?tab=suppliers#data-explorer-section", id: "suppliers", tab: "suppliers" },
+  { label: "News", icon: Newspaper, href: "/news", id: "news" },
+  { label: "Analytics", icon: BarChart3, href: "/analytics", id: "analytics" },
 ] as const;
 
-export function Navbar() {
+export function NavbarContent() {
   const [commandOpen, setCommandOpen] = useState(false);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [activeSection, setActiveSection] = useState<string>("home-section");
+  const [activeTab, setActiveTab] = useState<string>(searchParams.get("tab") || "skus");
+
+  // Sync activeTab when searchParams change (to handle page loads/back button)
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && (tab === "skus" || tab === "shipments" || tab === "suppliers")) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  // Track active section on the home page
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    const sections = ["home-section", "data-explorer-section"];
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  // Sync active tab for navbar highlighting
+  useEffect(() => {
+    const handleTabChange = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      setActiveTab(customEvent.detail);
+    };
+    window.addEventListener("tab-changed", handleTabChange);
+    return () => window.removeEventListener("tab-changed", handleTabChange);
+  }, []);
 
   const handleNavClick = useCallback(
     (e: React.MouseEvent, link: (typeof navLinks)[number]) => {
-      if ("tab" in link && link.tab && pathname === "/") {
-        e.preventDefault();
-        const dataSection = document.getElementById("data-section");
+      if (pathname === "/") {
+        if (link.id === "home") {
+          e.preventDefault();
+          const target = document.getElementById("home-section");
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth" });
+          }
+          return;
+        }
 
-        // Dispatch custom event to switch tab (for same-page interaction)
-        window.dispatchEvent(
-          new CustomEvent("switch-tab", { detail: link.tab })
-        );
+        if ("tab" in link && link.tab) {
+          e.preventDefault();
+          const target = document.getElementById("data-explorer-section");
 
-        if (dataSection) {
-          dataSection.scrollIntoView({ behavior: "smooth" });
+          // Dispatch custom event to switch tab (for same-page interaction)
+          window.dispatchEvent(
+            new CustomEvent("switch-tab", { detail: link.tab })
+          );
+
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth" });
+          }
         }
       }
     },
     [pathname]
   );
+
+  const isLinkActive = (link: (typeof navLinks)[number]) => {
+    if (pathname === "/") {
+      if (link.id === "home") return activeSection === "home-section";
+      if ("tab" in link && link.tab) {
+        return activeSection === "data-explorer-section" && activeTab === link.tab;
+      }
+      return false;
+    }
+    return pathname === link.href;
+  };
 
   return (
     <>
@@ -84,9 +154,14 @@ export function Navbar() {
                 key={link.label}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-muted-foreground rounded-md transition-colors hover:text-foreground hover:bg-accent"
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200",
+                  isLinkActive(link)
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className={cn("h-3.5 w-3.5", isLinkActive(link) && "text-primary")} />
                 {link.label}
               </Link>
             );
@@ -145,5 +220,13 @@ export function Navbar() {
         </CommandList>
       </CommandDialog>
     </>
+  );
+}
+
+export function Navbar() {
+  return (
+    <Suspense fallback={<div className="h-14 glass-strong fixed top-0 left-0 right-0 z-50" />}>
+      <NavbarContent />
+    </Suspense>
   );
 }

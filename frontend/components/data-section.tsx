@@ -10,10 +10,8 @@ import {
   Package,
   Truck,
   Users,
-  AlertTriangle,
   ChevronRight,
   MapPin,
-  BarChart3,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -204,13 +202,14 @@ function DataSectionContent() {
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "skus");
   const [search, setSearch] = useState("");
 
-  // Sync state with URL search params
+  // Sync state with URL search params (controlled by the URL)
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab && (tab === "skus" || tab === "shipments" || tab === "suppliers")) {
       setActiveTab(tab);
+      window.dispatchEvent(new CustomEvent("tab-changed", { detail: tab }));
     }
-  }, [searchParams]);
+  }, [searchParams]); // REMOVED activeTab dependency to avoid loop
 
   // Listen for navbar tab-switch events (for same-page navigation)
   useEffect(() => {
@@ -227,7 +226,8 @@ function DataSectionContent() {
     // Update URL without full refresh to keep state in sync
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", value);
-    router.replace(`/?${params.toString()}#data-section`, { scroll: false });
+    router.replace(`/?${params.toString()}#data-explorer-section`, { scroll: false });
+    window.dispatchEvent(new CustomEvent("tab-changed", { detail: value }));
   };
 
   const filteredSKUs = useMemo(() => {
