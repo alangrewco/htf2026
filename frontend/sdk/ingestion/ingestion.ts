@@ -69,7 +69,7 @@ export const getCreateIngestionRunUrl = () => {
 
   
 
-  return `/ingestion/runs`
+  return `http://localhost:5000/ingestion/runs`
 }
 
 export const createIngestionRun = async (createIngestionRunRequest: CreateIngestionRunRequest, options?: RequestInit): Promise<createIngestionRunResponse> => {
@@ -98,7 +98,7 @@ export const getCreateIngestionRunMutationFetcher = ( options?: RequestInit) => 
     return createIngestionRun(arg, options);
   }
 }
-export const getCreateIngestionRunMutationKey = () => [`/ingestion/runs`] as const;
+export const getCreateIngestionRunMutationKey = () => [`http://localhost:5000/ingestion/runs`] as const;
 
 export type CreateIngestionRunMutationResult = NonNullable<Awaited<ReturnType<typeof createIngestionRun>>>
 
@@ -153,7 +153,7 @@ export const getGetIngestionRunUrl = (runId: string,) => {
 
   
 
-  return `/ingestion/runs/${runId}`
+  return `http://localhost:5000/ingestion/runs/${runId}`
 }
 
 export const getIngestionRun = async (runId: string, options?: RequestInit): Promise<getIngestionRunResponse> => {
@@ -176,7 +176,7 @@ export const getIngestionRun = async (runId: string, options?: RequestInit): Pro
 
 
 
-export const getGetIngestionRunKey = (runId: string,) => [`/ingestion/runs/${runId}`] as const;
+export const getGetIngestionRunKey = (runId: string,) => [`http://localhost:5000/ingestion/runs/${runId}`] as const;
 
 export type GetIngestionRunQueryResult = NonNullable<Awaited<ReturnType<typeof getIngestionRun>>>
 
@@ -226,7 +226,7 @@ export const getGetIngestionStatusUrl = () => {
 
   
 
-  return `/ingestion/status`
+  return `http://localhost:5000/ingestion/status`
 }
 
 export const getIngestionStatus = async ( options?: RequestInit): Promise<getIngestionStatusResponse> => {
@@ -249,7 +249,7 @@ export const getIngestionStatus = async ( options?: RequestInit): Promise<getIng
 
 
 
-export const getGetIngestionStatusKey = () => [`/ingestion/status`] as const;
+export const getGetIngestionStatusKey = () => [`http://localhost:5000/ingestion/status`] as const;
 
 export type GetIngestionStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getIngestionStatus>>>
 
