@@ -15,6 +15,7 @@ import {
   Mail,
   HandHelping,
   Sparkles,
+  PauseCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ExecutionStep } from "@/lib/mock-data";
@@ -50,6 +51,8 @@ export function ExecutePlanModal({
   const [input, setInput] = useState("");
   const [allDone, setAllDone] = useState(false);
   const [draftEdits, setDraftEdits] = useState<Record<string, { to: string; subject: string; body: string }>>({});
+  // Cosmetic-only pause state — doesn't affect demo flow
+  const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const runningRef = useRef(false);
@@ -443,10 +446,54 @@ export function ExecutePlanModal({
                   </Button>
                 </div>
               ) : (
-                /* Normal / running */
-                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground py-1">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Executing plan…
+                /* Normal / running — status + pause button above chat input */
+                <div className="flex flex-col gap-3">
+                  {/* Running status row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Executing plan…
+                    </div>
+                    <button
+                      onClick={() => setIsPaused((p) => !p)}
+                      className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${
+                        isPaused
+                          ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20"
+                          : "border-amber-500/40 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
+                      }`}
+                    >
+                      <PauseCircle className="h-3.5 w-3.5" />
+                      {isPaused ? "Resume" : "Pause to Interject"}
+                    </button>
+                  </div>
+                  {/* Chat input (always visible for mockup) */}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }}
+                    className="flex items-center gap-2 bg-muted/30 border border-border/50 rounded-xl px-4 py-2.5"
+                  >
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Interject with a message…"
+                      className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none min-w-0"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!input.trim()}
+                      className={`p-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${
+                        input.trim()
+                          ? "bg-primary text-primary-foreground hover:bg-primary/80"
+                          : "text-muted-foreground opacity-40 cursor-not-allowed"
+                      }`}
+                    >
+                      <SendHorizonal className="h-4 w-4" />
+                    </button>
+                  </form>
                 </div>
               )}
             </div>
