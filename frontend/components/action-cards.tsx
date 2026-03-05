@@ -480,21 +480,26 @@ function ActionDetailModal({
           </ScrollArea>
         </div>
 
-        {/* Footer — Discuss & Confirm */}
+        {/* Footer — Brainstorm & Confirm */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border/50">
           <Button
             variant="outline"
             className="gap-2 text-sm"
             onClick={() => {
-              /* placeholder: opens chat agent */
+              onClose();
+              router.push(`/actions/${card.id}?focus=chat`);
             }}
           >
             <span className="text-base leading-none">🤖</span>
-            Discuss
+            Brainstorm
           </Button>
           <Button
             className="gap-2 text-sm"
             disabled={selectedAction === null}
+            onClick={() => {
+              onClose();
+              router.push(`/actions/${card.id}?focus=confirm&action=${selectedAction}`);
+            }}
           >
             Confirm
           </Button>
