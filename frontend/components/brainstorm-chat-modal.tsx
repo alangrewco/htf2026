@@ -84,7 +84,7 @@ function getPlaceholderResponse(
   }
 
   return {
-    content: `That's a great angle on "${cardTitle}". I can help by:\n• **Brainstorming** new strategies or variations\n• **Modifying** the current plan (swap suppliers, adjust timing)\n• **Exploring trade-offs** between different approaches\n\nJust let me know what you'd like to dig into!`,
+    content: `That's a great angle on "${cardTitle}". I can help by:\n- **Brainstorming** new strategies or variations\n- **Modifying** the current plan (swap suppliers, adjust timing)\n- **Exploring trade-offs** between different approaches\n\nJust let me know what you'd like to dig into!`,
     showConfirm: false,
   };
 }
