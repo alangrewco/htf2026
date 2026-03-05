@@ -43,3 +43,10 @@ instance/
 # Project-specific
 backend/.venv/
 backend/backend.db
+htf2026/
+
+# Node.js / Next.js (frontend)
+node_modules/
+.next/
+out/
+frontend/.env.local
