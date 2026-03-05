@@ -9,7 +9,6 @@ import {
   Clock,
   DollarSign,
   Package,
-  ChevronRight,
   Check,
   Eye,
   X,
@@ -55,10 +54,12 @@ function ActionCardItem({
   card,
   index,
   onClick,
+  onDismiss,
 }: {
   card: ActionCard;
   index: number;
   onClick: () => void;
+  onDismiss: () => void;
 }) {
   const conf = typeConfig[card.type];
   const Icon = conf.icon;
@@ -68,8 +69,7 @@ function ActionCardItem({
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay: index * 0.08, duration: 0.4 }}
-      onClick={onClick}
-      className="group relative w-[340px] shrink-0 cursor-pointer rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
+      className="group relative w-[340px] shrink-0 rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
     >
       {/* Gradient accent */}
       <div
@@ -86,7 +86,6 @@ function ActionCardItem({
             <Icon className="mr-1 h-3 w-3" />
             {conf.label}
           </Badge>
-          <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
         </div>
 
         {/* Title */}
@@ -122,7 +121,7 @@ function ActionCardItem({
               size="sm"
               variant="outline"
               className="h-7 text-[11px] text-urgency-safe border-urgency-safe/30 hover:bg-urgency-safe/10"
-              onClick={(e) => e.stopPropagation()}
+              onClick={onClick}
             >
               <Check className="mr-1 h-3 w-3" />
               Acknowledge
@@ -133,7 +132,7 @@ function ActionCardItem({
                 size="sm"
                 variant="outline"
                 className="h-7 text-[11px] text-primary border-primary/30 hover:bg-primary/10"
-                onClick={(e) => e.stopPropagation()}
+                onClick={onClick}
               >
                 <Eye className="mr-1 h-3 w-3" />
                 Review
@@ -142,7 +141,7 @@ function ActionCardItem({
                 size="sm"
                 variant="ghost"
                 className="h-7 text-[11px] text-muted-foreground hover:text-foreground"
-                onClick={(e) => e.stopPropagation()}
+                onClick={onDismiss}
               >
                 <X className="mr-1 h-3 w-3" />
                 Dismiss
@@ -338,10 +337,12 @@ function ActionCardItemCompact({
   card,
   index,
   onClick,
+  onDismiss,
 }: {
   card: ActionCard;
   index: number;
   onClick: () => void;
+  onDismiss: () => void;
 }) {
   const conf = typeConfig[card.type];
   const Icon = conf.icon;
@@ -351,8 +352,7 @@ function ActionCardItemCompact({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.06, duration: 0.35 }}
-      onClick={onClick}
-      className="group relative cursor-pointer rounded-lg border border-border/50 bg-card/50 overflow-hidden transition-all duration-300 hover:bg-accent/50 hover:border-border"
+      className="group relative rounded-lg border border-border/50 bg-card/50 overflow-hidden transition-all duration-300 hover:bg-accent/50 hover:border-border"
     >
       {/* Gradient accent */}
       <div
@@ -369,7 +369,6 @@ function ActionCardItemCompact({
             <Icon className="mr-1 h-3 w-3" />
             {conf.label}
           </Badge>
-          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
         </div>
 
         {/* Title */}
@@ -405,7 +404,7 @@ function ActionCardItemCompact({
               size="sm"
               variant="outline"
               className="h-6 text-[10px] text-urgency-safe border-urgency-safe/30 hover:bg-urgency-safe/10"
-              onClick={(e) => e.stopPropagation()}
+              onClick={onClick}
             >
               <Check className="mr-1 h-2.5 w-2.5" />
               Acknowledge
@@ -416,7 +415,7 @@ function ActionCardItemCompact({
                 size="sm"
                 variant="outline"
                 className="h-6 text-[10px] text-primary border-primary/30 hover:bg-primary/10"
-                onClick={(e) => e.stopPropagation()}
+                onClick={onClick}
               >
                 <Eye className="mr-1 h-2.5 w-2.5" />
                 Review
@@ -425,7 +424,7 @@ function ActionCardItemCompact({
                 size="sm"
                 variant="ghost"
                 className="h-6 text-[10px] text-muted-foreground hover:text-foreground"
-                onClick={(e) => e.stopPropagation()}
+                onClick={onDismiss}
               >
                 <X className="mr-1 h-2.5 w-2.5" />
                 Dismiss
@@ -440,6 +439,12 @@ function ActionCardItemCompact({
 
 export function ActionCardsSidebar() {
   const [selectedCard, setSelectedCard] = useState<ActionCard | null>(null);
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  const visible = actionCards.filter((c) => !dismissed.has(c.id));
+
+  const dismiss = (id: string) =>
+    setDismissed((prev) => new Set([...prev, id]));
 
   return (
     <>
@@ -451,21 +456,27 @@ export function ActionCardsSidebar() {
             <h2 className="text-sm font-semibold">Action Required</h2>
           </div>
           <span className="text-[10px] text-muted-foreground">
-            {actionCards.length} items
+            {visible.length} items
           </span>
         </div>
 
         {/* Scrollable card feed */}
         <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 min-h-0">
           <div className="space-y-2">
-            {actionCards.map((card, index) => (
+            {visible.map((card, index) => (
               <ActionCardItemCompact
                 key={card.id}
                 card={card}
                 index={index}
                 onClick={() => setSelectedCard(card)}
+                onDismiss={() => dismiss(card.id)}
               />
             ))}
+            {visible.length === 0 && (
+              <p className="py-8 text-center text-xs text-muted-foreground">
+                All items addressed.
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -481,6 +492,12 @@ export function ActionCardsSidebar() {
 
 export function ActionCardsCarousel() {
   const [selectedCard, setSelectedCard] = useState<ActionCard | null>(null);
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  const visible = actionCards.filter((c) => !dismissed.has(c.id));
+
+  const dismiss = (id: string) =>
+    setDismissed((prev) => new Set([...prev, id]));
 
   return (
     <>
@@ -490,18 +507,19 @@ export function ActionCardsCarousel() {
             Action Required
           </h2>
           <span className="text-xs text-muted-foreground">
-            {actionCards.length} items · Sorted by urgency
+            {visible.length} items · Sorted by urgency
           </span>
         </div>
 
         {/* Horizontal scroll carousel */}
         <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scroll-smooth">
-          {actionCards.map((card, index) => (
+          {visible.map((card, index) => (
             <ActionCardItem
               key={card.id}
               card={card}
               index={index}
               onClick={() => setSelectedCard(card)}
+              onDismiss={() => dismiss(card.id)}
             />
           ))}
         </div>
