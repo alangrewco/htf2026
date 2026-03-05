@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -97,7 +98,7 @@ export function ChatModal({
     onClose();
   };
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {open && (
         <>
@@ -270,4 +271,7 @@ export function ChatModal({
       )}
     </AnimatePresence>
   );
+
+  if (typeof window === "undefined") return null;
+  return createPortal(modalContent, document.body);
 }
