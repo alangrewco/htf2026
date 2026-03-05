@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertTriangle,
@@ -11,6 +12,7 @@ import {
   DollarSign,
   Package,
   X,
+  Maximize2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,7 +89,7 @@ function DismissConfirmDialog({
   );
 }
 
-const typeConfig: Record<
+export const typeConfig: Record<
   ActionCardType,
   { icon: typeof AlertTriangle; gradient: string; badge: string; label: string }
 > = {
@@ -215,6 +217,7 @@ function ActionDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const router = useRouter();
   const [selectedAction, setSelectedAction] = useState<number | null>(null);
 
   // Reset selected action when card changes
@@ -245,7 +248,7 @@ function ActionDetailModal({
     <Dialog open={open} onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-5xl glass-strong border-border/50 max-h-[85vh] p-0 gap-0">
         {/* Header */}
-        <DialogHeader className="px-6 pt-5 pb-4 border-b border-border/50">
+        <DialogHeader className="px-6 pt-5 pb-4 border-b border-border/50 pr-16">
           <div className="flex items-center gap-2 mb-1">
             <Badge
               variant="outline"
@@ -257,6 +260,17 @@ function ActionDetailModal({
             <Badge variant="outline" className="text-[10px]">
               {card.category}
             </Badge>
+            {/* Expand to full page — placed inside the header so it sits left of the shadcn close ✕ */}
+            <button
+              onClick={() => {
+                onClose();
+                router.push(`/actions/${card.id}`);
+              }}
+              aria-label="Open full page"
+              className="ml-auto mr-8 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </button>
           </div>
           <DialogTitle className="text-lg">{card.title}</DialogTitle>
         </DialogHeader>
