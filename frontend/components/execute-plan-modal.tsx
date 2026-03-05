@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ExecutionStep } from "@/lib/mock-data";
+import { Streamdown } from "streamdown";
 
 /* ── Chat message type ─────────────────────────────────── */
 type ExecMessage = {
@@ -334,13 +335,22 @@ export function ExecutePlanModal({
 
                     {/* Bubble */}
                     <div
-                      className={`rounded-xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line ${
+                      className={`rounded-xl px-4 py-3 text-sm leading-relaxed ${
                         msg.role === "user"
                           ? "bg-primary/15 text-foreground"
                           : "bg-muted/40 text-foreground/90"
                       }`}
                     >
-                      {msg.content}
+                      {msg.role === "user" ? (
+                        msg.content
+                      ) : (
+                        <Streamdown
+                          mode="static"
+                          className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_strong]:font-semibold"
+                        >
+                          {msg.content}
+                        </Streamdown>
+                      )}
                     </div>
 
                     {/* Semi-autonomous: inline email editor */}
@@ -582,9 +592,12 @@ function ManualInstructionCard({
         </span>
       </div>
       <div className="p-4">
-        <p className="text-xs text-foreground/90 leading-relaxed whitespace-pre-line mb-4">
+        <Streamdown
+          mode="static"
+          className="prose prose-xs prose-invert max-w-none text-xs leading-relaxed [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_strong]:font-semibold mb-4"
+        >
           {instruction}
-        </p>
+        </Streamdown>
         <div className="flex items-center justify-end">
           <Button
             size="sm"

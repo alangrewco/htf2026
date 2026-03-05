@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Streamdown } from "streamdown";
 
 /* ── Types ─────────────────────────────────────────────── */
 type ChatMessage = {
@@ -250,13 +251,22 @@ export function BrainstormChatModal({
                   </div>
                   <div className="flex flex-col gap-2 max-w-[75%]">
                     <div
-                      className={`rounded-xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line ${
+                      className={`rounded-xl px-4 py-3 text-sm leading-relaxed ${
                         msg.role === "assistant"
                           ? "bg-muted/40 text-foreground/90"
                           : "bg-primary/15 text-foreground"
                       }`}
                     >
-                      {msg.content}
+                      {msg.role === "assistant" ? (
+                        <Streamdown
+                          mode="static"
+                          className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_strong]:font-semibold"
+                        >
+                          {msg.content}
+                        </Streamdown>
+                      ) : (
+                        msg.content
+                      )}
                     </div>
                     {msg.showConfirm && (
                       <motion.div
