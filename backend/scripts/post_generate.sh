@@ -5,6 +5,8 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 GEN_DIR="$ROOT_DIR/generated/flask-server"
 CONTROLLER_TEMPLATE="$ROOT_DIR/app/templates/reference_controller.py"
 CONTROLLER_TARGET="$GEN_DIR/openapi_server/controllers/reference_controller.py"
+COMPANY_CONFIG_CONTROLLER_TEMPLATE="$ROOT_DIR/app/templates/company_config_controller.py"
+COMPANY_CONFIG_CONTROLLER_TARGET="$GEN_DIR/openapi_server/controllers/company_config_controller.py"
 TEST_TEMPLATE_DIR="$ROOT_DIR/app/templates/generated_tests"
 TEST_TARGET_DIR="$GEN_DIR/openapi_server/test"
 REQ_FILE="$GEN_DIR/requirements.txt"
@@ -12,6 +14,7 @@ ROOT_ENV_FILE="$ROOT_DIR/.env"
 GEN_ENV_FILE="$GEN_DIR/.env"
 
 cp "$CONTROLLER_TEMPLATE" "$CONTROLLER_TARGET"
+cp "$COMPANY_CONFIG_CONTROLLER_TEMPLATE" "$COMPANY_CONFIG_CONTROLLER_TARGET"
 
 if ! grep -q '^SQLAlchemy' "$REQ_FILE"; then
   printf '\nSQLAlchemy >= 2.0.0\n' >> "$REQ_FILE"

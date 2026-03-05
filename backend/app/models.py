@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, JSON, String, Text
+from sqlalchemy import Boolean, DateTime, Float, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -72,3 +72,26 @@ class RouteRecord(Base):
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+
+
+class CompanyProfileRecord(Base):
+    __tablename__ = "company_profile"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    autonomy_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    max_auto_risk_level: Mapped[str] = mapped_column(String(32), nullable=False)
+    disallowed_categories_json: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+
+
+class RiskProfileRecord(Base):
+    __tablename__ = "risk_profile"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    manager_risk_tolerance_score: Mapped[float] = mapped_column(Float, nullable=False)
+    last_updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
