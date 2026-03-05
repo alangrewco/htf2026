@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Shanghai-Singapore-Los Angeles Mainline",
+    "waypoints_json": [{"code": "CNSHA"}, {"code": "SGSIN"}, {"code": "USLAX"}]
+  },
+  {
+    "id": 2,
+    "name": "Ningbo-Busan-Tacoma Fastlane",
+    "waypoints_json": [{"code": "CNNGB"}, {"code": "KRPUS"}, {"code": "USTIW"}]
+  },
+  {
+    "id": 3,
+    "name": "Hong Kong-Long Beach Express",
+    "waypoints_json": [{"code": "HKHKG"}, {"code": "USLGB"}]
+  },
+  {
+    "id": 4,
+    "name": "Singapore-Oakland Alternate",
+    "waypoints_json": [{"code": "SGSIN"}, {"code": "USOAK"}]
+  },
+  {
+    "id": 5,
+    "name": "Tokyo-Seattle North Pacific",
+    "waypoints_json": [{"code": "JPTYO"}, {"code": "USSEA"}]
+  },
+  {
+    "id": 6,
+    "name": "Busan-Panama-New York",
+    "waypoints_json": [{"code": "KRPUS"}, {"code": "USNYC"}]
+  }
+]

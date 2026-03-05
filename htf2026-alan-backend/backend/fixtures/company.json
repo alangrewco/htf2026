@@ -1,0 +1,12 @@
+[
+    {
+        "name": "Apex Electronics Inc.",
+        "revenue_annual_millions": 420.0,
+        "gross_margin_percent": 0.28,
+        "risk_tolerance": 0.30,
+        "sla_weight": 0.90,
+        "working_capital_limit": 5000000.0,
+        "customer_churn_sensitivity": 0.80,
+        "sla_target_percent": 0.97
+    }
+]

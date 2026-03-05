@@ -1,0 +1,42 @@
+[
+    {
+        "name": "Do Nothing",
+        "description": "Accept the delay and communicate with customers regarding stockouts.",
+        "air_freight_percent": 0.0,
+        "reroute_percent": 0.0,
+        "buffer_stock_percent": 0.0,
+        "cost_multiplier_air": 8.0,
+        "cost_multiplier_reroute": 1.3,
+        "holding_cost_per_unit_per_day": 0.50
+    },
+    {
+        "name": "Full Air Freight",
+        "description": "Air freight 100% of the affected volume to bypass port disruption.",
+        "air_freight_percent": 1.0,
+        "reroute_percent": 0.0,
+        "buffer_stock_percent": 0.0,
+        "cost_multiplier_air": 8.0,
+        "cost_multiplier_reroute": 1.3,
+        "holding_cost_per_unit_per_day": 0.50
+    },
+    {
+        "name": "Port Reroute (Oakland)",
+        "description": "Divert all vessels entirely to Port of Oakland.",
+        "air_freight_percent": 0.0,
+        "reroute_percent": 1.0,
+        "buffer_stock_percent": 0.0,
+        "cost_multiplier_air": 8.0,
+        "cost_multiplier_reroute": 1.3,
+        "holding_cost_per_unit_per_day": 0.50
+    },
+    {
+        "name": "Split Strategy",
+        "description": "Reroute 60% via Oakland, air freight top 20% critical SKUs, buffer remaining 20%.",
+        "air_freight_percent": 0.20,
+        "reroute_percent": 0.60,
+        "buffer_stock_percent": 0.20,
+        "cost_multiplier_air": 8.0,
+        "cost_multiplier_reroute": 1.3,
+        "holding_cost_per_unit_per_day": 0.50
+    }
+]
