@@ -1,9 +1,0 @@
-[
-  {"id": 1, "name": "Shenzhen Motion Systems", "country": "CN"},
-  {"id": 2, "name": "Busan Power Components", "country": "KR"},
-  {"id": 3, "name": "Kaohsiung Precision Plastics", "country": "TW"},
-  {"id": 4, "name": "Yokohama Control Electronics", "country": "JP"},
-  {"id": 5, "name": "Penang Semiconductor Works", "country": "MY"},
-  {"id": 6, "name": "Ho Chi Minh CableTech", "country": "VN"},
-  {"id": 7, "name": "Bangkok Thermal Dynamics", "country": "TH"}
-]
