@@ -46,7 +46,7 @@ export default function Home() {
       {/* ── Page 2: Data Explorer ──────────────────────────── */}
       <section
         id="data-explorer-section"
-        className="snap-section min-h-screen pt-4"
+        className="snap-section"
       >
         <DataSection />
       </section>
