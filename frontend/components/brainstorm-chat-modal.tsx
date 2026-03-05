@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -26,6 +25,9 @@ type ChatMessage = {
   /** If true a "Confirm Research Plan" button appears after this message */
   showConfirm?: boolean;
 };
+
+/* ── Drawer width constant (shared with page) ──────────── */
+export const BRAINSTORM_DRAWER_WIDTH = 460;
 
 /* ── Placeholder response generator ────────────────────── */
 function getPlaceholderResponse(
@@ -88,7 +90,7 @@ function getPlaceholderResponse(
 }
 
 /* ── Component ─────────────────────────────────────────── */
-export function BrainstormChatModal({
+export function BrainstormChatDrawer({
   open,
   onClose,
   cardTitle,
@@ -173,49 +175,42 @@ export function BrainstormChatModal({
   }, [input, isTyping, cardTitle]);
 
   const handleConfirmPlan = useCallback(() => {
-    // Close modal — in a real app this would trigger page data refresh
+    // Close drawer — in a real app this would trigger page data refresh
     onClose();
   }, [onClose]);
 
-  if (typeof window === "undefined" || !open) return null;
-
-  const modalContent = (
+  return (
     <AnimatePresence>
       {open && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
-          />
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", damping: 26, stiffness: 300 }}
-            className="fixed z-[61] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] max-w-[92vw] h-[80vh] rounded-2xl glass-strong border border-border/50 shadow-2xl shadow-primary/10 flex flex-col overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+        <motion.aside
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: BRAINSTORM_DRAWER_WIDTH, opacity: 1 }}
+          exit={{ width: 0, opacity: 0 }}
+          transition={{ type: "spring", damping: 28, stiffness: 320 }}
+          className="shrink-0 border-l border-border/50 flex flex-col min-h-0 overflow-hidden bg-background/80 backdrop-blur-xl"
+          style={{ willChange: "width, opacity" }}
+        >
+          {/* Inner wrapper that keeps content at full drawer width */}
+          <div
+            className="flex flex-col h-full"
+            style={{ width: BRAINSTORM_DRAWER_WIDTH, minWidth: BRAINSTORM_DRAWER_WIDTH }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 shrink-0">
                   <Sparkles className="h-4.5 w-4.5 text-primary" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-sm font-semibold">AI Brainstorm</h3>
-                  <p className="text-[11px] text-muted-foreground truncate max-w-[500px]">
+                  <p className="text-[11px] text-muted-foreground truncate">
                     {cardTitle}
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors shrink-0"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -224,7 +219,7 @@ export function BrainstormChatModal({
             {/* Messages */}
             <div
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0"
+              className="flex-1 overflow-y-auto p-5 space-y-4 min-h-0"
             >
               {messages.map((msg) => (
                 <motion.div
@@ -249,7 +244,7 @@ export function BrainstormChatModal({
                       <User className="h-3.5 w-3.5" />
                     )}
                   </div>
-                  <div className="flex flex-col gap-2 max-w-[75%]">
+                  <div className="flex flex-col gap-2 max-w-[80%]">
                     <div
                       className={`rounded-xl px-4 py-3 text-sm leading-relaxed ${
                         msg.role === "assistant"
@@ -321,7 +316,7 @@ export function BrainstormChatModal({
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Explore ideas, ask questions, request changes…"
+                  placeholder="Explore ideas, ask questions…"
                   className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none min-w-0"
                 />
                 <div className="flex items-center gap-1 border-l border-border/50 pl-2 shrink-0">
@@ -351,11 +346,9 @@ export function BrainstormChatModal({
                 </div>
               </form>
             </div>
-          </motion.div>
-        </>
+          </div>
+        </motion.aside>
       )}
     </AnimatePresence>
   );
-
-  return createPortal(modalContent, document.body);
 }
