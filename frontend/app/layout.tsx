@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navbar } from "@/components/navbar";
+import { MockProvider } from "@/components/mock-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,8 +32,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <TooltipProvider delayDuration={200}>
-          <Navbar />
-          {children}
+          <MockProvider>
+            <Navbar />
+            {children}
+          </MockProvider>
         </TooltipProvider>
       </body>
     </html>

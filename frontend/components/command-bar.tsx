@@ -18,9 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChatModal } from "@/components/chat-modal";
-import { skus, shipments, suppliers } from "@/lib/mock-data";
+import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 
 function CommandBarContent() {
+  const { skus, shipments, suppliers } = useReferenceData();
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = searchParams.get("tab") || "skus";
@@ -86,11 +87,10 @@ function CommandBarContent() {
               <button
                 key={tab.value}
                 onClick={() => handleTabClick(tab.value)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 cursor-pointer ${
-                  isActive
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 cursor-pointer ${isActive
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                }`}
+                  }`}
               >
                 <Icon className="h-3.5 w-3.5" />
                 {tab.label}

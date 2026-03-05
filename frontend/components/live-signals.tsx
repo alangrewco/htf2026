@@ -13,8 +13,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import type { Signal } from "@/lib/mock-data";
-import { liveSignals } from "@/lib/mock-data";
+import { mockLiveSignals, type Signal, useLiveSignals } from "@/lib/api/ui/live-signals";
 
 const typeConfig: Record<
   Signal["type"],
@@ -34,6 +33,7 @@ const typeConfig: Record<
 const typeFilters = Object.keys(typeConfig) as Signal["type"][];
 
 export function LiveSignals() {
+  const { data: liveSignals = mockLiveSignals } = useLiveSignals();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<Signal["type"] | null>(null);
 
@@ -46,7 +46,7 @@ export function LiveSignals() {
       const matchesFilter = !activeFilter || s.type === activeFilter;
       return matchesSearch && matchesFilter;
     });
-  }, [search, activeFilter]);
+  }, [liveSignals, search, activeFilter]);
 
   return (
     <div className="glass flex h-full flex-col rounded-xl overflow-hidden min-h-0">
@@ -84,11 +84,10 @@ export function LiveSignals() {
             <button
               key={type}
               onClick={() => setActiveFilter(active ? null : type)}
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors cursor-pointer ${
-                active
+              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors cursor-pointer ${active
                   ? "bg-primary/20 text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
-              }`}
+                }`}
             >
               <conf.icon className="h-2.5 w-2.5" />
               {conf.label}
