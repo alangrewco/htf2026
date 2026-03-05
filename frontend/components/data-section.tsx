@@ -13,13 +13,11 @@ import {
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-  skus,
-  shipments,
-  suppliers,
   type SKU,
   type Shipment,
   type Supplier,
-} from "@/lib/mock-data";
+  useReferenceData,
+} from "@/lib/api/reference/use-reference-data";
 
 // ── Risk level config ────────────────────────────────────
 
@@ -192,6 +190,7 @@ function SupplierRow({ supplier, index }: { supplier: Supplier; index: number })
 // ── Main Data Section ────────────────────────────────────
 
 function DataSectionContent() {
+  const { skus, shipments, suppliers } = useReferenceData();
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = searchParams.get("tab") || "skus";
@@ -230,7 +229,7 @@ function DataSectionContent() {
         s.id.toLowerCase().includes(q) ||
         s.category.toLowerCase().includes(q)
     );
-  }, [search]);
+  }, [skus, search]);
 
   const filteredShipments = useMemo(() => {
     if (!search) return shipments;
@@ -242,7 +241,7 @@ function DataSectionContent() {
         s.destination.toLowerCase().includes(q) ||
         s.carrier.toLowerCase().includes(q)
     );
-  }, [search]);
+  }, [shipments, search]);
 
   const filteredSuppliers = useMemo(() => {
     if (!search) return suppliers;
@@ -252,7 +251,7 @@ function DataSectionContent() {
         s.name.toLowerCase().includes(q) ||
         s.region.toLowerCase().includes(q)
     );
-  }, [search]);
+  }, [suppliers, search]);
 
   return (
     <div id="data-section" className="flex flex-col px-5 pt-2 pb-8">

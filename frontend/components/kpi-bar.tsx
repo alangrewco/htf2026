@@ -3,36 +3,38 @@
 import { motion } from "framer-motion";
 import { DollarSign, AlertTriangle, Package } from "lucide-react";
 import Link from "next/link";
-import { kpiData } from "@/lib/mock-data";
-
-const kpis = [
-  {
-    label: "Revenue at Risk",
-    value: `$${(kpiData.revenueAtRisk / 1_000_000).toFixed(1)}M`,
-    icon: DollarSign,
-    color: "text-urgency-critical",
-    bgColor: "bg-urgency-critical/10",
-    borderColor: "border-urgency-critical/20",
-  },
-  {
-    label: "Active Disruptions",
-    value: kpiData.activeDisruptions.toString(),
-    icon: AlertTriangle,
-    color: "text-urgency-warning",
-    bgColor: "bg-urgency-warning/10",
-    borderColor: "border-urgency-warning/20",
-  },
-  {
-    label: "Affected SKUs",
-    value: `${kpiData.affectedSKUs} / ${kpiData.totalSKUs}`,
-    icon: Package,
-    color: "text-urgency-info",
-    bgColor: "bg-urgency-info/10",
-    borderColor: "border-urgency-info/20",
-  },
-];
+import { mockKPIData, useKpiData } from "@/lib/api/ui/kpis";
 
 export function KPIBar() {
+  const { data: kpiData = mockKPIData } = useKpiData();
+
+  const kpis = [
+    {
+      label: "Revenue at Risk",
+      value: `$${(kpiData.revenueAtRisk / 1_000_000).toFixed(1)}M`,
+      icon: DollarSign,
+      color: "text-urgency-critical",
+      bgColor: "bg-urgency-critical/10",
+      borderColor: "border-urgency-critical/20",
+    },
+    {
+      label: "Active Disruptions",
+      value: kpiData.activeDisruptions.toString(),
+      icon: AlertTriangle,
+      color: "text-urgency-warning",
+      bgColor: "bg-urgency-warning/10",
+      borderColor: "border-urgency-warning/20",
+    },
+    {
+      label: "Affected SKUs",
+      value: `${kpiData.affectedSKUs} / ${kpiData.totalSKUs}`,
+      icon: Package,
+      color: "text-urgency-info",
+      bgColor: "bg-urgency-info/10",
+      borderColor: "border-urgency-info/20",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       {kpis.map((kpi, i) => {

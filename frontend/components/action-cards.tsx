@@ -23,8 +23,12 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import type { ActionCard, ActionCardType } from "@/lib/mock-data";
-import { actionCards } from "@/lib/mock-data";
+import {
+  mockActionCards,
+  type ActionCard,
+  type ActionCardType,
+  useActionCards,
+} from "@/lib/api/ui/action-cards";
 
 /** Tiny confirm dialog shown only when dismissing an Active Disruption card */
 function DismissConfirmDialog({
@@ -359,8 +363,8 @@ function ActionDetailModal({
                         <tr
                           key={i}
                           className={`border-b border-border/30 last:border-0 cursor-pointer transition-colors ${selectedAction === i
-                              ? "bg-primary/10"
-                              : "hover:bg-muted/20"
+                            ? "bg-primary/10"
+                            : "hover:bg-muted/20"
                             }`}
                           onClick={() =>
                             setSelectedAction(selectedAction === i ? null : i)
@@ -408,8 +412,8 @@ function ActionDetailModal({
                         setSelectedAction(selectedAction === i ? null : i)
                       }
                       className={`rounded-lg border p-3 transition-all cursor-pointer ${selectedAction === i
-                          ? `${riskBg[action.riskLevel]} ring-1 ring-inset ring-current/10`
-                          : "border-border/50 bg-card/60 hover:bg-accent/30"
+                        ? `${riskBg[action.riskLevel]} ring-1 ring-inset ring-current/10`
+                        : "border-border/50 bg-card/60 hover:bg-accent/30"
                         }`}
                     >
                       <div className="flex items-center justify-between mb-1">
@@ -606,6 +610,7 @@ function ActionCardItemCompact({
 }
 
 export function ActionCardsSidebar() {
+  const { data: actionCards = mockActionCards } = useActionCards();
   const [selectedCard, setSelectedCard] = useState<ActionCard | null>(null);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
@@ -659,6 +664,7 @@ export function ActionCardsSidebar() {
 }
 
 export function ActionCardsCarousel() {
+  const { data: actionCards = mockActionCards } = useActionCards();
   const [selectedCard, setSelectedCard] = useState<ActionCard | null>(null);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 

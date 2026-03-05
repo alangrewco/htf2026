@@ -18,7 +18,7 @@ import {
   PauseCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { ExecutionStep } from "@/lib/mock-data";
+import type { ExecutionStep } from "@/lib/api/ui/action-cards";
 import { Streamdown } from "streamdown";
 
 /* ── Chat message type ─────────────────────────────────── */
@@ -296,17 +296,15 @@ export function ExecutePlanModal({
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25 }}
-                  className={`flex gap-3 ${
-                    msg.role === "user" ? "flex-row-reverse" : ""
-                  }`}
+                  className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""
+                    }`}
                 >
                   {/* Avatar */}
                   <div
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-                      msg.role === "user"
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${msg.role === "user"
                         ? "bg-accent text-foreground"
                         : "bg-primary/15 text-primary"
-                    }`}
+                      }`}
                   >
                     {msg.role === "user" ? (
                       <User className="h-3.5 w-3.5" />
@@ -338,11 +336,10 @@ export function ExecutePlanModal({
 
                     {/* Bubble */}
                     <div
-                      className={`rounded-xl px-4 py-3 text-sm leading-relaxed ${
-                        msg.role === "user"
+                      className={`rounded-xl px-4 py-3 text-sm leading-relaxed ${msg.role === "user"
                           ? "bg-primary/15 text-foreground"
                           : "bg-muted/40 text-foreground/90"
-                      }`}
+                        }`}
                     >
                       {msg.role === "user" ? (
                         msg.content
@@ -417,11 +414,10 @@ export function ExecutePlanModal({
                     <button
                       type="submit"
                       disabled={!input.trim()}
-                      className={`p-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${
-                        input.trim()
+                      className={`p-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${input.trim()
                           ? "bg-primary text-primary-foreground hover:bg-primary/80"
                           : "text-muted-foreground opacity-40 cursor-not-allowed"
-                      }`}
+                        }`}
                     >
                       <SendHorizonal className="h-4 w-4" />
                     </button>
@@ -456,11 +452,10 @@ export function ExecutePlanModal({
                     </div>
                     <button
                       onClick={() => setIsPaused((p) => !p)}
-                      className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${
-                        isPaused
+                      className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${isPaused
                           ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20"
                           : "border-amber-500/40 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
-                      }`}
+                        }`}
                     >
                       <PauseCircle className="h-3.5 w-3.5" />
                       {isPaused ? "Resume" : "Pause to Interject"}
@@ -485,11 +480,10 @@ export function ExecutePlanModal({
                     <button
                       type="submit"
                       disabled={!input.trim()}
-                      className={`p-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${
-                        input.trim()
+                      className={`p-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${input.trim()
                           ? "bg-primary text-primary-foreground hover:bg-primary/80"
                           : "text-muted-foreground opacity-40 cursor-not-allowed"
-                      }`}
+                        }`}
                     >
                       <SendHorizonal className="h-4 w-4" />
                     </button>
