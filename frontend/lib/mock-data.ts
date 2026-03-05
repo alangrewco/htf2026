@@ -93,6 +93,7 @@ export type ActionCard = {
     costImpact: string;
     timeImpact: string;
     riskLevel: "low" | "medium" | "high";
+    steps: string[];
   }[];
 };
 
@@ -124,6 +125,11 @@ export const actionCards: ActionCard[] = [
         costImpact: "$0 additional",
         timeImpact: "+3 weeks delay",
         riskLevel: "high",
+        steps: [
+          "Monitor strike status daily via Reuters alerts",
+          "Notify downstream customers of potential 3-week delay",
+          "Prepare contingency plan if strike extends past April 1",
+        ],
       },
       {
         label: "Emergency shipment via Supplier ElectroParts",
@@ -131,6 +137,13 @@ export const actionCards: ActionCard[] = [
         costImpact: "+$45,000",
         timeImpact: "5 days delivery",
         riskLevel: "low",
+        steps: [
+          "Contact ElectroParts procurement team for LED availability",
+          "Issue emergency PO for 12 SKUs at agreed backup pricing",
+          "Arrange expedited air freight from ElectroParts facility",
+          "Update ERP system with new shipment tracking details",
+          "Notify warehouse team of incoming shipment ETA",
+        ],
       },
       {
         label: "Contact GlobalTech to reroute via Port of LA",
@@ -138,6 +151,12 @@ export const actionCards: ActionCard[] = [
         costImpact: "+$12,000",
         timeImpact: "+5 days vs original",
         riskLevel: "medium",
+        steps: [
+          "Contact GlobalTech logistics coordinator",
+          "Request shipment SH-2048 reroute to Port of Los Angeles",
+          "Confirm additional freight charges and revised ETA",
+          "Arrange inland transport from LA to Houston warehouse",
+        ],
       },
     ],
   },
@@ -168,6 +187,12 @@ export const actionCards: ActionCard[] = [
         costImpact: "+$8,000 expedite fee",
         timeImpact: "No delay if loaded in time",
         riskLevel: "medium",
+        steps: [
+          "Contact Shenzhen port authority for priority loading slot",
+          "Pay expedite fee to secure next available berth",
+          "Coordinate with COSCO for accelerated vessel loading",
+          "Confirm departure before typhoon arrival window",
+        ],
       },
       {
         label: "Activate Taiwan backup supplier",
@@ -175,6 +200,13 @@ export const actionCards: ActionCard[] = [
         costImpact: "+$22,000",
         timeImpact: "7 days delivery",
         riskLevel: "low",
+        steps: [
+          "Contact TaiwanSemi for microcontroller availability",
+          "Issue PO for 8 affected SKUs at backup pricing",
+          "Arrange shipment from Taipei facility via air freight",
+          "Update supply chain records with new sourcing data",
+          "Monitor original Shenzhen shipment for insurance claim",
+        ],
       },
     ],
   },
@@ -205,6 +237,13 @@ export const actionCards: ActionCard[] = [
         costImpact: "+3% unit cost",
         timeImpact: "2-4 weeks transition",
         riskLevel: "low",
+        steps: [
+          "Identify qualified US-based steel suppliers (USMetals, SteelCo)",
+          "Request quotes and sample materials for qualification",
+          "Run quality assurance tests on domestic steel samples",
+          "Negotiate supply agreement with selected vendor",
+          "Transition purchase orders over 2-4 week window",
+        ],
       },
       {
         label: "Negotiate tariff pass-through with customers",
@@ -212,6 +251,12 @@ export const actionCards: ActionCard[] = [
         costImpact: "Revenue neutral",
         timeImpact: "1-2 weeks",
         riskLevel: "medium",
+        steps: [
+          "Prepare cost impact analysis for affected product lines",
+          "Draft pricing adjustment proposals for key accounts",
+          "Schedule calls with top 5 customers to discuss changes",
+          "Update price lists and contracts with new terms",
+        ],
       },
     ],
   },
@@ -242,6 +287,14 @@ export const actionCards: ActionCard[] = [
         costImpact: "$15,000 qualification cost",
         timeImpact: "60 days to qualify",
         riskLevel: "low",
+        steps: [
+          "Contact TaiwanCap for initial capability assessment",
+          "Send technical specifications and quality requirements",
+          "Request sample capacitors for engineering evaluation",
+          "Schedule facility audit and qualification review",
+          "Run 30-day parallel production trial",
+          "Approve TaiwanCap as qualified secondary supplier",
+        ],
       },
     ],
   },
@@ -272,6 +325,11 @@ export const actionCards: ActionCard[] = [
         costImpact: "$0",
         timeImpact: "None",
         riskLevel: "low",
+        steps: [
+          "Review automated reorder details and pricing",
+          "Confirm receipt with ElectroParts shipping team",
+          "Log action in supply chain audit trail",
+        ],
       },
     ],
   },
@@ -302,6 +360,12 @@ export const actionCards: ActionCard[] = [
         costImpact: "$45,000 holding cost",
         timeImpact: "Already in effect",
         riskLevel: "low",
+        steps: [
+          "Review demand forecast model and assumptions",
+          "Confirm buffer stock levels in warehouse management system",
+          "Approve $45,000 additional holding cost allocation",
+          "Set review checkpoint for end of Q2 to reassess",
+        ],
       },
       {
         label: "Revert to original levels",
@@ -309,6 +373,12 @@ export const actionCards: ActionCard[] = [
         costImpact: "$0",
         timeImpact: "Immediate",
         riskLevel: "high",
+        steps: [
+          "Cancel pending restock orders for 6 affected SKUs",
+          "Reset safety stock thresholds to pre-adjustment levels",
+          "Accept increased stockout risk (18%) for Q2",
+          "Notify operations team of revised inventory targets",
+        ],
       },
     ],
   },

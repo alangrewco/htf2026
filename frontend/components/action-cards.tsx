@@ -215,6 +215,16 @@ function ActionDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const [selectedAction, setSelectedAction] = useState<number | null>(null);
+
+  // Reset selected action when card changes
+  const cardId = card?.id;
+  const [prevCardId, setPrevCardId] = useState<string | undefined>(undefined);
+  if (cardId !== prevCardId) {
+    setPrevCardId(cardId);
+    setSelectedAction(null);
+  }
+
   if (!card) return null;
   const conf = typeConfig[card.type];
   const Icon = conf.icon;
@@ -225,10 +235,17 @@ function ActionDetailModal({
     high: "text-urgency-critical",
   };
 
+  const riskBg = {
+    low: "border-urgency-safe/40 bg-urgency-safe/5",
+    medium: "border-urgency-warning/40 bg-urgency-warning/5",
+    high: "border-urgency-critical/40 bg-urgency-critical/5",
+  };
+
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-2xl glass-strong border-border/50 max-h-[85vh]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-5xl glass-strong border-border/50 max-h-[85vh] p-0 gap-0">
+        {/* Header */}
+        <DialogHeader className="px-6 pt-5 pb-4 border-b border-border/50">
           <div className="flex items-center gap-2 mb-1">
             <Badge
               variant="outline"
@@ -244,141 +261,219 @@ function ActionDetailModal({
           <DialogTitle className="text-lg">{card.title}</DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] pr-4">
-          <div className="space-y-5">
-            {/* What happened */}
-            <section>
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                What Happened
-              </h4>
-              <ul className="space-y-1.5">
-                {card.whatHappened.map((item, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 text-sm leading-relaxed"
-                  >
-                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-muted-foreground shrink-0" />
-                    <span className="text-foreground/90">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+        {/* Two-column body */}
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          {/* LEFT COLUMN — Context */}
+          <ScrollArea className="flex-1 min-w-0">
+            <div className="p-6 space-y-5">
+              {/* What happened */}
+              <section>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  What Happened
+                </h4>
+                <ul className="space-y-1.5">
+                  {card.whatHappened.map((item, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm leading-relaxed"
+                    >
+                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-muted-foreground shrink-0" />
+                      <span className="text-foreground/90">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
 
-            <Separator className="bg-border/50" />
+              <Separator className="bg-border/50" />
 
-            {/* How it affects */}
-            <section>
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                How It Affects Your Supply Chain
-              </h4>
-              <ul className="space-y-1.5">
-                {card.howItAffects.map((item, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 text-sm leading-relaxed"
-                  >
-                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                    <span className="text-foreground/90">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+              {/* How it affects */}
+              <section>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  How It Affects Your Supply Chain
+                </h4>
+                <ul className="space-y-1.5">
+                  {card.howItAffects.map((item, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm leading-relaxed"
+                    >
+                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                      <span className="text-foreground/90">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
 
-            <Separator className="bg-border/50" />
+              <Separator className="bg-border/50" />
 
-            {/* Possible actions */}
-            <section>
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                Possible Actions
-              </h4>
-              <div className="space-y-2">
-                {card.possibleActions.map((action, i) => (
-                  <div
-                    key={i}
-                    className="rounded-lg border border-border/50 bg-card/60 p-3 transition-colors hover:bg-accent/30 cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">
-                        {action.label}
-                      </span>
-                      <Badge
-                        variant="outline"
-                        className={`text-[10px] ${riskColors[action.riskLevel]}`}
-                      >
-                        {action.riskLevel} risk
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {action.description}
-                    </p>
-                    <div className="flex gap-4 text-[11px] text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3" />
-                        {action.costImpact}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {action.timeImpact}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <Separator className="bg-border/50" />
-
-            {/* Pros/Cons matrix */}
-            <section>
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                Comparison Matrix
-              </h4>
-              <div className="overflow-x-auto rounded-lg border border-border/50">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="border-b border-border/50 bg-muted/30">
-                      <th className="px-3 py-2 text-left font-medium text-muted-foreground">
-                        Action
-                      </th>
-                      <th className="px-3 py-2 text-left font-medium text-muted-foreground">
-                        Cost
-                      </th>
-                      <th className="px-3 py-2 text-left font-medium text-muted-foreground">
-                        Time
-                      </th>
-                      <th className="px-3 py-2 text-left font-medium text-muted-foreground">
-                        Risk
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {card.possibleActions.map((action, i) => (
-                      <tr
-                        key={i}
-                        className="border-b border-border/30 last:border-0"
-                      >
-                        <td className="px-3 py-2 font-medium">
-                          {action.label}
-                        </td>
-                        <td className="px-3 py-2 text-muted-foreground">
-                          {action.costImpact}
-                        </td>
-                        <td className="px-3 py-2 text-muted-foreground">
-                          {action.timeImpact}
-                        </td>
-                        <td className="px-3 py-2">
-                          <span className={riskColors[action.riskLevel]}>
-                            {action.riskLevel}
-                          </span>
-                        </td>
+              {/* Comparison matrix */}
+              <section>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  Comparison Matrix
+                </h4>
+                <div className="overflow-x-auto rounded-lg border border-border/50">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border/50 bg-muted/30">
+                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                          Action
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                          Cost
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                          Time
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                          Risk
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        </ScrollArea>
+                    </thead>
+                    <tbody>
+                      {card.possibleActions.map((action, i) => (
+                        <tr
+                          key={i}
+                          className={`border-b border-border/30 last:border-0 cursor-pointer transition-colors ${selectedAction === i
+                              ? "bg-primary/10"
+                              : "hover:bg-muted/20"
+                            }`}
+                          onClick={() =>
+                            setSelectedAction(selectedAction === i ? null : i)
+                          }
+                        >
+                          <td className="px-3 py-2 font-medium">
+                            {action.label}
+                          </td>
+                          <td className="px-3 py-2 text-muted-foreground">
+                            {action.costImpact}
+                          </td>
+                          <td className="px-3 py-2 text-muted-foreground">
+                            {action.timeImpact}
+                          </td>
+                          <td className="px-3 py-2">
+                            <span className={riskColors[action.riskLevel]}>
+                              {action.riskLevel}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </ScrollArea>
+
+          {/* VERTICAL DIVIDER */}
+          <div className="w-px bg-border/50 shrink-0" />
+
+          {/* RIGHT COLUMN — Actions */}
+          <ScrollArea className="flex-1 min-w-0">
+            <div className="p-6 space-y-5">
+              {/* Possible actions */}
+              <section>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                  Possible Actions
+                </h4>
+                <div className="space-y-2">
+                  {card.possibleActions.map((action, i) => (
+                    <div
+                      key={i}
+                      onClick={() =>
+                        setSelectedAction(selectedAction === i ? null : i)
+                      }
+                      className={`rounded-lg border p-3 transition-all cursor-pointer ${selectedAction === i
+                          ? `${riskBg[action.riskLevel]} ring-1 ring-inset ring-current/10`
+                          : "border-border/50 bg-card/60 hover:bg-accent/30"
+                        }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium">
+                          {action.label}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] ${riskColors[action.riskLevel]}`}
+                        >
+                          {action.riskLevel} risk
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {action.description}
+                      </p>
+                      <div className="flex gap-4 text-[11px] text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="h-3 w-3" />
+                          {action.costImpact}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {action.timeImpact}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Steps for selected action */}
+              <AnimatePresence mode="wait">
+                {selectedAction !== null && (
+                  <motion.section
+                    key={selectedAction}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Separator className="bg-border/50 mb-5" />
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                      Steps — {card.possibleActions[selectedAction].label}
+                    </h4>
+                    <ol className="space-y-2">
+                      {card.possibleActions[selectedAction].steps.map(
+                        (step, i) => (
+                          <motion.li
+                            key={i}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.05 }}
+                            className="flex items-start gap-2.5 text-sm leading-relaxed"
+                          >
+                            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[10px] font-semibold text-primary">
+                              {i + 1}
+                            </span>
+                            <span className="text-foreground/90">{step}</span>
+                          </motion.li>
+                        )
+                      )}
+                    </ol>
+                  </motion.section>
+                )}
+              </AnimatePresence>
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Footer — Discuss & Confirm */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border/50">
+          <Button
+            variant="outline"
+            className="gap-2 text-sm"
+            onClick={() => {
+              /* placeholder: opens chat agent */
+            }}
+          >
+            <span className="text-base leading-none">🤖</span>
+            Discuss
+          </Button>
+          <Button
+            className="gap-2 text-sm"
+            disabled={selectedAction === null}
+          >
+            Confirm
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
