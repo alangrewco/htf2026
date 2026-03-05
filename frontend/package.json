@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build-sdk": "orval",
     "start": "next start",
     "lint": "eslint"
   },

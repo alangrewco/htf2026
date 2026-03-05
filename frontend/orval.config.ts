@@ -1,7 +1,7 @@
 import { defineConfig } from 'orval';
 
 export default defineConfig({
-  petstore: {
+  server: {
     output: {
       mode: 'tags-split',
       target: 'sdk/server.ts',
@@ -9,6 +9,17 @@ export default defineConfig({
       client: 'swr',
       baseUrl: 'http://localhost:5000',
       mock: true,
+    },
+    input: {
+      target: '../backend/openapi.yaml',
+    },
+  },
+  serverZod: {
+    output: {
+      mode: 'tags-split',
+      client: 'zod',
+      target: 'sdk/server.ts',
+      fileExtension: '.zod.ts',
     },
     input: {
       target: '../backend/openapi.yaml',

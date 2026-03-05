@@ -7,6 +7,8 @@ This guide defines the 4 cases to use when adding data for new pages, refactorin
 - Frontend must always be testable without the backend running.
 - Use realistic, deterministic mock data (not faker-style random data) for local development and tests.
 - Keep generated `sdk/` files untouched; put deterministic fixtures in `lib/fixtures/...` and wire them via `lib/msw/handlers.ts`.
+- For Case 1 and Case 4, validate fixture payloads with generated zod schemas (`sdk/**/*.zod.ts`) before using them in SWR/MSW mocks.
+- For Case 2 and Case 3, do not add zod endpoint-shape checks (no usable backend endpoint contract for those flows).
 
 ## Quick decision flow
 
@@ -32,12 +34,14 @@ Use the case definitions below.
 - Keep mapping in `lib/api/<domain>/...` adapters if needed.
 - Create deterministic fixtures that adhere to backend endpoint schema so frontend remains backend-independent.
 - Use MSW overrides to return these fixtures during mock mode.
+- Run zod validation (`safeParse`/`parse`) against generated endpoint response schemas before handler registration.
 
 ### Case 1 file placement
 
 - Adapter/composition hook: `lib/api/<domain>/...`
 - Schema-aligned fixtures: `lib/fixtures/<domain>/...`
 - MSW wiring: `lib/msw/handlers.ts`
+- Zod schemas: `sdk/<tag>/<tag>.zod.ts` (generated)
 - SDK usage: `sdk/...` (generated; do not hand-edit)
 
 ### Case 1 MSW behavior
@@ -109,12 +113,14 @@ Use the case definitions below.
 - Migrate existing mock data to backend endpoint schema.
 - Add any missing backend fields with sensible, realistic mock values.
 - Then use the Case 1 runtime pattern (SDK hooks + deterministic fixture-backed MSW overrides).
+- Validate migrated fixtures against generated zod response schemas before exposing them through MSW/SWR mocks.
 
 ### Case 4 file placement
 
 - Fixture payloads: `lib/fixtures/<domain>/...`
 - Overrides/handler composition: `lib/msw/handlers.ts`
 - Adapter hook: `lib/api/<domain>/...`
+- Zod schemas: `sdk/<tag>/<tag>.zod.ts` (generated)
 
 ---
 
@@ -135,11 +141,12 @@ Use the case definitions below.
 2. Classify endpoint usage into Case 1/2/3/4.
 3. If Case 1, add/update adapter in `lib/api/<domain>/...`.
 4. Add realistic deterministic fixtures (`lib/fixtures/...`) for frontend-only testing.
-5. Register/update MSW overrides in `lib/msw/handlers.ts`.
-6. If Case 3, implement locally in `lib/api/ui/...` and add schema-gap note to `TODO.md`.
-7. If Case 4, migrate old mock shape to backend schema and fill missing fields.
-8. Confirm runtime behavior with `NEXT_PUBLIC_USE_MSW=true|false`.
-9. If backend gaps exist, record them in `TODO.md`.
+5. For Case 1/4, validate fixture payloads with generated zod schemas before registering handlers.
+6. Register/update MSW overrides in `lib/msw/handlers.ts`.
+7. If Case 3, implement locally in `lib/api/ui/...` and add schema-gap note to `TODO.md`.
+8. If Case 4, migrate old mock shape to backend schema and fill missing fields.
+9. Confirm runtime behavior with `NEXT_PUBLIC_USE_MSW=true|false`.
+10. If backend gaps exist, record them in `TODO.md`.
 
 ---
 
@@ -150,8 +157,9 @@ Use the case definitions below.
 3. If endpoint does not exist, move to `lib/api/ui/...` (Case 2).
 4. If endpoint exists but schema is missing fields, keep local UI module and log `TODO.md` (Case 3).
 5. If existing mock data misses backend fields, migrate shape and add missing backend fields with realistic values (Case 4).
-6. Wire deterministic fixtures through `lib/msw/handlers.ts`.
-7. Remove stale copies and dead imports.
+6. For Case 1/4, add zod validation of fixture payloads using generated schemas.
+7. Wire deterministic fixtures through `lib/msw/handlers.ts`.
+8. Remove stale copies and dead imports.
 
 ---
 
