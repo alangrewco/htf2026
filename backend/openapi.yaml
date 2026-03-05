@@ -1082,9 +1082,9 @@ components:
       required: [last_run, next_scheduled_run_at]
       properties:
         last_run:
-          oneOf:
+          allOf:
             - $ref: '#/components/schemas/IngestionRun'
-            - type: 'null'
+          nullable: true
         next_scheduled_run_at:
           type: string
           format: date-time
