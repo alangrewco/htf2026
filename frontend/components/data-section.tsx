@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { CommandBar } from "@/components/command-bar";
 import {
   skus,
   shipments,
@@ -256,12 +255,7 @@ function DataSectionContent() {
   }, [search]);
 
   return (
-    <div id="data-section" className="snap-section flex flex-col px-5 pt-4 pb-8">
-      {/* Command Bar at top of page 2 */}
-      <div className="mb-4">
-        <CommandBar variant="page2" />
-      </div>
-
+    <div id="data-section" className="flex flex-col px-5 pt-2 pb-8">
       <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col">
         <TabsContent value="skus" className="flex-1 mt-0">
           <AnimatePresence mode="wait">

@@ -11,10 +11,11 @@ export default function Home() {
       {/* ── Page 1: Command Center ─────────────────────────── */}
       <section
         id="home-section"
-        className="snap-section flex flex-col pt-14 h-screen overflow-hidden"
+        className="snap-section flex flex-col pt-14"
+        style={{ height: "calc(100vh - 80px)" }}
       >
-        {/* Three-column main area — must never exceed remaining height */}
-        <div className="flex flex-1 gap-4 p-5 min-h-0 overflow-hidden">
+        {/* Three-column main area */}
+        <div className="flex flex-1 gap-4 p-5 pb-2 min-h-0 overflow-hidden">
           {/* Left: Action Required sidebar */}
           <div className="flex w-[260px] shrink-0 min-h-0">
             <ActionCardsSidebar />
@@ -35,18 +36,20 @@ export default function Home() {
             <LiveSignals />
           </div>
         </div>
-
-        {/* Bottom: Command Bar pinned to bottom of page 1 */}
-        <div className="px-5 pb-4 shrink-0">
-          <CommandBar variant="page1" />
-        </div>
       </section>
 
+      {/* ── Shared Command Bar — sticky between pages ─────── */}
+      <div className="sticky top-14 z-40 px-5 py-3 bg-background/80 backdrop-blur-md">
+        <CommandBar />
+      </div>
+
       {/* ── Page 2: Data Explorer ──────────────────────────── */}
-      <section id="data-explorer-section" className="snap-section pt-14">
+      <section
+        id="data-explorer-section"
+        className="snap-section min-h-screen pt-4"
+      >
         <DataSection />
       </section>
     </div>
   );
 }
-

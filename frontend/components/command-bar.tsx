@@ -20,11 +20,7 @@ import { Button } from "@/components/ui/button";
 import { ChatModal } from "@/components/chat-modal";
 import { skus, shipments, suppliers } from "@/lib/mock-data";
 
-function CommandBarContent({
-  variant = "page1",
-}: {
-  variant?: "page1" | "page2";
-}) {
+function CommandBarContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = searchParams.get("tab") || "skus";
@@ -33,43 +29,33 @@ function CommandBarContent({
 
   const handleSearchChange = useCallback(
     (value: string) => {
-      if (variant === "page1") {
-        // On page 1, clicking the search scrolls to page 2
-        const target = document.getElementById("data-explorer-section");
-        if (target) target.scrollIntoView({ behavior: "smooth" });
-        return;
-      }
       const params = new URLSearchParams(searchParams.toString());
       if (value) {
         params.set("q", value);
       } else {
         params.delete("q");
       }
-      router.replace(`/?${params.toString()}#data-explorer-section`, { scroll: false });
+      router.replace(`/?${params.toString()}`, { scroll: false });
     },
-    [searchParams, router, variant]
+    [searchParams, router]
   );
 
   const handleTabClick = useCallback(
     (tab: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set("tab", tab);
-      router.replace(`/?${params.toString()}#data-explorer-section`, {
-        scroll: false,
-      });
+      router.replace(`/?${params.toString()}`, { scroll: false });
 
-      // Also dispatch custom event for DataSection
+      // Dispatch custom event for DataSection
       window.dispatchEvent(new CustomEvent("switch-tab", { detail: tab }));
 
-      // If on page1, scroll down to data explorer
-      if (variant === "page1") {
-        const target = document.getElementById("data-explorer-section");
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth" });
-        }
+      // Scroll to the data section
+      const target = document.getElementById("data-explorer-section");
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
       }
     },
-    [searchParams, router, variant]
+    [searchParams, router]
   );
 
   const tabs = [
@@ -125,46 +111,17 @@ function CommandBarContent({
           <Input
             placeholder="Fuzzy search…"
             className="h-8 w-44 pl-8 text-xs bg-input/30 border-border/50"
-            value={variant === "page2" ? searchValue : ""}
-            readOnly={variant === "page1"}
-            onChange={(e) => {
-              if (variant === "page2") handleSearchChange(e.target.value);
-            }}
-            onClick={() => {
-              if (variant === "page1") {
-                const target = document.getElementById("data-explorer-section");
-                if (target) target.scrollIntoView({ behavior: "smooth" });
-              }
-            }}
+            value={searchValue}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
 
         {/* Filter & Sort */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 text-xs gap-1.5"
-          onClick={() => {
-            if (variant === "page1") {
-              const target = document.getElementById("data-explorer-section");
-              if (target) target.scrollIntoView({ behavior: "smooth" });
-            }
-          }}
-        >
+        <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
           <Filter className="h-3.5 w-3.5" />
           Filter
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 text-xs gap-1.5"
-          onClick={() => {
-            if (variant === "page1") {
-              const target = document.getElementById("data-explorer-section");
-              if (target) target.scrollIntoView({ behavior: "smooth" });
-            }
-          }}
-        >
+        <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
           <ArrowUpDown className="h-3.5 w-3.5" />
           Sort
         </Button>
@@ -218,14 +175,10 @@ function CommandBarContent({
   );
 }
 
-export function CommandBar({
-  variant = "page1",
-}: {
-  variant?: "page1" | "page2";
-}) {
+export function CommandBar() {
   return (
     <Suspense fallback={<div className="h-12" />}>
-      <CommandBarContent variant={variant} />
+      <CommandBarContent />
     </Suspense>
   );
 }
