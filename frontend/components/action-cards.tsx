@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertTriangle,
   Shield,
@@ -9,8 +10,6 @@ import {
   Clock,
   DollarSign,
   Package,
-  Check,
-  Eye,
   X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +24,68 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import type { ActionCard, ActionCardType } from "@/lib/mock-data";
 import { actionCards } from "@/lib/mock-data";
+
+/** Tiny confirm dialog shown only when dismissing an Active Disruption card */
+function DismissConfirmDialog({
+  open,
+  cardTitle,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  cardTitle: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  if (typeof window === "undefined") return null;
+  return createPortal(
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm"
+            onClick={onCancel}
+          />
+          {/* Dialog */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -8 }}
+            transition={{ type: "spring", damping: 28, stiffness: 320 }}
+            className="fixed left-1/2 top-1/2 z-[71] -translate-x-1/2 -translate-y-1/2 w-[340px] rounded-xl glass-strong border border-border/50 shadow-xl p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="h-4 w-4 text-urgency-critical shrink-0" />
+              <span className="text-sm font-semibold">Dismiss disruption?</span>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+              &ldquo;{cardTitle}&rdquo; is an active disruption. Are you sure you want to dismiss it?
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs text-urgency-critical border-urgency-critical/30 hover:bg-urgency-critical/10"
+                onClick={onConfirm}
+              >
+                Dismiss
+              </Button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>,
+    document.body
+  );
+}
 
 const typeConfig: Record<
   ActionCardType,
@@ -63,94 +124,85 @@ function ActionCardItem({
 }) {
   const conf = typeConfig[card.type];
   const Icon = conf.icon;
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleDismissClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (card.type === "disruption") {
+      setConfirmOpen(true);
+    } else {
+      onDismiss();
+    }
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: index * 0.08, duration: 0.4 }}
-      className="group relative w-[340px] shrink-0 rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
-    >
-      {/* Gradient accent */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${conf.gradient} pointer-events-none`}
-      />
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: index * 0.08, duration: 0.4 }}
+        onClick={onClick}
+        className="group relative w-[340px] shrink-0 cursor-pointer rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
+      >
+        {/* Gradient accent */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${conf.gradient} pointer-events-none`}
+        />
 
-      <div className="relative p-4 flex flex-col h-full">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-3">
-          <Badge
-            variant="outline"
-            className={`${conf.badge} text-[10px] font-medium`}
-          >
-            <Icon className="mr-1 h-3 w-3" />
-            {conf.label}
-          </Badge>
-        </div>
-
-        {/* Title */}
-        <h3 className="text-sm font-semibold leading-snug mb-2">
-          {card.title}
-        </h3>
-
-        {/* Summary */}
-        <p className="text-xs text-muted-foreground leading-relaxed mb-4 line-clamp-2">
-          {card.summary}
-        </p>
-
-        {/* Meta */}
-        <div className="mt-auto flex flex-wrap gap-3 text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            {card.impactTimeframe}
-          </span>
-          <span className="flex items-center gap-1">
-            <DollarSign className="h-3 w-3" />$
-            {(card.affectedValue / 1_000).toFixed(0)}K
-          </span>
-          <span className="flex items-center gap-1">
-            <Package className="h-3 w-3" />
-            {card.affectedSKUs} SKUs
-          </span>
-        </div>
-
-        {/* Quick actions */}
-        <div className="mt-3 flex gap-2">
-          {card.type === "autonomous" ? (
-            <Button
-              size="sm"
+        <div className="relative p-4 flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-3">
+            <Badge
               variant="outline"
-              className="h-7 text-[11px] text-urgency-safe border-urgency-safe/30 hover:bg-urgency-safe/10"
-              onClick={onClick}
+              className={`${conf.badge} text-[10px] font-medium`}
             >
-              <Check className="mr-1 h-3 w-3" />
-              Acknowledge
-            </Button>
-          ) : (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 text-[11px] text-primary border-primary/30 hover:bg-primary/10"
-                onClick={onClick}
-              >
-                <Eye className="mr-1 h-3 w-3" />
-                Review
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 text-[11px] text-muted-foreground hover:text-foreground"
-                onClick={onDismiss}
-              >
-                <X className="mr-1 h-3 w-3" />
-                Dismiss
-              </Button>
-            </>
-          )}
+              <Icon className="mr-1 h-3 w-3" />
+              {conf.label}
+            </Badge>
+            <button
+              onClick={handleDismissClick}
+              className="h-5 w-5 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground hover:bg-accent/50"
+              aria-label="Dismiss"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+
+          {/* Title */}
+          <h3 className="text-sm font-semibold leading-snug mb-2">
+            {card.title}
+          </h3>
+
+          {/* Summary */}
+          <p className="text-xs text-muted-foreground leading-relaxed mb-4 line-clamp-2">
+            {card.summary}
+          </p>
+
+          {/* Meta */}
+          <div className="mt-auto flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {card.impactTimeframe}
+            </span>
+            <span className="flex items-center gap-1">
+              <DollarSign className="h-3 w-3" />$
+              {(card.affectedValue / 1_000).toFixed(0)}K
+            </span>
+            <span className="flex items-center gap-1">
+              <Package className="h-3 w-3" />
+              {card.affectedSKUs} SKUs
+            </span>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+
+      <DismissConfirmDialog
+        open={confirmOpen}
+        cardTitle={card.title}
+        onConfirm={() => { setConfirmOpen(false); onDismiss(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    </>
   );
 }
 
@@ -346,94 +398,85 @@ function ActionCardItemCompact({
 }) {
   const conf = typeConfig[card.type];
   const Icon = conf.icon;
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleDismissClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (card.type === "disruption") {
+      setConfirmOpen(true);
+    } else {
+      onDismiss();
+    }
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.06, duration: 0.35 }}
-      className="group relative rounded-lg border border-border/50 bg-card/50 overflow-hidden transition-all duration-300 hover:bg-accent/50 hover:border-border"
-    >
-      {/* Gradient accent */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${conf.gradient} pointer-events-none`}
-      />
+    <>
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: index * 0.06, duration: 0.35 }}
+        onClick={onClick}
+        className="group relative cursor-pointer rounded-lg border border-border/50 bg-card/50 overflow-hidden transition-all duration-300 hover:bg-accent/50 hover:border-border"
+      >
+        {/* Gradient accent */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${conf.gradient} pointer-events-none`}
+        />
 
-      <div className="relative p-3 flex flex-col">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-2">
-          <Badge
-            variant="outline"
-            className={`${conf.badge} text-[10px] font-medium`}
-          >
-            <Icon className="mr-1 h-3 w-3" />
-            {conf.label}
-          </Badge>
-        </div>
-
-        {/* Title */}
-        <h3 className="text-xs font-semibold leading-snug mb-1.5 line-clamp-2">
-          {card.title}
-        </h3>
-
-        {/* Summary */}
-        <p className="text-[10px] text-muted-foreground leading-relaxed mb-3 line-clamp-2">
-          {card.summary}
-        </p>
-
-        {/* Meta */}
-        <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground mb-2">
-          <span className="flex items-center gap-1">
-            <Clock className="h-2.5 w-2.5" />
-            {card.impactTimeframe}
-          </span>
-          <span className="flex items-center gap-1">
-            <DollarSign className="h-2.5 w-2.5" />$
-            {(card.affectedValue / 1_000).toFixed(0)}K
-          </span>
-          <span className="flex items-center gap-1">
-            <Package className="h-2.5 w-2.5" />
-            {card.affectedSKUs} SKUs
-          </span>
-        </div>
-
-        {/* Quick actions */}
-        <div className="flex gap-2">
-          {card.type === "autonomous" ? (
-            <Button
-              size="sm"
+        <div className="relative p-3 flex flex-col">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-2">
+            <Badge
               variant="outline"
-              className="h-6 text-[10px] text-urgency-safe border-urgency-safe/30 hover:bg-urgency-safe/10"
-              onClick={onClick}
+              className={`${conf.badge} text-[10px] font-medium`}
             >
-              <Check className="mr-1 h-2.5 w-2.5" />
-              Acknowledge
-            </Button>
-          ) : (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-6 text-[10px] text-primary border-primary/30 hover:bg-primary/10"
-                onClick={onClick}
-              >
-                <Eye className="mr-1 h-2.5 w-2.5" />
-                Review
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-6 text-[10px] text-muted-foreground hover:text-foreground"
-                onClick={onDismiss}
-              >
-                <X className="mr-1 h-2.5 w-2.5" />
-                Dismiss
-              </Button>
-            </>
-          )}
+              <Icon className="mr-1 h-3 w-3" />
+              {conf.label}
+            </Badge>
+            <button
+              onClick={handleDismissClick}
+              className="h-4 w-4 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground hover:bg-accent/50"
+              aria-label="Dismiss"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+
+          {/* Title */}
+          <h3 className="text-xs font-semibold leading-snug mb-1.5 line-clamp-2">
+            {card.title}
+          </h3>
+
+          {/* Summary */}
+          <p className="text-[10px] text-muted-foreground leading-relaxed mb-3 line-clamp-2">
+            {card.summary}
+          </p>
+
+          {/* Meta */}
+          <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Clock className="h-2.5 w-2.5" />
+              {card.impactTimeframe}
+            </span>
+            <span className="flex items-center gap-1">
+              <DollarSign className="h-2.5 w-2.5" />$
+              {(card.affectedValue / 1_000).toFixed(0)}K
+            </span>
+            <span className="flex items-center gap-1">
+              <Package className="h-2.5 w-2.5" />
+              {card.affectedSKUs} SKUs
+            </span>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+
+      <DismissConfirmDialog
+        open={confirmOpen}
+        cardTitle={card.title}
+        onConfirm={() => { setConfirmOpen(false); onDismiss(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    </>
   );
 }
 
