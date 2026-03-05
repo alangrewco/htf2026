@@ -7,6 +7,7 @@ export default defineConfig({
       target: 'sdk/server.ts',
       schemas: 'sdk/model',
       client: 'swr',
+      baseUrl: 'http://localhost:5000',
       mock: true,
     },
     input: {
