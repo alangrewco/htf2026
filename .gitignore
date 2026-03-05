@@ -43,3 +43,5 @@ instance/
 # Project-specific
 backend/.venv/
 backend/backend.db
+
+backend/node_modules
