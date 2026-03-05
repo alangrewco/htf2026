@@ -1,9 +1,11 @@
 import { BarChart3, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { NavbarSpacer } from "@/components/navbar";
 
 export default function AnalyticsPage() {
   return (
-    <div className="min-h-screen pt-14">
+    <div className="min-h-screen">
+      <NavbarSpacer />
       <div className="p-8">
         <div className="flex items-center gap-3 mb-8">
           <Link

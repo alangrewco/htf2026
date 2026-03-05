@@ -18,6 +18,7 @@ import { actionCards } from "@/lib/mock-data";
 import { typeConfig } from "@/components/action-cards";
 import { BrainstormChatModal } from "@/components/brainstorm-chat-modal";
 import { ExecutePlanModal } from "@/components/execute-plan-modal";
+import { NavbarSpacer, NAVBAR_HEIGHT_REM } from "@/components/navbar";
 
 /* ── Main Page Content (needs searchParams) ────────────── */
 function ActionDetailContent() {
@@ -51,6 +52,7 @@ function ActionDetailContent() {
   if (!card) {
     return (
       <div className="flex h-[80vh] items-center justify-center flex-col gap-4">
+        <NavbarSpacer />
         <AlertTriangle className="h-10 w-10 text-urgency-critical" />
         <p className="text-muted-foreground text-sm">Action card not found.</p>
         <Button variant="outline" onClick={() => router.back()}>
@@ -76,7 +78,9 @@ function ActionDetailContent() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)]">
+    <>
+    <NavbarSpacer />
+    <div className="flex flex-col" style={{ height: `calc(100vh - ${NAVBAR_HEIGHT_REM})` }}>
       {/* Page header */}
       <div className="glass border-b border-border/50 px-6 py-4 shrink-0">
         <div className="max-w-7xl mx-auto">
@@ -345,6 +349,7 @@ function ActionDetailContent() {
         }
       />
     </div>
+    </>
   );
 }
 
