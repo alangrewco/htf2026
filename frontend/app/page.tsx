@@ -17,7 +17,7 @@ export default function Home() {
         {/* Three-column main area */}
         <div className="flex flex-1 gap-4 p-5 pb-2 min-h-0 overflow-hidden">
           {/* Left: Action Required sidebar */}
-          <div className="flex w-[340px] shrink-0 min-h-0">
+          <div className="flex h-full w-[340px] shrink-0 min-h-0">
             <ActionCardsSidebar />
           </div>
 
@@ -32,7 +32,7 @@ export default function Home() {
           </div>
 
           {/* Right: Live Signals */}
-          <div className="flex w-[340px] shrink-0 min-h-0">
+          <div className="flex h-full w-[340px] shrink-0 min-h-0">
             <LiveSignals />
           </div>
         </div>

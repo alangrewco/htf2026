@@ -443,7 +443,7 @@ export function ActionCardsSidebar() {
 
   return (
     <>
-      <div className="glass flex h-full flex-col rounded-xl overflow-hidden">
+      <div className="glass flex h-full flex-col rounded-xl overflow-hidden min-h-0">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
@@ -456,7 +456,7 @@ export function ActionCardsSidebar() {
         </div>
 
         {/* Scrollable card feed */}
-        <ScrollArea className="flex-1 px-3 py-3">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 min-h-0">
           <div className="space-y-2">
             {actionCards.map((card, index) => (
               <ActionCardItemCompact
@@ -467,7 +467,7 @@ export function ActionCardsSidebar() {
               />
             ))}
           </div>
-        </ScrollArea>
+        </div>
       </div>
 
       <ActionDetailModal

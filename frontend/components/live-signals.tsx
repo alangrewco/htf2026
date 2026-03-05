@@ -12,8 +12,6 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import type { Signal } from "@/lib/mock-data";
 import { liveSignals } from "@/lib/mock-data";
@@ -51,7 +49,7 @@ export function LiveSignals() {
   }, [search, activeFilter]);
 
   return (
-    <div className="glass flex h-full flex-col rounded-xl overflow-hidden">
+    <div className="glass flex h-full flex-col rounded-xl overflow-hidden min-h-0">
       {/* Header */}
       <Link
         href="/news"
@@ -100,7 +98,7 @@ export function LiveSignals() {
       </div>
 
       {/* Signal feed */}
-      <ScrollArea className="flex-1 px-3 pb-3">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-3 min-h-0">
         <AnimatePresence mode="popLayout">
           {filtered.map((signal) => {
             const conf = typeConfig[signal.type];
@@ -143,7 +141,7 @@ export function LiveSignals() {
             No signals match your filters.
           </p>
         )}
-      </ScrollArea>
+      </div>
     </div>
   );
 }
