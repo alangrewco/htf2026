@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -246,34 +245,46 @@ function ActionDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-5xl glass-strong border-border/50 max-h-[85vh] p-0 gap-0">
-        {/* Header */}
-        <DialogHeader className="px-6 pt-5 pb-4 border-b border-border/50 pr-16">
-          <div className="flex items-center gap-2 mb-1">
-            <Badge
-              variant="outline"
-              className={`${conf.badge} text-[10px] font-medium`}
-            >
-              <Icon className="mr-1 h-3 w-3" />
-              {conf.label}
-            </Badge>
-            <Badge variant="outline" className="text-[10px]">
-              {card.category}
-            </Badge>
-            {/* Expand to full page — placed inside the header so it sits left of the shadcn close ✕ */}
+      <DialogContent className="sm:max-w-5xl glass-strong border-border/50 max-h-[85vh] p-0 gap-0" showCloseButton={false}>
+        {/* Header — badges left, close+expand buttons right */}
+        <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-border/50 shrink-0">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <Badge
+                variant="outline"
+                className={`${conf.badge} text-[10px] font-medium`}
+              >
+                <Icon className="mr-1 h-3 w-3" />
+                {conf.label}
+              </Badge>
+              <Badge variant="outline" className="text-[10px]">
+                {card.category}
+              </Badge>
+            </div>
+            <DialogTitle className="text-lg">{card.title}</DialogTitle>
+          </div>
+
+          {/* Button group: expand then close */}
+          <div className="flex items-center gap-1 shrink-0 ml-4">
             <button
               onClick={() => {
                 onClose();
                 router.push(`/actions/${card.id}`);
               }}
               aria-label="Open full page"
-              className="ml-auto mr-8 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-md opacity-70 text-foreground hover:opacity-100 hover:bg-accent/50 transition-opacity"
             >
               <Maximize2 className="h-4 w-4" />
             </button>
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="flex h-7 w-7 items-center justify-center rounded-md opacity-70 text-foreground hover:opacity-100 hover:bg-accent/50 transition-opacity"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-          <DialogTitle className="text-lg">{card.title}</DialogTitle>
-        </DialogHeader>
+        </div>
 
         {/* Two-column body */}
         <div className="flex flex-1 min-h-0 overflow-hidden">
@@ -469,21 +480,26 @@ function ActionDetailModal({
           </ScrollArea>
         </div>
 
-        {/* Footer — Discuss & Confirm */}
+        {/* Footer — Brainstorm & Confirm */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border/50">
           <Button
             variant="outline"
             className="gap-2 text-sm"
             onClick={() => {
-              /* placeholder: opens chat agent */
+              onClose();
+              router.push(`/actions/${card.id}?focus=chat`);
             }}
           >
             <span className="text-base leading-none">🤖</span>
-            Discuss
+            Brainstorm
           </Button>
           <Button
             className="gap-2 text-sm"
             disabled={selectedAction === null}
+            onClick={() => {
+              onClose();
+              router.push(`/actions/${card.id}?focus=confirm&action=${selectedAction}`);
+            }}
           >
             Confirm
           </Button>

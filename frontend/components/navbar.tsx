@@ -212,6 +212,17 @@ export function NavbarContent() {
   );
 }
 
+/** Navbar height in Tailwind‑compatible units. Change here to update everywhere. */
+export const NAVBAR_HEIGHT = "h-14"; // 3.5rem / 56px
+export const NAVBAR_HEIGHT_CLASS = "pt-14";
+export const NAVBAR_HEIGHT_REM = "3.5rem";
+
+/** Invisible spacer that matches the fixed navbar height. Drop this at the
+ *  top of any page whose content would otherwise be hidden behind the navbar. */
+export function NavbarSpacer() {
+  return <div className={NAVBAR_HEIGHT} aria-hidden />;
+}
+
 export function Navbar() {
   return (
     <Suspense fallback={<div className="h-14 glass-strong fixed top-0 left-0 right-0 z-50" />}>

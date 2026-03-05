@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Streamdown } from "streamdown";
 
 interface Message {
   id: string;
@@ -218,7 +219,16 @@ export function ChatModal({
                             : "bg-muted/30 text-foreground"
                         }`}
                       >
-                        <p className="text-xs leading-relaxed">{msg.content}</p>
+                        {msg.role === "assistant" ? (
+                          <Streamdown
+                            mode="static"
+                            className="prose prose-xs prose-invert max-w-none text-xs leading-relaxed [&_p]:my-0.5 [&_ul]:my-0.5 [&_ol]:my-0.5 [&_li]:my-0 [&_strong]:font-semibold"
+                          >
+                            {msg.content}
+                          </Streamdown>
+                        ) : (
+                          <p className="text-xs leading-relaxed">{msg.content}</p>
+                        )}
                         <span className="block mt-1 text-[10px] text-muted-foreground">
                           {msg.timestamp}
                         </span>

@@ -4,6 +4,7 @@ import { ActionCardsSidebar } from "@/components/action-cards";
 import { DataSection } from "@/components/data-section";
 import { CommandBar } from "@/components/command-bar";
 import { GeoPlaceholder } from "@/components/geo-placeholder";
+import { NavbarSpacer } from "@/components/navbar";
 
 export default function Home() {
   return (
@@ -11,9 +12,11 @@ export default function Home() {
       {/* ── Page 1: Command Center ─────────────────────────── */}
       <section
         id="home-section"
-        className="snap-section flex flex-col pt-14"
+        className="snap-section flex flex-col"
         style={{ height: "calc(100vh - 80px)" }}
       >
+        <NavbarSpacer />
+
         {/* Three-column main area */}
         <div className="flex flex-1 gap-4 p-5 pb-2 min-h-0 overflow-hidden">
           {/* Left: Action Required sidebar */}
