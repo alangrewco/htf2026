@@ -22,10 +22,13 @@ import {
 } from '../model';
 import type {
   IngestionRun,
+  IngestionRunListResponse,
   IngestionRunQueuedResponse,
   IngestionStatus
 } from '../model';
 
+
+export const getListIngestionRunsResponseMock = (overrideResponse: Partial<Extract<IngestionRunListResponse, object>> = {}): IngestionRunListResponse => ({items: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({id: faker.string.alpha({length: {min: 10, max: 20}}), status: faker.helpers.arrayElement(Object.values(IngestionRunStatus)), started_at: faker.date.past().toISOString().slice(0, 19) + 'Z', finished_at: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z', null]), undefined]), created_at: faker.date.past().toISOString().slice(0, 19) + 'Z', stats: {articles_ingested: faker.number.int({min: 0}), articles_relevant: faker.number.int({min: 0}), incidents_created: faker.number.int({min: 0}), proposals_generated: faker.number.int({min: 0})}, error: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined])})), total: faker.number.int({min: 0}), page: faker.number.int({min: 1}), page_size: faker.number.int({min: 1, max: 100}), ...overrideResponse})
 
 export const getCreateIngestionRunResponseMock = (overrideResponse: Partial<Extract<IngestionRunQueuedResponse, object>> = {}): IngestionRunQueuedResponse => ({run_id: faker.string.alpha({length: {min: 10, max: 20}}), status: faker.helpers.arrayElement(Object.values(IngestionRunStatus)), ...overrideResponse})
 
@@ -33,6 +36,18 @@ export const getGetIngestionRunResponseMock = (overrideResponse: Partial<Extract
 
 export const getGetIngestionStatusResponseMock = (overrideResponse: Partial<Extract<IngestionStatus, object>> = {}): IngestionStatus => ({last_run: {...{id: faker.string.alpha({length: {min: 10, max: 20}}), status: faker.helpers.arrayElement(Object.values(IngestionRunStatus)), started_at: faker.date.past().toISOString().slice(0, 19) + 'Z', finished_at: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z', null]), undefined]), created_at: faker.date.past().toISOString().slice(0, 19) + 'Z', stats: {articles_ingested: faker.number.int({min: 0}), articles_relevant: faker.number.int({min: 0}), incidents_created: faker.number.int({min: 0}), proposals_generated: faker.number.int({min: 0})}, error: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined])},}, next_scheduled_run_at: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z', null]), null]), ...overrideResponse})
 
+
+export const getListIngestionRunsMockHandler = (overrideResponse?: IngestionRunListResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<IngestionRunListResponse> | IngestionRunListResponse), options?: RequestHandlerOptions) => {
+  return http.get('*/ingestion/runs', async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
+  
+  
+    return HttpResponse.json(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getListIngestionRunsResponseMock(),
+      { status: 200
+      })
+  }, options)
+}
 
 export const getCreateIngestionRunMockHandler = (overrideResponse?: IngestionRunQueuedResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<IngestionRunQueuedResponse> | IngestionRunQueuedResponse), options?: RequestHandlerOptions) => {
   return http.post('*/ingestion/runs', async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
@@ -70,6 +85,7 @@ export const getGetIngestionStatusMockHandler = (overrideResponse?: IngestionSta
   }, options)
 }
 export const getIngestionMock = () => [
+  getListIngestionRunsMockHandler(),
   getCreateIngestionRunMockHandler(),
   getGetIngestionRunMockHandler(),
   getGetIngestionStatusMockHandler()

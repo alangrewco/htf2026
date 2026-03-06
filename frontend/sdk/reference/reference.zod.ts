@@ -11,6 +11,9 @@ import * as zod from 'zod';
 /**
  * @summary List SKU reference data
  */
+export const listSkusResponseItemsItemRiskScoreMin = 0;
+export const listSkusResponseItemsItemRiskScoreMax = 100;
+
 export const listSkusResponseTotalMin = 0;
 
 
@@ -23,6 +26,10 @@ export const ListSkusResponse = zod.object({
   "description": zod.string(),
   "unit_of_measure": zod.string(),
   "status": zod.enum(['active', 'inactive']),
+  "risk_score": zod.number().min(listSkusResponseItemsItemRiskScoreMin).max(listSkusResponseItemsItemRiskScoreMax),
+  "risk_level": zod.enum(['critical', 'high', 'medium', 'low']),
+  "category": zod.string(),
+  "supplier_ids": zod.array(zod.string()),
   "created_at": zod.string().datetime({}),
   "updated_at": zod.string().datetime({})
 })),
@@ -32,12 +39,21 @@ export const ListSkusResponse = zod.object({
 /**
  * @summary Create SKU reference record
  */
+export const createSkuBodyRiskScoreMin = 0;
+export const createSkuBodyRiskScoreMax = 100;
+
+
+
 export const CreateSkuBody = zod.object({
   "sku_code": zod.string(),
   "name": zod.string(),
   "description": zod.string(),
   "unit_of_measure": zod.string(),
-  "status": zod.enum(['active', 'inactive'])
+  "status": zod.enum(['active', 'inactive']),
+  "risk_score": zod.number().min(createSkuBodyRiskScoreMin).max(createSkuBodyRiskScoreMax),
+  "risk_level": zod.enum(['critical', 'high', 'medium', 'low']),
+  "category": zod.string(),
+  "supplier_ids": zod.array(zod.string())
 })
 
 /**
@@ -47,13 +63,27 @@ export const UpdateSkuParams = zod.object({
   "sku_id": zod.string()
 })
 
+export const updateSkuBodyRiskScoreMin = 0;
+export const updateSkuBodyRiskScoreMax = 100;
+
+
+
 export const UpdateSkuBody = zod.object({
   "sku_code": zod.string().optional(),
   "name": zod.string().optional(),
   "description": zod.string().optional(),
   "unit_of_measure": zod.string().optional(),
-  "status": zod.enum(['active', 'inactive']).optional()
+  "status": zod.enum(['active', 'inactive']).optional(),
+  "risk_score": zod.number().min(updateSkuBodyRiskScoreMin).max(updateSkuBodyRiskScoreMax).optional(),
+  "risk_level": zod.enum(['critical', 'high', 'medium', 'low']).optional(),
+  "category": zod.string().optional(),
+  "supplier_ids": zod.array(zod.string()).optional()
 })
+
+export const updateSkuResponseRiskScoreMin = 0;
+export const updateSkuResponseRiskScoreMax = 100;
+
+
 
 export const UpdateSkuResponse = zod.object({
   "id": zod.string(),
@@ -62,6 +92,10 @@ export const UpdateSkuResponse = zod.object({
   "description": zod.string(),
   "unit_of_measure": zod.string(),
   "status": zod.enum(['active', 'inactive']),
+  "risk_score": zod.number().min(updateSkuResponseRiskScoreMin).max(updateSkuResponseRiskScoreMax),
+  "risk_level": zod.enum(['critical', 'high', 'medium', 'low']),
+  "category": zod.string(),
+  "supplier_ids": zod.array(zod.string()),
   "created_at": zod.string().datetime({}),
   "updated_at": zod.string().datetime({})
 })
@@ -81,6 +115,8 @@ export const ListSuppliersResponse = zod.object({
   "country": zod.string(),
   "contact_email": zod.string().email(),
   "status": zod.enum(['active', 'inactive']),
+  "region": zod.string(),
+  "risk_rating": zod.string(),
   "created_at": zod.string().datetime({}),
   "updated_at": zod.string().datetime({})
 })),
@@ -95,7 +131,9 @@ export const CreateSupplierBody = zod.object({
   "name": zod.string(),
   "country": zod.string(),
   "contact_email": zod.string().email(),
-  "status": zod.enum(['active', 'inactive'])
+  "status": zod.enum(['active', 'inactive']),
+  "region": zod.string(),
+  "risk_rating": zod.string()
 })
 
 /**
@@ -110,7 +148,9 @@ export const UpdateSupplierBody = zod.object({
   "name": zod.string().optional(),
   "country": zod.string().optional(),
   "contact_email": zod.string().email().optional(),
-  "status": zod.enum(['active', 'inactive']).optional()
+  "status": zod.enum(['active', 'inactive']).optional(),
+  "region": zod.string().optional(),
+  "risk_rating": zod.string().optional()
 })
 
 export const UpdateSupplierResponse = zod.object({
@@ -120,6 +160,8 @@ export const UpdateSupplierResponse = zod.object({
   "country": zod.string(),
   "contact_email": zod.string().email(),
   "status": zod.enum(['active', 'inactive']),
+  "region": zod.string(),
+  "risk_rating": zod.string(),
   "created_at": zod.string().datetime({}),
   "updated_at": zod.string().datetime({})
 })
@@ -141,7 +183,18 @@ export const ListShipmentsResponse = zod.object({
   "route_id": zod.string(),
   "supplier_id": zod.string(),
   "sku_ids": zod.array(zod.string()),
-  "eta": zod.string().datetime({}),
+  "carrier": zod.string(),
+  "order_date": zod.string().datetime({}),
+  "expected_delivery_date": zod.string().datetime({}),
+  "events": zod.array(zod.object({
+  "id": zod.string(),
+  "type": zod.string(),
+  "description": zod.string(),
+  "event_time": zod.string().datetime({}),
+  "location": zod.string().nullish(),
+  "status": zod.string().nullish(),
+  "metadata": zod.record(zod.string(), zod.unknown()).nullish()
+})),
   "created_at": zod.string().datetime({}),
   "updated_at": zod.string().datetime({})
 })),
@@ -159,7 +212,18 @@ export const CreateShipmentBody = zod.object({
   "route_id": zod.string(),
   "supplier_id": zod.string(),
   "sku_ids": zod.array(zod.string()),
-  "eta": zod.string().datetime({})
+  "carrier": zod.string(),
+  "order_date": zod.string().datetime({}),
+  "expected_delivery_date": zod.string().datetime({}),
+  "events": zod.array(zod.object({
+  "id": zod.string(),
+  "type": zod.string(),
+  "description": zod.string(),
+  "event_time": zod.string().datetime({}),
+  "location": zod.string().nullish(),
+  "status": zod.string().nullish(),
+  "metadata": zod.record(zod.string(), zod.unknown()).nullish()
+}))
 })
 
 /**
@@ -177,7 +241,18 @@ export const UpdateShipmentBody = zod.object({
   "route_id": zod.string().optional(),
   "supplier_id": zod.string().optional(),
   "sku_ids": zod.array(zod.string()).optional(),
-  "eta": zod.string().datetime({}).optional()
+  "carrier": zod.string().optional(),
+  "order_date": zod.string().datetime({}).optional(),
+  "expected_delivery_date": zod.string().datetime({}).optional(),
+  "events": zod.array(zod.object({
+  "id": zod.string(),
+  "type": zod.string(),
+  "description": zod.string(),
+  "event_time": zod.string().datetime({}),
+  "location": zod.string().nullish(),
+  "status": zod.string().nullish(),
+  "metadata": zod.record(zod.string(), zod.unknown()).nullish()
+})).optional()
 })
 
 export const UpdateShipmentResponse = zod.object({
@@ -189,7 +264,18 @@ export const UpdateShipmentResponse = zod.object({
   "route_id": zod.string(),
   "supplier_id": zod.string(),
   "sku_ids": zod.array(zod.string()),
-  "eta": zod.string().datetime({}),
+  "carrier": zod.string(),
+  "order_date": zod.string().datetime({}),
+  "expected_delivery_date": zod.string().datetime({}),
+  "events": zod.array(zod.object({
+  "id": zod.string(),
+  "type": zod.string(),
+  "description": zod.string(),
+  "event_time": zod.string().datetime({}),
+  "location": zod.string().nullish(),
+  "status": zod.string().nullish(),
+  "metadata": zod.record(zod.string(), zod.unknown()).nullish()
+})),
   "created_at": zod.string().datetime({}),
   "updated_at": zod.string().datetime({})
 })

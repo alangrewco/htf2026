@@ -20,9 +20,11 @@ import type {
   BadRequestResponse,
   CreateIngestionRunRequest,
   IngestionRun,
+  IngestionRunListResponse,
   IngestionRunQueuedResponse,
   IngestionStatus,
   InternalServerErrorResponse,
+  ListIngestionRunsParams,
   NotFoundResponse,
   UnprocessableEntityResponse
 } from '../model';
@@ -32,6 +34,91 @@ import type {
   
   
   
+/**
+ * @summary List ingestion runs
+ */
+export type listIngestionRunsResponse200 = {
+  data: IngestionRunListResponse
+  status: 200
+}
+
+export type listIngestionRunsResponse400 = {
+  data: BadRequestResponse
+  status: 400
+}
+
+export type listIngestionRunsResponse500 = {
+  data: InternalServerErrorResponse
+  status: 500
+}
+
+export type listIngestionRunsResponseSuccess = (listIngestionRunsResponse200) & {
+  headers: Headers;
+};
+export type listIngestionRunsResponseError = (listIngestionRunsResponse400 | listIngestionRunsResponse500) & {
+  headers: Headers;
+};
+
+export type listIngestionRunsResponse = (listIngestionRunsResponseSuccess | listIngestionRunsResponseError)
+
+export const getListIngestionRunsUrl = (params?: ListIngestionRunsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `http://localhost:8080/api/v1/ingestion/runs?${stringifiedParams}` : `http://localhost:8080/api/v1/ingestion/runs`
+}
+
+export const listIngestionRuns = async (params?: ListIngestionRunsParams, options?: RequestInit): Promise<listIngestionRunsResponse> => {
+  
+  const res = await fetch(getListIngestionRunsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listIngestionRunsResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listIngestionRunsResponse
+}
+  
+
+
+
+export const getListIngestionRunsKey = (params?: ListIngestionRunsParams,) => [`http://localhost:8080/api/v1/ingestion/runs`, ...(params ? [params]: [])] as const;
+
+export type ListIngestionRunsQueryResult = NonNullable<Awaited<ReturnType<typeof listIngestionRuns>>>
+
+/**
+ * @summary List ingestion runs
+ */
+export const useListIngestionRuns = <TError = Promise<BadRequestResponse | InternalServerErrorResponse>>(
+  params?: ListIngestionRunsParams, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof listIngestionRuns>>, TError> & { swrKey?: Key, enabled?: boolean }, fetch?: RequestInit }
+) => {
+  const {swr: swrOptions, fetch: fetchOptions} = options ?? {}
+
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getListIngestionRunsKey(params) : null);
+  const swrFn = () => listIngestionRuns(params, fetchOptions)
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
+
+  return {
+    swrKey,
+    ...query
+  }
+}
 /**
  * @summary Queue an ingestion run
  */

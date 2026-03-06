@@ -5,14 +5,13 @@
  * MVP v1 REST API for ACME Inc. to ingest shipping disruption signals, enrich relevance and impact, escalate incidents, and generate action proposals for manager decisioning.
  * OpenAPI spec version: 1.0.0
  */
-import type { MasterStatus } from './masterStatus';
 
-export interface CreateSupplierRequest {
-  supplier_code: string;
-  name: string;
-  country: string;
-  contact_email: string;
-  status: MasterStatus;
-  region: string;
-  risk_rating: string;
-}
+export type SkuRiskLevel = typeof SkuRiskLevel[keyof typeof SkuRiskLevel];
+
+
+export const SkuRiskLevel = {
+  critical: 'critical',
+  high: 'high',
+  medium: 'medium',
+  low: 'low',
+} as const;
