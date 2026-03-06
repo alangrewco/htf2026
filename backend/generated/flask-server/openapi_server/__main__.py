@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import connexion
+from flask_cors import CORS
 
 from openapi_server import encoder
 
@@ -11,7 +12,7 @@ def main():
     app.add_api('openapi.yaml',
                 arguments={'title': 'Shipping Disruption Management API'},
                 pythonic_params=True)
-
+    CORS(app.app)
     app.run(port=8080)
 
 

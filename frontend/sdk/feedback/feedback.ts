@@ -70,7 +70,7 @@ export const getSubmitProposalFeedbackUrl = (proposalId: string,) => {
 
   
 
-  return `http://localhost:5000/feedback/proposals/${proposalId}`
+  return `http://localhost:8080/api/v1/feedback/proposals/${proposalId}`
 }
 
 export const submitProposalFeedback = async (proposalId: string,
@@ -100,7 +100,7 @@ export const getSubmitProposalFeedbackMutationFetcher = (proposalId: string, opt
     return submitProposalFeedback(proposalId, arg, options);
   }
 }
-export const getSubmitProposalFeedbackMutationKey = (proposalId: string,) => [`http://localhost:5000/feedback/proposals/${proposalId}`] as const;
+export const getSubmitProposalFeedbackMutationKey = (proposalId: string,) => [`http://localhost:8080/api/v1/feedback/proposals/${proposalId}`] as const;
 
 export type SubmitProposalFeedbackMutationResult = NonNullable<Awaited<ReturnType<typeof submitProposalFeedback>>>
 
