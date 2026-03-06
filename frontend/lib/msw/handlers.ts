@@ -8,16 +8,19 @@ import {
   getListShipmentsMockHandler,
   getListSkusMockHandler,
   getListSuppliersMockHandler,
+  getListPortsMockHandler,
   getReferenceMock,
 } from "@/sdk/reference/reference.msw";
 import {
   ListShipmentsResponse,
   ListSkusResponse,
   ListSuppliersResponse,
+  ListPortsResponse,
 } from "@/sdk/reference/reference.zod";
 import { mockShipmentListResponse } from "@/lib/fixtures/reference/shipments";
 import { mockSkuListResponse } from "@/lib/fixtures/reference/skus";
 import { mockSupplierListResponse } from "@/lib/fixtures/reference/suppliers";
+import { mockPortListResponse } from "@/lib/fixtures/reference/ports";
 
 const validateFixture = <T>(
   endpoint: string,
@@ -53,10 +56,17 @@ const validatedShipmentListResponse = validateFixture(
   mockShipmentListResponse
 );
 
+const validatedPortListResponse = validateFixture(
+  "/reference/ports",
+  ListPortsResponse,
+  mockPortListResponse
+);
+
 export const handlers = [
   getListSkusMockHandler(validatedSkuListResponse),
   getListSuppliersMockHandler(validatedSupplierListResponse),
   getListShipmentsMockHandler(validatedShipmentListResponse),
+  getListPortsMockHandler(validatedPortListResponse),
   ...getReferenceMock(),
   ...getArticlesMock(),
   ...getIncidentsMock(),
