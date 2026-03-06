@@ -69,7 +69,7 @@ export const getListSkusUrl = () => {
 
   
 
-  return `http://localhost:5000/reference/skus`
+  return `http://localhost:8080/api/v1/reference/skus`
 }
 
 export const listSkus = async ( options?: RequestInit): Promise<listSkusResponse> => {
@@ -92,7 +92,7 @@ export const listSkus = async ( options?: RequestInit): Promise<listSkusResponse
 
 
 
-export const getListSkusKey = () => [`http://localhost:5000/reference/skus`] as const;
+export const getListSkusKey = () => [`http://localhost:8080/api/v1/reference/skus`] as const;
 
 export type ListSkusQueryResult = NonNullable<Awaited<ReturnType<typeof listSkus>>>
 
@@ -157,7 +157,7 @@ export const getCreateSkuUrl = () => {
 
   
 
-  return `http://localhost:5000/reference/skus`
+  return `http://localhost:8080/api/v1/reference/skus`
 }
 
 export const createSku = async (createSkuRequest: CreateSkuRequest, options?: RequestInit): Promise<createSkuResponse> => {
@@ -186,7 +186,7 @@ export const getCreateSkuMutationFetcher = ( options?: RequestInit) => {
     return createSku(arg, options);
   }
 }
-export const getCreateSkuMutationKey = () => [`http://localhost:5000/reference/skus`] as const;
+export const getCreateSkuMutationKey = () => [`http://localhost:8080/api/v1/reference/skus`] as const;
 
 export type CreateSkuMutationResult = NonNullable<Awaited<ReturnType<typeof createSku>>>
 
@@ -256,7 +256,7 @@ export const getUpdateSkuUrl = (skuId: string,) => {
 
   
 
-  return `http://localhost:5000/reference/skus/${skuId}`
+  return `http://localhost:8080/api/v1/reference/skus/${skuId}`
 }
 
 export const updateSku = async (skuId: string,
@@ -286,7 +286,7 @@ export const getUpdateSkuMutationFetcher = (skuId: string, options?: RequestInit
     return updateSku(skuId, arg, options);
   }
 }
-export const getUpdateSkuMutationKey = (skuId: string,) => [`http://localhost:5000/reference/skus/${skuId}`] as const;
+export const getUpdateSkuMutationKey = (skuId: string,) => [`http://localhost:8080/api/v1/reference/skus/${skuId}`] as const;
 
 export type UpdateSkuMutationResult = NonNullable<Awaited<ReturnType<typeof updateSku>>>
 
@@ -336,7 +336,7 @@ export const getListSuppliersUrl = () => {
 
   
 
-  return `http://localhost:5000/reference/suppliers`
+  return `http://localhost:8080/api/v1/reference/suppliers`
 }
 
 export const listSuppliers = async ( options?: RequestInit): Promise<listSuppliersResponse> => {
@@ -359,7 +359,7 @@ export const listSuppliers = async ( options?: RequestInit): Promise<listSupplie
 
 
 
-export const getListSuppliersKey = () => [`http://localhost:5000/reference/suppliers`] as const;
+export const getListSuppliersKey = () => [`http://localhost:8080/api/v1/reference/suppliers`] as const;
 
 export type ListSuppliersQueryResult = NonNullable<Awaited<ReturnType<typeof listSuppliers>>>
 
@@ -424,7 +424,7 @@ export const getCreateSupplierUrl = () => {
 
   
 
-  return `http://localhost:5000/reference/suppliers`
+  return `http://localhost:8080/api/v1/reference/suppliers`
 }
 
 export const createSupplier = async (createSupplierRequest: CreateSupplierRequest, options?: RequestInit): Promise<createSupplierResponse> => {
@@ -453,7 +453,7 @@ export const getCreateSupplierMutationFetcher = ( options?: RequestInit) => {
     return createSupplier(arg, options);
   }
 }
-export const getCreateSupplierMutationKey = () => [`http://localhost:5000/reference/suppliers`] as const;
+export const getCreateSupplierMutationKey = () => [`http://localhost:8080/api/v1/reference/suppliers`] as const;
 
 export type CreateSupplierMutationResult = NonNullable<Awaited<ReturnType<typeof createSupplier>>>
 
@@ -523,7 +523,7 @@ export const getUpdateSupplierUrl = (supplierId: string,) => {
 
   
 
-  return `http://localhost:5000/reference/suppliers/${supplierId}`
+  return `http://localhost:8080/api/v1/reference/suppliers/${supplierId}`
 }
 
 export const updateSupplier = async (supplierId: string,
@@ -553,7 +553,7 @@ export const getUpdateSupplierMutationFetcher = (supplierId: string, options?: R
     return updateSupplier(supplierId, arg, options);
   }
 }
-export const getUpdateSupplierMutationKey = (supplierId: string,) => [`http://localhost:5000/reference/suppliers/${supplierId}`] as const;
+export const getUpdateSupplierMutationKey = (supplierId: string,) => [`http://localhost:8080/api/v1/reference/suppliers/${supplierId}`] as const;
 
 export type UpdateSupplierMutationResult = NonNullable<Awaited<ReturnType<typeof updateSupplier>>>
 
@@ -603,7 +603,7 @@ export const getListShipmentsUrl = () => {
 
   
 
-  return `http://localhost:5000/reference/shipments`
+  return `http://localhost:8080/api/v1/reference/shipments`
 }
 
 export const listShipments = async ( options?: RequestInit): Promise<listShipmentsResponse> => {
@@ -626,7 +626,7 @@ export const listShipments = async ( options?: RequestInit): Promise<listShipmen
 
 
 
-export const getListShipmentsKey = () => [`http://localhost:5000/reference/shipments`] as const;
+export const getListShipmentsKey = () => [`http://localhost:8080/api/v1/reference/shipments`] as const;
 
 export type ListShipmentsQueryResult = NonNullable<Awaited<ReturnType<typeof listShipments>>>
 
@@ -691,7 +691,7 @@ export const getCreateShipmentUrl = () => {
 
   
 
-  return `http://localhost:5000/reference/shipments`
+  return `http://localhost:8080/api/v1/reference/shipments`
 }
 
 export const createShipment = async (createShipmentRequest: CreateShipmentRequest, options?: RequestInit): Promise<createShipmentResponse> => {
@@ -720,7 +720,7 @@ export const getCreateShipmentMutationFetcher = ( options?: RequestInit) => {
     return createShipment(arg, options);
   }
 }
-export const getCreateShipmentMutationKey = () => [`http://localhost:5000/reference/shipments`] as const;
+export const getCreateShipmentMutationKey = () => [`http://localhost:8080/api/v1/reference/shipments`] as const;
 
 export type CreateShipmentMutationResult = NonNullable<Awaited<ReturnType<typeof createShipment>>>
 
@@ -790,7 +790,7 @@ export const getUpdateShipmentUrl = (shipmentId: string,) => {
 
   
 
-  return `http://localhost:5000/reference/shipments/${shipmentId}`
+  return `http://localhost:8080/api/v1/reference/shipments/${shipmentId}`
 }
 
 export const updateShipment = async (shipmentId: string,
@@ -820,7 +820,7 @@ export const getUpdateShipmentMutationFetcher = (shipmentId: string, options?: R
     return updateShipment(shipmentId, arg, options);
   }
 }
-export const getUpdateShipmentMutationKey = (shipmentId: string,) => [`http://localhost:5000/reference/shipments/${shipmentId}`] as const;
+export const getUpdateShipmentMutationKey = (shipmentId: string,) => [`http://localhost:8080/api/v1/reference/shipments/${shipmentId}`] as const;
 
 export type UpdateShipmentMutationResult = NonNullable<Awaited<ReturnType<typeof updateShipment>>>
 
@@ -870,7 +870,7 @@ export const getListPortsUrl = () => {
 
   
 
-  return `http://localhost:5000/reference/ports`
+  return `http://localhost:8080/api/v1/reference/ports`
 }
 
 export const listPorts = async ( options?: RequestInit): Promise<listPortsResponse> => {
@@ -893,7 +893,7 @@ export const listPorts = async ( options?: RequestInit): Promise<listPortsRespon
 
 
 
-export const getListPortsKey = () => [`http://localhost:5000/reference/ports`] as const;
+export const getListPortsKey = () => [`http://localhost:8080/api/v1/reference/ports`] as const;
 
 export type ListPortsQueryResult = NonNullable<Awaited<ReturnType<typeof listPorts>>>
 
@@ -943,7 +943,7 @@ export const getListRoutesUrl = () => {
 
   
 
-  return `http://localhost:5000/reference/routes`
+  return `http://localhost:8080/api/v1/reference/routes`
 }
 
 export const listRoutes = async ( options?: RequestInit): Promise<listRoutesResponse> => {
@@ -966,7 +966,7 @@ export const listRoutes = async ( options?: RequestInit): Promise<listRoutesResp
 
 
 
-export const getListRoutesKey = () => [`http://localhost:5000/reference/routes`] as const;
+export const getListRoutesKey = () => [`http://localhost:8080/api/v1/reference/routes`] as const;
 
 export type ListRoutesQueryResult = NonNullable<Awaited<ReturnType<typeof listRoutes>>>
 
