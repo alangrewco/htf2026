@@ -13,11 +13,15 @@ import {
   Paperclip,
   SendHorizonal,
   MessageSquare,
+  Plus,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChatModal } from "@/components/chat-modal";
+import { CreateSkuModal } from "@/components/create-sku-modal";
+import { CreateSupplierModal } from "@/components/create-supplier-modal";
+import { CreateShipmentModal } from "@/components/create-shipment-modal";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 
 function CommandBarContent() {
@@ -27,6 +31,7 @@ function CommandBarContent() {
   const activeTab = searchParams.get("tab") || "skus";
   const searchValue = searchParams.get("q") || "";
   const [chatOpen, setChatOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const handleSearchChange = useCallback(
     (value: string) => {
@@ -78,6 +83,16 @@ function CommandBarContent() {
   return (
     <>
       <div className="flex items-center gap-2 w-full px-4 py-2 glass-strong rounded-xl">
+        {/* + New button */}
+        <Button
+          size="sm"
+          className="h-8 text-xs gap-1.5 shrink-0"
+          onClick={() => setCreateOpen(true)}
+        >
+          <Plus className="h-3.5 w-3.5" />
+          New
+        </Button>
+
         {/* Tabs */}
         <div className="flex items-center gap-1 bg-muted/50 border border-border/50 rounded-lg p-0.5">
           {tabs.map((tab) => {
@@ -171,6 +186,17 @@ function CommandBarContent() {
       </div>
 
       <ChatModal open={chatOpen} onClose={() => setChatOpen(false)} />
+
+      {/* Creation modals — render correct one based on active tab */}
+      {activeTab === "skus" && (
+        <CreateSkuModal open={createOpen} onOpenChange={setCreateOpen} />
+      )}
+      {activeTab === "suppliers" && (
+        <CreateSupplierModal open={createOpen} onOpenChange={setCreateOpen} />
+      )}
+      {activeTab === "shipments" && (
+        <CreateShipmentModal open={createOpen} onOpenChange={setCreateOpen} />
+      )}
     </>
   );
 }
@@ -182,3 +208,4 @@ export function CommandBar() {
     </Suspense>
   );
 }
+

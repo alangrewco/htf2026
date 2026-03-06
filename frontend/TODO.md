@@ -34,3 +34,11 @@ They are currently served from fixed demo values in `lib/fixtures/reference/demo
 
 #### Cross-entity associations
 - Supplier → SKU list: currently **derived at runtime** from `Shipment.sku_ids` and `Shipment.supplier_id`. This works but means a supplier's SKU list only includes SKUs on active shipments, not historical ones. The backend should ideally provide a direct `sku_ids` field on Supplier.
+
+### Creation modal limitations
+
+- **Import button** is a visual stub — no backend upload/import endpoint exists.
+- **No direct SKU ↔ Supplier linking API** — the association is implicit through Shipments. The SKU creation wizard creates shipments to establish the link. The Supplier wizard's "Add SKUs" step creates the SKU but cannot link it to the supplier without also creating a shipment.
+- **`route_id`** on `CreateShipmentRequest` has no route reference endpoint — defaults to empty string.
+- **Cannot add new SKU to existing shipment** — the Create Shipment API creates a fresh shipment; there is no update-shipment endpoint used to add SKUs to an existing shipment from the SKU wizard.
+
