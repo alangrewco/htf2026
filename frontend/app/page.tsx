@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { SupplyChainGlobe } from '@/components/SupplyChainGlobe';
-import { useScrollReveal, useParallax } from '@/lib/useScrollAnimations';
+import { useScrollReveal } from '@/lib/useScrollAnimations';
 
 /* ——————————————————————————————————————————————
    DESIGN PHILOSOPHY
@@ -43,7 +43,6 @@ function RevealBlock({ children, className = '', delay = 0 }: { children: React.
 }
 
 export default function LandingPage() {
-    const { ref: parallaxRef, offset } = useParallax(0.4);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     // Subtle mouse-follow effect for hero
@@ -149,7 +148,7 @@ export default function LandingPage() {
 
 
             {/* ———— THE PROBLEM — editorial asymmetric layout ———— */}
-            <div ref={parallaxRef as React.RefObject<HTMLDivElement>} className="max-w-[1400px] mx-auto px-6 lg:px-12 py-20 relative z-10">
+            <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-20 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
                     <RevealBlock className="lg:col-span-5">
                         <p className="text-xs tracking-[0.3em] uppercase mb-6 text-[#e8c872]">The Problem</p>
@@ -158,7 +157,7 @@ export default function LandingPage() {
                         </h2>
                     </RevealBlock>
 
-                    <div className="lg:col-span-6 lg:col-start-7 space-y-10" style={{ transform: `translateY(${offset}px)` }}>
+                    <div className="lg:col-span-6 lg:col-start-7 space-y-10">
                         <RevealBlock delay={0.1}>
                             <div className="flex items-start space-x-5">
                                 <span className="text-3xl font-extralight flex-shrink-0 text-[#e8c872]">01</span>
