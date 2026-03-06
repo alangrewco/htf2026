@@ -14,7 +14,7 @@ class Supplier(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, id=None, supplier_code=None, name=None, country=None, contact_email=None, status=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, id=None, supplier_code=None, name=None, country=None, contact_email=None, status=None, region=None, risk_rating=None, created_at=None, updated_at=None):  # noqa: E501
         """Supplier - a model defined in OpenAPI
 
         :param id: The id of this Supplier.  # noqa: E501
@@ -29,6 +29,10 @@ class Supplier(Model):
         :type contact_email: str
         :param status: The status of this Supplier.  # noqa: E501
         :type status: MasterStatus
+        :param region: The region of this Supplier.  # noqa: E501
+        :type region: str
+        :param risk_rating: The risk_rating of this Supplier.  # noqa: E501
+        :type risk_rating: str
         :param created_at: The created_at of this Supplier.  # noqa: E501
         :type created_at: datetime
         :param updated_at: The updated_at of this Supplier.  # noqa: E501
@@ -41,6 +45,8 @@ class Supplier(Model):
             'country': str,
             'contact_email': str,
             'status': MasterStatus,
+            'region': str,
+            'risk_rating': str,
             'created_at': datetime,
             'updated_at': datetime
         }
@@ -52,6 +58,8 @@ class Supplier(Model):
             'country': 'country',
             'contact_email': 'contact_email',
             'status': 'status',
+            'region': 'region',
+            'risk_rating': 'risk_rating',
             'created_at': 'created_at',
             'updated_at': 'updated_at'
         }
@@ -62,6 +70,8 @@ class Supplier(Model):
         self._country = country
         self._contact_email = contact_email
         self._status = status
+        self._region = region
+        self._risk_rating = risk_rating
         self._created_at = created_at
         self._updated_at = updated_at
 
@@ -213,6 +223,52 @@ class Supplier(Model):
             raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
         self._status = status
+
+    @property
+    def region(self) -> str:
+        """Gets the region of this Supplier.
+
+
+        :return: The region of this Supplier.
+        :rtype: str
+        """
+        return self._region
+
+    @region.setter
+    def region(self, region: str):
+        """Sets the region of this Supplier.
+
+
+        :param region: The region of this Supplier.
+        :type region: str
+        """
+        if region is None:
+            raise ValueError("Invalid value for `region`, must not be `None`")  # noqa: E501
+
+        self._region = region
+
+    @property
+    def risk_rating(self) -> str:
+        """Gets the risk_rating of this Supplier.
+
+
+        :return: The risk_rating of this Supplier.
+        :rtype: str
+        """
+        return self._risk_rating
+
+    @risk_rating.setter
+    def risk_rating(self, risk_rating: str):
+        """Sets the risk_rating of this Supplier.
+
+
+        :param risk_rating: The risk_rating of this Supplier.
+        :type risk_rating: str
+        """
+        if risk_rating is None:
+            raise ValueError("Invalid value for `risk_rating`, must not be `None`")  # noqa: E501
+
+        self._risk_rating = risk_rating
 
     @property
     def created_at(self) -> datetime:

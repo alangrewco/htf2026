@@ -70,6 +70,11 @@ class TestIngestionController(BaseTestCase):
         self.assertGreaterEqual(completed["stats"]["articles_ingested"], 0)
         self.assertGreaterEqual(completed["stats"]["articles_relevant"], 0)
 
+        listed = self.client.open("/api/v1/ingestion/runs?page=1&page_size=20", method="GET")
+        self.assertEqual(listed.status_code, 200, listed.data.decode("utf-8"))
+        listed_payload = self._json(listed)
+        self.assertGreaterEqual(listed_payload["total"], 1)
+
         scheduler = self.client.open("/api/v1/ingestion/status", method="GET")
         self.assertEqual(scheduler.status_code, 200, scheduler.data.decode("utf-8"))
         scheduler_payload = self._json(scheduler)

@@ -443,6 +443,51 @@ paths:
       - Proposals
       x-openapi-router-controller: openapi_server.controllers.proposals_controller
   /ingestion/runs:
+    get:
+      operationId: list_ingestion_runs
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestionRunListResponse"
+          description: Paginated ingestion runs
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List ingestion runs
+      tags:
+      - Ingestion
+      x-openapi-router-controller: openapi_server.controllers.ingestion_controller
     post:
       operationId: create_ingestion_run
       requestBody:
@@ -1271,12 +1316,18 @@ components:
       type: object
     Sku:
       example:
+        risk_level: critical
         updated_at: 2000-01-23T04:56:07.000+00:00
+        risk_score: 8
         name: name
         description: description
         unit_of_measure: unit_of_measure
         created_at: 2000-01-23T04:56:07.000+00:00
         id: id
+        supplier_ids:
+        - supplier_ids
+        - supplier_ids
+        category: category
         sku_code: sku_code
         status: active
       properties:
@@ -1297,6 +1348,21 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/MasterStatus"
+        risk_score:
+          maximum: 100
+          minimum: 0
+          title: risk_score
+          type: integer
+        risk_level:
+          $ref: "#/components/schemas/SkuRiskLevel"
+        category:
+          title: category
+          type: string
+        supplier_ids:
+          items:
+            type: string
+          title: supplier_ids
+          type: array
         created_at:
           format: date-time
           title: created_at
@@ -1306,12 +1372,16 @@ components:
           title: updated_at
           type: string
       required:
+      - category
       - created_at
       - description
       - id
       - name
+      - risk_level
+      - risk_score
       - sku_code
       - status
+      - supplier_ids
       - unit_of_measure
       - updated_at
       title: Sku
@@ -1319,9 +1389,15 @@ components:
     CreateSkuRequest:
       additionalProperties: false
       example:
+        risk_level: critical
+        risk_score: 8
         name: name
         description: description
         unit_of_measure: unit_of_measure
+        supplier_ids:
+        - supplier_ids
+        - supplier_ids
+        category: category
         sku_code: sku_code
         status: active
       properties:
@@ -1339,20 +1415,45 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/MasterStatus"
+        risk_score:
+          maximum: 100
+          minimum: 0
+          title: risk_score
+          type: integer
+        risk_level:
+          $ref: "#/components/schemas/SkuRiskLevel"
+        category:
+          title: category
+          type: string
+        supplier_ids:
+          items:
+            type: string
+          title: supplier_ids
+          type: array
       required:
+      - category
       - description
       - name
+      - risk_level
+      - risk_score
       - sku_code
       - status
+      - supplier_ids
       - unit_of_measure
       title: CreateSkuRequest
       type: object
     UpdateSkuRequest:
       additionalProperties: false
       example:
+        risk_level: critical
+        risk_score: 8
         name: name
         description: description
         unit_of_measure: unit_of_measure
+        supplier_ids:
+        - supplier_ids
+        - supplier_ids
+        category: category
         sku_code: sku_code
         status: active
       minProperties: 1
@@ -1371,26 +1472,53 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/MasterStatus"
+        risk_score:
+          maximum: 100
+          minimum: 0
+          title: risk_score
+          type: integer
+        risk_level:
+          $ref: "#/components/schemas/SkuRiskLevel"
+        category:
+          title: category
+          type: string
+        supplier_ids:
+          items:
+            type: string
+          title: supplier_ids
+          type: array
       title: UpdateSkuRequest
       type: object
     SkuListResponse:
       example:
         total: 0
         items:
-        - updated_at: 2000-01-23T04:56:07.000+00:00
+        - risk_level: critical
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_score: 8
           name: name
           description: description
           unit_of_measure: unit_of_measure
           created_at: 2000-01-23T04:56:07.000+00:00
           id: id
+          supplier_ids:
+          - supplier_ids
+          - supplier_ids
+          category: category
           sku_code: sku_code
           status: active
-        - updated_at: 2000-01-23T04:56:07.000+00:00
+        - risk_level: critical
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_score: 8
           name: name
           description: description
           unit_of_measure: unit_of_measure
           created_at: 2000-01-23T04:56:07.000+00:00
           id: id
+          supplier_ids:
+          - supplier_ids
+          - supplier_ids
+          category: category
           sku_code: sku_code
           status: active
       properties:
@@ -1412,9 +1540,11 @@ components:
       example:
         country: country
         updated_at: 2000-01-23T04:56:07.000+00:00
+        risk_rating: risk_rating
         name: name
         created_at: 2000-01-23T04:56:07.000+00:00
         id: id
+        region: region
         supplier_code: supplier_code
         contact_email: contact_email
         status: active
@@ -1437,6 +1567,12 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/MasterStatus"
+        region:
+          title: region
+          type: string
+        risk_rating:
+          title: risk_rating
+          type: string
         created_at:
           format: date-time
           title: created_at
@@ -1451,6 +1587,8 @@ components:
       - created_at
       - id
       - name
+      - region
+      - risk_rating
       - status
       - supplier_code
       - updated_at
@@ -1460,7 +1598,9 @@ components:
       additionalProperties: false
       example:
         country: country
+        risk_rating: risk_rating
         name: name
+        region: region
         supplier_code: supplier_code
         contact_email: contact_email
         status: active
@@ -1480,10 +1620,18 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/MasterStatus"
+        region:
+          title: region
+          type: string
+        risk_rating:
+          title: risk_rating
+          type: string
       required:
       - contact_email
       - country
       - name
+      - region
+      - risk_rating
       - status
       - supplier_code
       title: CreateSupplierRequest
@@ -1492,7 +1640,9 @@ components:
       additionalProperties: false
       example:
         country: country
+        risk_rating: risk_rating
         name: name
+        region: region
         supplier_code: supplier_code
         contact_email: contact_email
         status: active
@@ -1513,6 +1663,12 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/MasterStatus"
+        region:
+          title: region
+          type: string
+        risk_rating:
+          title: risk_rating
+          type: string
       title: UpdateSupplierRequest
       type: object
     SupplierListResponse:
@@ -1521,17 +1677,21 @@ components:
         items:
         - country: country
           updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_rating: risk_rating
           name: name
           created_at: 2000-01-23T04:56:07.000+00:00
           id: id
+          region: region
           supplier_code: supplier_code
           contact_email: contact_email
           status: active
         - country: country
           updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_rating: risk_rating
           name: name
           created_at: 2000-01-23T04:56:07.000+00:00
           id: id
+          region: region
           supplier_code: supplier_code
           contact_email: contact_email
           status: active
@@ -1553,17 +1713,36 @@ components:
     Shipment:
       example:
         route_id: route_id
-        eta: 2000-01-23T04:56:07.000+00:00
+        expected_delivery_date: 2000-01-23T04:56:07.000+00:00
+        created_at: 2000-01-23T04:56:07.000+00:00
+        shipment_code: shipment_code
+        order_date: 2000-01-23T04:56:07.000+00:00
+        carrier: carrier
         updated_at: 2000-01-23T04:56:07.000+00:00
         sku_ids:
         - sku_ids
         - sku_ids
         destination_port_id: destination_port_id
-        created_at: 2000-01-23T04:56:07.000+00:00
-        shipment_code: shipment_code
         id: id
         origin_port_id: origin_port_id
         supplier_id: supplier_id
+        events:
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
         status: planned
       properties:
         id:
@@ -1591,10 +1770,22 @@ components:
             type: string
           title: sku_ids
           type: array
-        eta:
-          format: date-time
-          title: eta
+        carrier:
+          title: carrier
           type: string
+        order_date:
+          format: date-time
+          title: order_date
+          type: string
+        expected_delivery_date:
+          format: date-time
+          title: expected_delivery_date
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/ShipmentEvent"
+          title: events
+          type: array
         created_at:
           format: date-time
           title: created_at
@@ -1604,10 +1795,13 @@ components:
           title: updated_at
           type: string
       required:
+      - carrier
       - created_at
       - destination_port_id
-      - eta
+      - events
+      - expected_delivery_date
       - id
+      - order_date
       - origin_port_id
       - route_id
       - shipment_code
@@ -1620,15 +1814,34 @@ components:
     CreateShipmentRequest:
       additionalProperties: false
       example:
+        order_date: 2000-01-23T04:56:07.000+00:00
+        carrier: carrier
         route_id: route_id
-        eta: 2000-01-23T04:56:07.000+00:00
         sku_ids:
         - sku_ids
         - sku_ids
         destination_port_id: destination_port_id
+        expected_delivery_date: 2000-01-23T04:56:07.000+00:00
         shipment_code: shipment_code
         origin_port_id: origin_port_id
         supplier_id: supplier_id
+        events:
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
         status: planned
       properties:
         shipment_code:
@@ -1653,13 +1866,28 @@ components:
             type: string
           title: sku_ids
           type: array
-        eta:
-          format: date-time
-          title: eta
+        carrier:
+          title: carrier
           type: string
+        order_date:
+          format: date-time
+          title: order_date
+          type: string
+        expected_delivery_date:
+          format: date-time
+          title: expected_delivery_date
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/ShipmentEvent"
+          title: events
+          type: array
       required:
+      - carrier
       - destination_port_id
-      - eta
+      - events
+      - expected_delivery_date
+      - order_date
       - origin_port_id
       - route_id
       - shipment_code
@@ -1671,15 +1899,34 @@ components:
     UpdateShipmentRequest:
       additionalProperties: false
       example:
+        order_date: 2000-01-23T04:56:07.000+00:00
+        carrier: carrier
         route_id: route_id
-        eta: 2000-01-23T04:56:07.000+00:00
         sku_ids:
         - sku_ids
         - sku_ids
         destination_port_id: destination_port_id
+        expected_delivery_date: 2000-01-23T04:56:07.000+00:00
         shipment_code: shipment_code
         origin_port_id: origin_port_id
         supplier_id: supplier_id
+        events:
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
         status: planned
       minProperties: 1
       properties:
@@ -1705,10 +1952,22 @@ components:
             type: string
           title: sku_ids
           type: array
-        eta:
-          format: date-time
-          title: eta
+        carrier:
+          title: carrier
           type: string
+        order_date:
+          format: date-time
+          title: order_date
+          type: string
+        expected_delivery_date:
+          format: date-time
+          title: expected_delivery_date
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/ShipmentEvent"
+          title: events
+          type: array
       title: UpdateShipmentRequest
       type: object
     ShipmentListResponse:
@@ -1716,30 +1975,68 @@ components:
         total: 0
         items:
         - route_id: route_id
-          eta: 2000-01-23T04:56:07.000+00:00
+          expected_delivery_date: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          shipment_code: shipment_code
+          order_date: 2000-01-23T04:56:07.000+00:00
+          carrier: carrier
           updated_at: 2000-01-23T04:56:07.000+00:00
           sku_ids:
           - sku_ids
           - sku_ids
           destination_port_id: destination_port_id
-          created_at: 2000-01-23T04:56:07.000+00:00
-          shipment_code: shipment_code
           id: id
           origin_port_id: origin_port_id
           supplier_id: supplier_id
+          events:
+          - metadata:
+              key: ""
+            description: description
+            location: location
+            id: id
+            type: type
+            event_time: 2000-01-23T04:56:07.000+00:00
+            status: status
+          - metadata:
+              key: ""
+            description: description
+            location: location
+            id: id
+            type: type
+            event_time: 2000-01-23T04:56:07.000+00:00
+            status: status
           status: planned
         - route_id: route_id
-          eta: 2000-01-23T04:56:07.000+00:00
+          expected_delivery_date: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          shipment_code: shipment_code
+          order_date: 2000-01-23T04:56:07.000+00:00
+          carrier: carrier
           updated_at: 2000-01-23T04:56:07.000+00:00
           sku_ids:
           - sku_ids
           - sku_ids
           destination_port_id: destination_port_id
-          created_at: 2000-01-23T04:56:07.000+00:00
-          shipment_code: shipment_code
           id: id
           origin_port_id: origin_port_id
           supplier_id: supplier_id
+          events:
+          - metadata:
+              key: ""
+            description: description
+            location: location
+            id: id
+            type: type
+            event_time: 2000-01-23T04:56:07.000+00:00
+            status: status
+          - metadata:
+              key: ""
+            description: description
+            location: location
+            id: id
+            type: type
+            event_time: 2000-01-23T04:56:07.000+00:00
+            status: status
           status: planned
       properties:
         items:
@@ -1832,6 +2129,60 @@ components:
       - status
       title: IngestionRun
       type: object
+    IngestionRunListResponse:
+      example:
+        total: 0
+        page: 1
+        items:
+        - finished_at: 2000-01-23T04:56:07.000+00:00
+          stats:
+            articles_relevant: 0
+            incidents_created: 0
+            articles_ingested: 0
+            proposals_generated: 0
+          started_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          error: error
+          status: queued
+        - finished_at: 2000-01-23T04:56:07.000+00:00
+          stats:
+            articles_relevant: 0
+            incidents_created: 0
+            articles_ingested: 0
+            proposals_generated: 0
+          started_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          error: error
+          status: queued
+        page_size: 70
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/IngestionRun"
+          title: items
+          type: array
+        total:
+          minimum: 0
+          title: total
+          type: integer
+        page:
+          minimum: 1
+          title: page
+          type: integer
+        page_size:
+          maximum: 100
+          minimum: 1
+          title: page_size
+          type: integer
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      title: IngestionRunListResponse
+      type: object
     IngestionStatus:
       example:
         last_run: ""
@@ -1884,16 +2235,29 @@ components:
       type: object
     Article:
       example:
-        updated_at: 2000-01-23T04:56:07.000+00:00
+        summary: summary
+        preview_text: preview_text
+        keywords:
+        - keywords
+        - keywords
         created_at: 2000-01-23T04:56:07.000+00:00
-        id: id
         source: source
         ingestion_run_id: ingestion_run_id
+        title: title
+        analysis: analysis
         body: body
-        published_at: 2000-01-23T04:56:07.000+00:00
-        headline: headline
         processing_state: raw
         source_url: https://openapi-generator.tech
+        tags:
+        - tags
+        - tags
+        publish_datetime: 2000-01-23T04:56:07.000+00:00
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        preview_image_url: https://openapi-generator.tech
+        id: id
+        published_at: 2000-01-23T04:56:07.000+00:00
+        headline: headline
+        source_name: source_name
       properties:
         id:
           title: id
@@ -1908,12 +2272,46 @@ components:
         headline:
           title: headline
           type: string
+        title:
+          title: title
+          type: string
+        summary:
+          title: summary
+          type: string
+        preview_text:
+          title: preview_text
+          type: string
+        analysis:
+          title: analysis
+          type: string
+        keywords:
+          items:
+            type: string
+          title: keywords
+          type: array
+        tags:
+          items:
+            type: string
+          title: tags
+          type: array
+        source_name:
+          title: source_name
+          type: string
         body:
           title: body
           type: string
         published_at:
           format: date-time
           title: published_at
+          type: string
+        publish_datetime:
+          format: date-time
+          title: publish_datetime
+          type: string
+        preview_image_url:
+          format: uri
+          nullable: true
+          title: preview_image_url
           type: string
         ingestion_run_id:
           title: ingestion_run_id
@@ -1929,15 +2327,24 @@ components:
           title: updated_at
           type: string
       required:
+      - analysis
       - body
       - created_at
       - headline
       - id
       - ingestion_run_id
+      - keywords
+      - preview_image_url
+      - preview_text
       - processing_state
+      - publish_datetime
       - published_at
       - source
+      - source_name
       - source_url
+      - summary
+      - tags
+      - title
       - updated_at
       title: Article
       type: object
@@ -1946,26 +2353,52 @@ components:
         total: 0
         page: 1
         items:
-        - updated_at: 2000-01-23T04:56:07.000+00:00
+        - summary: summary
+          preview_text: preview_text
+          keywords:
+          - keywords
+          - keywords
           created_at: 2000-01-23T04:56:07.000+00:00
-          id: id
           source: source
           ingestion_run_id: ingestion_run_id
+          title: title
+          analysis: analysis
           body: body
-          published_at: 2000-01-23T04:56:07.000+00:00
-          headline: headline
           processing_state: raw
           source_url: https://openapi-generator.tech
-        - updated_at: 2000-01-23T04:56:07.000+00:00
-          created_at: 2000-01-23T04:56:07.000+00:00
+          tags:
+          - tags
+          - tags
+          publish_datetime: 2000-01-23T04:56:07.000+00:00
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          preview_image_url: https://openapi-generator.tech
           id: id
+          published_at: 2000-01-23T04:56:07.000+00:00
+          headline: headline
+          source_name: source_name
+        - summary: summary
+          preview_text: preview_text
+          keywords:
+          - keywords
+          - keywords
+          created_at: 2000-01-23T04:56:07.000+00:00
           source: source
           ingestion_run_id: ingestion_run_id
+          title: title
+          analysis: analysis
           body: body
-          published_at: 2000-01-23T04:56:07.000+00:00
-          headline: headline
           processing_state: raw
           source_url: https://openapi-generator.tech
+          tags:
+          - tags
+          - tags
+          publish_datetime: 2000-01-23T04:56:07.000+00:00
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          preview_image_url: https://openapi-generator.tech
+          id: id
+          published_at: 2000-01-23T04:56:07.000+00:00
+          headline: headline
+          source_name: source_name
         page_size: 15
       properties:
         items:
@@ -2783,6 +3216,58 @@ components:
       - cancelled
       title: ShipmentStatus
       type: string
+    SkuRiskLevel:
+      enum:
+      - critical
+      - high
+      - medium
+      - low
+      title: SkuRiskLevel
+      type: string
+    ShipmentEvent:
+      example:
+        metadata:
+          key: ""
+        description: description
+        location: location
+        id: id
+        type: type
+        event_time: 2000-01-23T04:56:07.000+00:00
+        status: status
+      properties:
+        id:
+          title: id
+          type: string
+        type:
+          title: type
+          type: string
+        description:
+          title: description
+          type: string
+        event_time:
+          format: date-time
+          title: event_time
+          type: string
+        location:
+          nullable: true
+          title: location
+          type: string
+        status:
+          nullable: true
+          title: status
+          type: string
+        metadata:
+          additionalProperties: true
+          nullable: true
+          title: metadata
+          type: object
+      required:
+      - description
+      - event_time
+      - id
+      - type
+      title: ShipmentEvent
+      type: object
     DecisionType:
       enum:
       - approve

@@ -20,6 +20,7 @@ from app.repositories.ingestion_repo import IngestionRepository
 from app.services.enrichment_service import EnrichmentService
 
 from openapi_server.models.ingestion_run import IngestionRun
+from openapi_server.models.ingestion_run_list_response import IngestionRunListResponse
 from openapi_server.models.ingestion_run_queued_response import IngestionRunQueuedResponse
 from openapi_server.models.ingestion_stats import IngestionStats
 from openapi_server.models.ingestion_status import IngestionStatus
@@ -211,8 +212,17 @@ class IngestionService:
                     source=candidate.source,
                     source_url=candidate.source_url,
                     headline=candidate.headline[:2000],
+                    title=candidate.headline[:2000],
+                    summary="",
+                    preview_text=(candidate.body or candidate.headline)[:500],
+                    analysis="",
+                    keywords_json=[],
+                    tags_json=[],
+                    source_name=candidate.source,
                     body=(candidate.body or candidate.headline)[:10000],
                     published_at=candidate.published_at,
+                    publish_datetime=candidate.published_at,
+                    preview_image_url=None,
                     ingestion_run_id=run_id,
                     processing_state="raw",
                     external_id=candidate.external_id,
@@ -247,6 +257,18 @@ class IngestionService:
             return IngestionStatus(
                 last_run=self._to_model(last) if last else None,
                 next_scheduled_run_at=self._next_scheduled_run_at,
+            )
+
+    def list_ingestion_runs(self, page: int, page_size: int) -> IngestionRunListResponse:
+        self._ensure_initialized()
+        with session_scope() as session:
+            repo = IngestionRepository(session)
+            rows, total = repo.list_runs(page=page, page_size=page_size)
+            return IngestionRunListResponse(
+                items=[self._to_model(r) for r in rows],
+                total=total,
+                page=page,
+                page_size=page_size,
             )
 
     def _to_model(self, row: IngestionRunRecord) -> IngestionRun:

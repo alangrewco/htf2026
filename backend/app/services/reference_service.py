@@ -18,6 +18,7 @@ from openapi_server.models.supplier_list_response import SupplierListResponse
 
 MASTER_STATUSES = {"active", "inactive"}
 SHIPMENT_STATUSES = {"planned", "in_transit", "delayed", "delivered", "cancelled"}
+SKU_RISK_LEVELS = {"critical", "high", "medium", "low"}
 
 
 def _utcnow_naive() -> datetime:
@@ -41,13 +42,19 @@ class ReferenceService:
 
     def create_sku(self, payload) -> Sku:
         self._ensure_initialized()
-        self._require(payload, ["sku_code", "name", "description", "unit_of_measure", "status"])
+        self._require(
+            payload,
+            ["sku_code", "name", "description", "unit_of_measure", "status", "risk_score", "risk_level", "category", "supplier_ids"],
+        )
         status = self._validate_master_status(payload.status)
+        risk_score = self._validate_risk_score(payload.risk_score)
+        risk_level = self._validate_sku_risk_level(payload.risk_level)
 
         with session_scope() as session:
             repo = ReferenceRepository(session)
             if repo.get_sku_by_code(payload.sku_code):
                 raise ConflictError("SKU code already exists.", {"sku_code": payload.sku_code})
+            self._validate_supplier_ids(repo, payload.supplier_ids)
 
             now = _utcnow_naive()
             row = SkuRecord(
@@ -57,6 +64,10 @@ class ReferenceService:
                 description=payload.description,
                 unit_of_measure=payload.unit_of_measure,
                 status=status,
+                risk_score=risk_score,
+                risk_level=risk_level,
+                category=payload.category,
+                supplier_ids_json=payload.supplier_ids,
                 created_at=now,
                 updated_at=now,
             )
@@ -89,6 +100,19 @@ class ReferenceService:
             if payload.status is not None:
                 row.status = self._validate_master_status(payload.status)
                 changed = True
+            if payload.risk_score is not None:
+                row.risk_score = self._validate_risk_score(payload.risk_score)
+                changed = True
+            if payload.risk_level is not None:
+                row.risk_level = self._validate_sku_risk_level(payload.risk_level)
+                changed = True
+            if payload.category is not None:
+                row.category = payload.category
+                changed = True
+            if payload.supplier_ids is not None:
+                self._validate_supplier_ids(repo, payload.supplier_ids)
+                row.supplier_ids_json = payload.supplier_ids
+                changed = True
 
             if not changed:
                 raise BadRequestError("At least one field must be provided for update.")
@@ -105,7 +129,7 @@ class ReferenceService:
 
     def create_supplier(self, payload) -> Supplier:
         self._ensure_initialized()
-        self._require(payload, ["supplier_code", "name", "country", "contact_email", "status"])
+        self._require(payload, ["supplier_code", "name", "country", "contact_email", "status", "region", "risk_rating"])
         status = self._validate_master_status(payload.status)
 
         with session_scope() as session:
@@ -121,6 +145,8 @@ class ReferenceService:
                 country=payload.country,
                 contact_email=payload.contact_email,
                 status=status,
+                region=payload.region,
+                risk_rating=payload.risk_rating,
                 created_at=now,
                 updated_at=now,
             )
@@ -153,6 +179,12 @@ class ReferenceService:
             if payload.status is not None:
                 row.status = self._validate_master_status(payload.status)
                 changed = True
+            if payload.region is not None:
+                row.region = payload.region
+                changed = True
+            if payload.risk_rating is not None:
+                row.risk_rating = payload.risk_rating
+                changed = True
 
             if not changed:
                 raise BadRequestError("At least one field must be provided for update.")
@@ -179,11 +211,16 @@ class ReferenceService:
                 "route_id",
                 "supplier_id",
                 "sku_ids",
-                "eta",
+                "carrier",
+                "order_date",
+                "expected_delivery_date",
+                "events",
             ],
         )
         status = self._validate_shipment_status(payload.status)
-        eta = self._coerce_datetime(payload.eta)
+        order_date = self._coerce_datetime(payload.order_date)
+        expected_delivery_date = self._coerce_datetime(payload.expected_delivery_date)
+        events = self._normalize_events(payload.events)
 
         with session_scope() as session:
             repo = ReferenceRepository(session)
@@ -201,7 +238,10 @@ class ReferenceService:
                 route_id=payload.route_id,
                 supplier_id=payload.supplier_id,
                 sku_ids_json=payload.sku_ids,
-                eta=eta,
+                carrier=payload.carrier,
+                order_date=order_date,
+                expected_delivery_date=expected_delivery_date,
+                events_json=events,
                 created_at=now,
                 updated_at=now,
             )
@@ -240,8 +280,17 @@ class ReferenceService:
             if payload.sku_ids is not None:
                 row.sku_ids_json = payload.sku_ids
                 changed = True
-            if payload.eta is not None:
-                row.eta = self._coerce_datetime(payload.eta)
+            if payload.carrier is not None:
+                row.carrier = payload.carrier
+                changed = True
+            if payload.order_date is not None:
+                row.order_date = self._coerce_datetime(payload.order_date)
+                changed = True
+            if payload.expected_delivery_date is not None:
+                row.expected_delivery_date = self._coerce_datetime(payload.expected_delivery_date)
+                changed = True
+            if payload.events is not None:
+                row.events_json = self._normalize_events(payload.events)
                 changed = True
 
             if not changed:
@@ -323,6 +372,58 @@ class ReferenceService:
         return status
 
     @staticmethod
+    def _validate_sku_risk_level(level: str) -> str:
+        level = str(level)
+        if level not in SKU_RISK_LEVELS:
+            raise ValidationError("Invalid SKU risk level.", {"allowed": sorted(SKU_RISK_LEVELS), "received": level})
+        return level
+
+    @staticmethod
+    def _validate_risk_score(value) -> int:
+        score = int(value)
+        if score < 0 or score > 100:
+            raise ValidationError("Invalid risk score.", {"min": 0, "max": 100, "received": score})
+        return score
+
+    @staticmethod
+    def _normalize_events(events) -> list[dict]:
+        normalized = []
+        for event in events or []:
+            if isinstance(event, dict):
+                e = event
+            else:
+                e = {
+                    "id": getattr(event, "id", None),
+                    "type": getattr(event, "type", None),
+                    "description": getattr(event, "description", None),
+                    "event_time": getattr(event, "event_time", None),
+                    "location": getattr(event, "location", None),
+                    "status": getattr(event, "status", None),
+                    "metadata": getattr(event, "metadata", None),
+                }
+            required = [k for k in ["id", "type", "description", "event_time"] if e.get(k) in {None, ""}]
+            if required:
+                raise ValidationError("Invalid shipment event.", {"missing_fields": required})
+            normalized.append(
+                {
+                    "id": str(e.get("id")),
+                    "type": str(e.get("type")),
+                    "description": str(e.get("description")),
+                    "event_time": str(e.get("event_time")),
+                    "location": e.get("location"),
+                    "status": e.get("status"),
+                    "metadata": e.get("metadata"),
+                }
+            )
+        return normalized
+
+    @staticmethod
+    def _validate_supplier_ids(repo: ReferenceRepository, supplier_ids: list[str]):
+        missing = [x for x in supplier_ids or [] if not repo.supplier_exists(x)]
+        if missing:
+            raise ValidationError("Invalid supplier references for SKU.", {"missing_supplier_ids": missing})
+
+    @staticmethod
     def _coerce_datetime(value):
         if isinstance(value, datetime):
             return value
@@ -342,6 +443,10 @@ class ReferenceService:
             description=row.description,
             unit_of_measure=row.unit_of_measure,
             status=row.status,
+            risk_score=row.risk_score,
+            risk_level=row.risk_level,
+            category=row.category,
+            supplier_ids=row.supplier_ids_json or [],
             created_at=row.created_at,
             updated_at=row.updated_at,
         )
@@ -355,6 +460,8 @@ class ReferenceService:
             country=row.country,
             contact_email=row.contact_email,
             status=row.status,
+            region=row.region,
+            risk_rating=row.risk_rating,
             created_at=row.created_at,
             updated_at=row.updated_at,
         )
@@ -370,7 +477,10 @@ class ReferenceService:
             route_id=row.route_id,
             supplier_id=row.supplier_id,
             sku_ids=row.sku_ids_json,
-            eta=row.eta,
+            carrier=row.carrier,
+            order_date=row.order_date,
+            expected_delivery_date=row.expected_delivery_date,
+            events=row.events_json or [],
             created_at=row.created_at,
             updated_at=row.updated_at,
         )

@@ -19,6 +19,13 @@ class IngestionRepository:
         stmt = select(IngestionRunRecord).order_by(desc(IngestionRunRecord.created_at)).limit(1)
         return self.session.execute(stmt).scalar_one_or_none()
 
+    def list_runs(self, page: int, page_size: int):
+        rows = self.session.execute(select(IngestionRunRecord).order_by(desc(IngestionRunRecord.created_at))).scalars().all()
+        total = len(rows)
+        start = (page - 1) * page_size
+        end = start + page_size
+        return rows[start:end], total
+
     def upsert_checkpoint(self, source_name: str, cursor: str | None, polled_at):
         row = self.session.get(IngestionCheckpointRecord, source_name)
         if row is None:

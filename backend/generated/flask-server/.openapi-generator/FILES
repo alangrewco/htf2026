@@ -41,6 +41,7 @@ openapi_server/models/incident_classification.py
 openapi_server/models/incident_list_response.py
 openapi_server/models/incident_status.py
 openapi_server/models/ingestion_run.py
+openapi_server/models/ingestion_run_list_response.py
 openapi_server/models/ingestion_run_queued_response.py
 openapi_server/models/ingestion_run_status.py
 openapi_server/models/ingestion_stats.py
@@ -61,10 +62,12 @@ openapi_server/models/relevance_tag.py
 openapi_server/models/risk_level.py
 openapi_server/models/risk_profile.py
 openapi_server/models/shipment.py
+openapi_server/models/shipment_event.py
 openapi_server/models/shipment_list_response.py
 openapi_server/models/shipment_status.py
 openapi_server/models/sku.py
 openapi_server/models/sku_list_response.py
+openapi_server/models/sku_risk_level.py
 openapi_server/models/step_category.py
 openapi_server/models/step_type.py
 openapi_server/models/supplier.py

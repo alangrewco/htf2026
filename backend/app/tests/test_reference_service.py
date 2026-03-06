@@ -15,6 +15,7 @@ from openapi_server.models.create_shipment_request import CreateShipmentRequest
 from openapi_server.models.create_sku_request import CreateSkuRequest
 from openapi_server.models.create_supplier_request import CreateSupplierRequest
 from openapi_server.models.update_shipment_request import UpdateShipmentRequest
+from openapi_server.models.update_sku_request import UpdateSkuRequest
 
 
 @pytest.fixture()
@@ -36,6 +37,10 @@ def test_reference_service_create_and_update(service):
             description='12-inch panel',
             unit_of_measure='unit',
             status='active',
+            risk_score=50,
+            risk_level='medium',
+            category='lighting',
+            supplier_ids=[],
         )
     )
 
@@ -46,8 +51,12 @@ def test_reference_service_create_and_update(service):
             country='US',
             contact_email='ops@acme.com',
             status='active',
+            region='North America',
+            risk_rating='low',
         )
     )
+
+    sku = service.update_sku(sku.id, UpdateSkuRequest(supplier_ids=[supplier.id]))
 
     shipment = service.create_shipment(
         CreateShipmentRequest(
@@ -58,7 +67,10 @@ def test_reference_service_create_and_update(service):
             route_id=routes.items[0].id,
             supplier_id=supplier.id,
             sku_ids=[sku.id],
-            eta='2026-03-10T10:00:00Z',
+            carrier='Maersk',
+            order_date='2026-03-01T10:00:00Z',
+            expected_delivery_date='2026-03-10T10:00:00Z',
+            events=[{"id": "evt-1", "type": "booked", "description": "Booked", "event_time": "2026-03-01T10:00:00Z"}],
         )
     )
 

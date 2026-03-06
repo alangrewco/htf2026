@@ -14,7 +14,7 @@ class Article(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, id=None, source=None, source_url=None, headline=None, body=None, published_at=None, ingestion_run_id=None, processing_state=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, id=None, source=None, source_url=None, headline=None, title=None, summary=None, preview_text=None, analysis=None, keywords=None, tags=None, source_name=None, body=None, published_at=None, publish_datetime=None, preview_image_url=None, ingestion_run_id=None, processing_state=None, created_at=None, updated_at=None):  # noqa: E501
         """Article - a model defined in OpenAPI
 
         :param id: The id of this Article.  # noqa: E501
@@ -25,10 +25,28 @@ class Article(Model):
         :type source_url: str
         :param headline: The headline of this Article.  # noqa: E501
         :type headline: str
+        :param title: The title of this Article.  # noqa: E501
+        :type title: str
+        :param summary: The summary of this Article.  # noqa: E501
+        :type summary: str
+        :param preview_text: The preview_text of this Article.  # noqa: E501
+        :type preview_text: str
+        :param analysis: The analysis of this Article.  # noqa: E501
+        :type analysis: str
+        :param keywords: The keywords of this Article.  # noqa: E501
+        :type keywords: List[str]
+        :param tags: The tags of this Article.  # noqa: E501
+        :type tags: List[str]
+        :param source_name: The source_name of this Article.  # noqa: E501
+        :type source_name: str
         :param body: The body of this Article.  # noqa: E501
         :type body: str
         :param published_at: The published_at of this Article.  # noqa: E501
         :type published_at: datetime
+        :param publish_datetime: The publish_datetime of this Article.  # noqa: E501
+        :type publish_datetime: datetime
+        :param preview_image_url: The preview_image_url of this Article.  # noqa: E501
+        :type preview_image_url: str
         :param ingestion_run_id: The ingestion_run_id of this Article.  # noqa: E501
         :type ingestion_run_id: str
         :param processing_state: The processing_state of this Article.  # noqa: E501
@@ -43,8 +61,17 @@ class Article(Model):
             'source': str,
             'source_url': str,
             'headline': str,
+            'title': str,
+            'summary': str,
+            'preview_text': str,
+            'analysis': str,
+            'keywords': List[str],
+            'tags': List[str],
+            'source_name': str,
             'body': str,
             'published_at': datetime,
+            'publish_datetime': datetime,
+            'preview_image_url': str,
             'ingestion_run_id': str,
             'processing_state': ArticleProcessingState,
             'created_at': datetime,
@@ -56,8 +83,17 @@ class Article(Model):
             'source': 'source',
             'source_url': 'source_url',
             'headline': 'headline',
+            'title': 'title',
+            'summary': 'summary',
+            'preview_text': 'preview_text',
+            'analysis': 'analysis',
+            'keywords': 'keywords',
+            'tags': 'tags',
+            'source_name': 'source_name',
             'body': 'body',
             'published_at': 'published_at',
+            'publish_datetime': 'publish_datetime',
+            'preview_image_url': 'preview_image_url',
             'ingestion_run_id': 'ingestion_run_id',
             'processing_state': 'processing_state',
             'created_at': 'created_at',
@@ -68,8 +104,17 @@ class Article(Model):
         self._source = source
         self._source_url = source_url
         self._headline = headline
+        self._title = title
+        self._summary = summary
+        self._preview_text = preview_text
+        self._analysis = analysis
+        self._keywords = keywords
+        self._tags = tags
+        self._source_name = source_name
         self._body = body
         self._published_at = published_at
+        self._publish_datetime = publish_datetime
+        self._preview_image_url = preview_image_url
         self._ingestion_run_id = ingestion_run_id
         self._processing_state = processing_state
         self._created_at = created_at
@@ -179,6 +224,167 @@ class Article(Model):
         self._headline = headline
 
     @property
+    def title(self) -> str:
+        """Gets the title of this Article.
+
+
+        :return: The title of this Article.
+        :rtype: str
+        """
+        return self._title
+
+    @title.setter
+    def title(self, title: str):
+        """Sets the title of this Article.
+
+
+        :param title: The title of this Article.
+        :type title: str
+        """
+        if title is None:
+            raise ValueError("Invalid value for `title`, must not be `None`")  # noqa: E501
+
+        self._title = title
+
+    @property
+    def summary(self) -> str:
+        """Gets the summary of this Article.
+
+
+        :return: The summary of this Article.
+        :rtype: str
+        """
+        return self._summary
+
+    @summary.setter
+    def summary(self, summary: str):
+        """Sets the summary of this Article.
+
+
+        :param summary: The summary of this Article.
+        :type summary: str
+        """
+        if summary is None:
+            raise ValueError("Invalid value for `summary`, must not be `None`")  # noqa: E501
+
+        self._summary = summary
+
+    @property
+    def preview_text(self) -> str:
+        """Gets the preview_text of this Article.
+
+
+        :return: The preview_text of this Article.
+        :rtype: str
+        """
+        return self._preview_text
+
+    @preview_text.setter
+    def preview_text(self, preview_text: str):
+        """Sets the preview_text of this Article.
+
+
+        :param preview_text: The preview_text of this Article.
+        :type preview_text: str
+        """
+        if preview_text is None:
+            raise ValueError("Invalid value for `preview_text`, must not be `None`")  # noqa: E501
+
+        self._preview_text = preview_text
+
+    @property
+    def analysis(self) -> str:
+        """Gets the analysis of this Article.
+
+
+        :return: The analysis of this Article.
+        :rtype: str
+        """
+        return self._analysis
+
+    @analysis.setter
+    def analysis(self, analysis: str):
+        """Sets the analysis of this Article.
+
+
+        :param analysis: The analysis of this Article.
+        :type analysis: str
+        """
+        if analysis is None:
+            raise ValueError("Invalid value for `analysis`, must not be `None`")  # noqa: E501
+
+        self._analysis = analysis
+
+    @property
+    def keywords(self) -> List[str]:
+        """Gets the keywords of this Article.
+
+
+        :return: The keywords of this Article.
+        :rtype: List[str]
+        """
+        return self._keywords
+
+    @keywords.setter
+    def keywords(self, keywords: List[str]):
+        """Sets the keywords of this Article.
+
+
+        :param keywords: The keywords of this Article.
+        :type keywords: List[str]
+        """
+        if keywords is None:
+            raise ValueError("Invalid value for `keywords`, must not be `None`")  # noqa: E501
+
+        self._keywords = keywords
+
+    @property
+    def tags(self) -> List[str]:
+        """Gets the tags of this Article.
+
+
+        :return: The tags of this Article.
+        :rtype: List[str]
+        """
+        return self._tags
+
+    @tags.setter
+    def tags(self, tags: List[str]):
+        """Sets the tags of this Article.
+
+
+        :param tags: The tags of this Article.
+        :type tags: List[str]
+        """
+        if tags is None:
+            raise ValueError("Invalid value for `tags`, must not be `None`")  # noqa: E501
+
+        self._tags = tags
+
+    @property
+    def source_name(self) -> str:
+        """Gets the source_name of this Article.
+
+
+        :return: The source_name of this Article.
+        :rtype: str
+        """
+        return self._source_name
+
+    @source_name.setter
+    def source_name(self, source_name: str):
+        """Sets the source_name of this Article.
+
+
+        :param source_name: The source_name of this Article.
+        :type source_name: str
+        """
+        if source_name is None:
+            raise ValueError("Invalid value for `source_name`, must not be `None`")  # noqa: E501
+
+        self._source_name = source_name
+
+    @property
     def body(self) -> str:
         """Gets the body of this Article.
 
@@ -223,6 +429,52 @@ class Article(Model):
             raise ValueError("Invalid value for `published_at`, must not be `None`")  # noqa: E501
 
         self._published_at = published_at
+
+    @property
+    def publish_datetime(self) -> datetime:
+        """Gets the publish_datetime of this Article.
+
+
+        :return: The publish_datetime of this Article.
+        :rtype: datetime
+        """
+        return self._publish_datetime
+
+    @publish_datetime.setter
+    def publish_datetime(self, publish_datetime: datetime):
+        """Sets the publish_datetime of this Article.
+
+
+        :param publish_datetime: The publish_datetime of this Article.
+        :type publish_datetime: datetime
+        """
+        if publish_datetime is None:
+            raise ValueError("Invalid value for `publish_datetime`, must not be `None`")  # noqa: E501
+
+        self._publish_datetime = publish_datetime
+
+    @property
+    def preview_image_url(self) -> str:
+        """Gets the preview_image_url of this Article.
+
+
+        :return: The preview_image_url of this Article.
+        :rtype: str
+        """
+        return self._preview_image_url
+
+    @preview_image_url.setter
+    def preview_image_url(self, preview_image_url: str):
+        """Sets the preview_image_url of this Article.
+
+
+        :param preview_image_url: The preview_image_url of this Article.
+        :type preview_image_url: str
+        """
+        if preview_image_url is None:
+            raise ValueError("Invalid value for `preview_image_url`, must not be `None`")  # noqa: E501
+
+        self._preview_image_url = preview_image_url
 
     @property
     def ingestion_run_id(self) -> str:

@@ -60,9 +60,6 @@ def _apply_non_destructive_migrations(engine):
     - Adds missing columns only.
     """
     insp = inspect(engine)
-    if not insp.has_table("articles"):
-        return
-
     existing_cols = {col["name"] for col in insp.get_columns("articles")}
     dialect = engine.dialect.name
     statements: list[str] = []
@@ -90,6 +87,77 @@ def _apply_non_destructive_migrations(engine):
             statements.append("ALTER TABLE articles ADD COLUMN enrichment_attempt_count INTEGER NOT NULL DEFAULT 0")
         else:
             statements.append("ALTER TABLE articles ADD COLUMN enrichment_attempt_count INTEGER NOT NULL DEFAULT 0")
+
+    if "title" not in existing_cols:
+        statements.append("ALTER TABLE articles ADD COLUMN title TEXT NOT NULL DEFAULT ''")
+    if "summary" not in existing_cols:
+        statements.append("ALTER TABLE articles ADD COLUMN summary TEXT NOT NULL DEFAULT ''")
+    if "preview_text" not in existing_cols:
+        statements.append("ALTER TABLE articles ADD COLUMN preview_text TEXT NOT NULL DEFAULT ''")
+    if "analysis" not in existing_cols:
+        statements.append("ALTER TABLE articles ADD COLUMN analysis TEXT NOT NULL DEFAULT ''")
+    if "keywords_json" not in existing_cols:
+        if dialect == "postgresql":
+            statements.append("ALTER TABLE articles ADD COLUMN keywords_json JSONB NOT NULL DEFAULT '[]'::jsonb")
+        else:
+            statements.append("ALTER TABLE articles ADD COLUMN keywords_json JSON NOT NULL DEFAULT '[]'")
+    if "tags_json" not in existing_cols:
+        if dialect == "postgresql":
+            statements.append("ALTER TABLE articles ADD COLUMN tags_json JSONB NOT NULL DEFAULT '[]'::jsonb")
+        else:
+            statements.append("ALTER TABLE articles ADD COLUMN tags_json JSON NOT NULL DEFAULT '[]'")
+    if "source_name" not in existing_cols:
+        statements.append("ALTER TABLE articles ADD COLUMN source_name VARCHAR(120) NOT NULL DEFAULT ''")
+    if "publish_datetime" not in existing_cols:
+        if dialect == "postgresql":
+            statements.append("ALTER TABLE articles ADD COLUMN publish_datetime TIMESTAMP NOT NULL DEFAULT NOW()")
+        else:
+            statements.append("ALTER TABLE articles ADD COLUMN publish_datetime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP")
+    if "preview_image_url" not in existing_cols:
+        statements.append("ALTER TABLE articles ADD COLUMN preview_image_url TEXT")
+
+    if insp.has_table("skus"):
+        sku_cols = {col["name"] for col in insp.get_columns("skus")}
+        if "risk_score" not in sku_cols:
+            statements.append("ALTER TABLE skus ADD COLUMN risk_score INTEGER NOT NULL DEFAULT 0")
+        if "risk_level" not in sku_cols:
+            statements.append("ALTER TABLE skus ADD COLUMN risk_level VARCHAR(32) NOT NULL DEFAULT 'low'")
+        if "category" not in sku_cols:
+            statements.append("ALTER TABLE skus ADD COLUMN category VARCHAR(120) NOT NULL DEFAULT 'general'")
+        if "supplier_ids_json" not in sku_cols:
+            if dialect == "postgresql":
+                statements.append("ALTER TABLE skus ADD COLUMN supplier_ids_json JSONB NOT NULL DEFAULT '[]'::jsonb")
+            else:
+                statements.append("ALTER TABLE skus ADD COLUMN supplier_ids_json JSON NOT NULL DEFAULT '[]'")
+
+    if insp.has_table("suppliers"):
+        supplier_cols = {col["name"] for col in insp.get_columns("suppliers")}
+        if "region" not in supplier_cols:
+            statements.append("ALTER TABLE suppliers ADD COLUMN region VARCHAR(120) NOT NULL DEFAULT 'Unknown'")
+        if "risk_rating" not in supplier_cols:
+            statements.append("ALTER TABLE suppliers ADD COLUMN risk_rating VARCHAR(64) NOT NULL DEFAULT 'medium'")
+
+    if insp.has_table("shipments"):
+        shipment_cols = {col["name"] for col in insp.get_columns("shipments")}
+        if "carrier" not in shipment_cols:
+            statements.append("ALTER TABLE shipments ADD COLUMN carrier VARCHAR(120) NOT NULL DEFAULT 'Unknown'")
+        if "order_date" not in shipment_cols:
+            if dialect == "postgresql":
+                statements.append("ALTER TABLE shipments ADD COLUMN order_date TIMESTAMP NOT NULL DEFAULT NOW()")
+            else:
+                statements.append("ALTER TABLE shipments ADD COLUMN order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP")
+        if "expected_delivery_date" not in shipment_cols:
+            if dialect == "postgresql":
+                statements.append("ALTER TABLE shipments ADD COLUMN expected_delivery_date TIMESTAMP NOT NULL DEFAULT NOW()")
+            else:
+                statements.append(
+                    "ALTER TABLE shipments ADD COLUMN expected_delivery_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                )
+        if "events_json" not in shipment_cols:
+            if dialect == "postgresql":
+                statements.append("ALTER TABLE shipments ADD COLUMN events_json JSONB NOT NULL DEFAULT '[]'::jsonb")
+            else:
+                statements.append("ALTER TABLE shipments ADD COLUMN events_json JSON NOT NULL DEFAULT '[]'")
 
     if not statements:
         return

@@ -261,6 +261,24 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
   /ingestion/runs:
+    get:
+      tags: [Ingestion]
+      operationId: listIngestionRuns
+      summary: List ingestion runs
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Paginated ingestion runs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionRunListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       tags: [Ingestion]
       operationId: createIngestionRun
@@ -771,6 +789,10 @@ components:
         - description
         - unit_of_measure
         - status
+        - risk_score
+        - risk_level
+        - category
+        - supplier_ids
         - created_at
         - updated_at
       properties:
@@ -786,6 +808,18 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/MasterStatus'
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        risk_level:
+          $ref: '#/components/schemas/SkuRiskLevel'
+        category:
+          type: string
+        supplier_ids:
+          type: array
+          items:
+            type: string
         created_at:
           type: string
           format: date-time
@@ -795,7 +829,7 @@ components:
 
     CreateSkuRequest:
       type: object
-      required: [sku_code, name, description, unit_of_measure, status]
+      required: [sku_code, name, description, unit_of_measure, status, risk_score, risk_level, category, supplier_ids]
       properties:
         sku_code:
           type: string
@@ -807,6 +841,18 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/MasterStatus'
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        risk_level:
+          $ref: '#/components/schemas/SkuRiskLevel'
+        category:
+          type: string
+        supplier_ids:
+          type: array
+          items:
+            type: string
       additionalProperties: false
 
     UpdateSkuRequest:
@@ -823,6 +869,18 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/MasterStatus'
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        risk_level:
+          $ref: '#/components/schemas/SkuRiskLevel'
+        category:
+          type: string
+        supplier_ids:
+          type: array
+          items:
+            type: string
       additionalProperties: false
 
     SkuListResponse:
@@ -846,6 +904,8 @@ components:
         - country
         - contact_email
         - status
+        - region
+        - risk_rating
         - created_at
         - updated_at
       properties:
@@ -862,6 +922,10 @@ components:
           format: email
         status:
           $ref: '#/components/schemas/MasterStatus'
+        region:
+          type: string
+        risk_rating:
+          type: string
         created_at:
           type: string
           format: date-time
@@ -871,7 +935,7 @@ components:
 
     CreateSupplierRequest:
       type: object
-      required: [supplier_code, name, country, contact_email, status]
+      required: [supplier_code, name, country, contact_email, status, region, risk_rating]
       properties:
         supplier_code:
           type: string
@@ -884,6 +948,10 @@ components:
           format: email
         status:
           $ref: '#/components/schemas/MasterStatus'
+        region:
+          type: string
+        risk_rating:
+          type: string
       additionalProperties: false
 
     UpdateSupplierRequest:
@@ -901,6 +969,10 @@ components:
           format: email
         status:
           $ref: '#/components/schemas/MasterStatus'
+        region:
+          type: string
+        risk_rating:
+          type: string
       additionalProperties: false
 
     SupplierListResponse:
@@ -926,7 +998,10 @@ components:
         - route_id
         - supplier_id
         - sku_ids
-        - eta
+        - carrier
+        - order_date
+        - expected_delivery_date
+        - events
         - created_at
         - updated_at
       properties:
@@ -948,9 +1023,18 @@ components:
           type: array
           items:
             type: string
-        eta:
+        carrier:
+          type: string
+        order_date:
           type: string
           format: date-time
+        expected_delivery_date:
+          type: string
+          format: date-time
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShipmentEvent'
         created_at:
           type: string
           format: date-time
@@ -968,7 +1052,10 @@ components:
         - route_id
         - supplier_id
         - sku_ids
-        - eta
+        - carrier
+        - order_date
+        - expected_delivery_date
+        - events
       properties:
         shipment_code:
           type: string
@@ -986,9 +1073,18 @@ components:
           type: array
           items:
             type: string
-        eta:
+        carrier:
+          type: string
+        order_date:
           type: string
           format: date-time
+        expected_delivery_date:
+          type: string
+          format: date-time
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShipmentEvent'
       additionalProperties: false
 
     UpdateShipmentRequest:
@@ -1011,9 +1107,18 @@ components:
           type: array
           items:
             type: string
-        eta:
+        carrier:
+          type: string
+        order_date:
           type: string
           format: date-time
+        expected_delivery_date:
+          type: string
+          format: date-time
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShipmentEvent'
       additionalProperties: false
 
     ShipmentListResponse:
@@ -1077,6 +1182,25 @@ components:
           type: string
           nullable: true
 
+    IngestionRunListResponse:
+      type: object
+      required: [items, total, page, page_size]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestionRun'
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+
     IngestionStatus:
       type: object
       required: [last_run, next_scheduled_run_at]
@@ -1118,8 +1242,17 @@ components:
         - source
         - source_url
         - headline
+        - title
+        - summary
+        - preview_text
+        - analysis
+        - keywords
+        - tags
+        - source_name
         - body
         - published_at
+        - publish_datetime
+        - preview_image_url
         - ingestion_run_id
         - processing_state
         - created_at
@@ -1134,11 +1267,36 @@ components:
           format: uri
         headline:
           type: string
+        title:
+          type: string
+        summary:
+          type: string
+        preview_text:
+          type: string
+        analysis:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        source_name:
+          type: string
         body:
           type: string
         published_at:
           type: string
           format: date-time
+        publish_datetime:
+          type: string
+          format: date-time
+        preview_image_url:
+          type: string
+          format: uri
+          nullable: true
         ingestion_run_id:
           type: string
         processing_state:
@@ -1562,6 +1720,34 @@ components:
     ShipmentStatus:
       type: string
       enum: [planned, in_transit, delayed, delivered, cancelled]
+
+    SkuRiskLevel:
+      type: string
+      enum: [critical, high, medium, low]
+
+    ShipmentEvent:
+      type: object
+      required: [id, type, description, event_time]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        event_time:
+          type: string
+          format: date-time
+        location:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+          nullable: true
 
     DecisionType:
       type: string

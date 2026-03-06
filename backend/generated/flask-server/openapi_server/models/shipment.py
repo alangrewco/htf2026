@@ -3,9 +3,11 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from openapi_server.models.base_model import Model
+from openapi_server.models.shipment_event import ShipmentEvent
 from openapi_server.models.shipment_status import ShipmentStatus
 from openapi_server import util
 
+from openapi_server.models.shipment_event import ShipmentEvent  # noqa: E501
 from openapi_server.models.shipment_status import ShipmentStatus  # noqa: E501
 
 class Shipment(Model):
@@ -14,7 +16,7 @@ class Shipment(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, id=None, shipment_code=None, status=None, origin_port_id=None, destination_port_id=None, route_id=None, supplier_id=None, sku_ids=None, eta=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, id=None, shipment_code=None, status=None, origin_port_id=None, destination_port_id=None, route_id=None, supplier_id=None, sku_ids=None, carrier=None, order_date=None, expected_delivery_date=None, events=None, created_at=None, updated_at=None):  # noqa: E501
         """Shipment - a model defined in OpenAPI
 
         :param id: The id of this Shipment.  # noqa: E501
@@ -33,8 +35,14 @@ class Shipment(Model):
         :type supplier_id: str
         :param sku_ids: The sku_ids of this Shipment.  # noqa: E501
         :type sku_ids: List[str]
-        :param eta: The eta of this Shipment.  # noqa: E501
-        :type eta: datetime
+        :param carrier: The carrier of this Shipment.  # noqa: E501
+        :type carrier: str
+        :param order_date: The order_date of this Shipment.  # noqa: E501
+        :type order_date: datetime
+        :param expected_delivery_date: The expected_delivery_date of this Shipment.  # noqa: E501
+        :type expected_delivery_date: datetime
+        :param events: The events of this Shipment.  # noqa: E501
+        :type events: List[ShipmentEvent]
         :param created_at: The created_at of this Shipment.  # noqa: E501
         :type created_at: datetime
         :param updated_at: The updated_at of this Shipment.  # noqa: E501
@@ -49,7 +57,10 @@ class Shipment(Model):
             'route_id': str,
             'supplier_id': str,
             'sku_ids': List[str],
-            'eta': datetime,
+            'carrier': str,
+            'order_date': datetime,
+            'expected_delivery_date': datetime,
+            'events': List[ShipmentEvent],
             'created_at': datetime,
             'updated_at': datetime
         }
@@ -63,7 +74,10 @@ class Shipment(Model):
             'route_id': 'route_id',
             'supplier_id': 'supplier_id',
             'sku_ids': 'sku_ids',
-            'eta': 'eta',
+            'carrier': 'carrier',
+            'order_date': 'order_date',
+            'expected_delivery_date': 'expected_delivery_date',
+            'events': 'events',
             'created_at': 'created_at',
             'updated_at': 'updated_at'
         }
@@ -76,7 +90,10 @@ class Shipment(Model):
         self._route_id = route_id
         self._supplier_id = supplier_id
         self._sku_ids = sku_ids
-        self._eta = eta
+        self._carrier = carrier
+        self._order_date = order_date
+        self._expected_delivery_date = expected_delivery_date
+        self._events = events
         self._created_at = created_at
         self._updated_at = updated_at
 
@@ -276,27 +293,96 @@ class Shipment(Model):
         self._sku_ids = sku_ids
 
     @property
-    def eta(self) -> datetime:
-        """Gets the eta of this Shipment.
+    def carrier(self) -> str:
+        """Gets the carrier of this Shipment.
 
 
-        :return: The eta of this Shipment.
+        :return: The carrier of this Shipment.
+        :rtype: str
+        """
+        return self._carrier
+
+    @carrier.setter
+    def carrier(self, carrier: str):
+        """Sets the carrier of this Shipment.
+
+
+        :param carrier: The carrier of this Shipment.
+        :type carrier: str
+        """
+        if carrier is None:
+            raise ValueError("Invalid value for `carrier`, must not be `None`")  # noqa: E501
+
+        self._carrier = carrier
+
+    @property
+    def order_date(self) -> datetime:
+        """Gets the order_date of this Shipment.
+
+
+        :return: The order_date of this Shipment.
         :rtype: datetime
         """
-        return self._eta
+        return self._order_date
 
-    @eta.setter
-    def eta(self, eta: datetime):
-        """Sets the eta of this Shipment.
+    @order_date.setter
+    def order_date(self, order_date: datetime):
+        """Sets the order_date of this Shipment.
 
 
-        :param eta: The eta of this Shipment.
-        :type eta: datetime
+        :param order_date: The order_date of this Shipment.
+        :type order_date: datetime
         """
-        if eta is None:
-            raise ValueError("Invalid value for `eta`, must not be `None`")  # noqa: E501
+        if order_date is None:
+            raise ValueError("Invalid value for `order_date`, must not be `None`")  # noqa: E501
 
-        self._eta = eta
+        self._order_date = order_date
+
+    @property
+    def expected_delivery_date(self) -> datetime:
+        """Gets the expected_delivery_date of this Shipment.
+
+
+        :return: The expected_delivery_date of this Shipment.
+        :rtype: datetime
+        """
+        return self._expected_delivery_date
+
+    @expected_delivery_date.setter
+    def expected_delivery_date(self, expected_delivery_date: datetime):
+        """Sets the expected_delivery_date of this Shipment.
+
+
+        :param expected_delivery_date: The expected_delivery_date of this Shipment.
+        :type expected_delivery_date: datetime
+        """
+        if expected_delivery_date is None:
+            raise ValueError("Invalid value for `expected_delivery_date`, must not be `None`")  # noqa: E501
+
+        self._expected_delivery_date = expected_delivery_date
+
+    @property
+    def events(self) -> List[ShipmentEvent]:
+        """Gets the events of this Shipment.
+
+
+        :return: The events of this Shipment.
+        :rtype: List[ShipmentEvent]
+        """
+        return self._events
+
+    @events.setter
+    def events(self, events: List[ShipmentEvent]):
+        """Sets the events of this Shipment.
+
+
+        :param events: The events of this Shipment.
+        :type events: List[ShipmentEvent]
+        """
+        if events is None:
+            raise ValueError("Invalid value for `events`, must not be `None`")  # noqa: E501
+
+        self._events = events
 
     @property
     def created_at(self) -> datetime:

@@ -24,6 +24,10 @@ class TestReferenceController(BaseTestCase):
             "description": "12-inch panel",
             "unit_of_measure": "unit",
             "status": "active",
+            "risk_score": 42,
+            "risk_level": "medium",
+            "category": "lighting",
+            "supplier_ids": [],
         }
         response = self.client.open("/api/v1/reference/skus", method="POST", json=payload)
         self.assertEqual(response.status_code, 201, response.data.decode("utf-8"))
@@ -36,6 +40,8 @@ class TestReferenceController(BaseTestCase):
             "country": "US",
             "contact_email": "ops@acme.example",
             "status": "active",
+            "region": "North America",
+            "risk_rating": "medium",
         }
         response = self.client.open("/api/v1/reference/suppliers", method="POST", json=payload)
         self.assertEqual(response.status_code, 201, response.data.decode("utf-8"))
@@ -79,6 +85,10 @@ class TestReferenceController(BaseTestCase):
             "description": "Another",
             "unit_of_measure": "unit",
             "status": "active",
+            "risk_score": 35,
+            "risk_level": "low",
+            "category": "lighting",
+            "supplier_ids": [],
         }
         duplicate = self.client.open("/api/v1/reference/skus", method="POST", json=dup_payload)
         self.assertEqual(duplicate.status_code, 409)
@@ -112,6 +122,8 @@ class TestReferenceController(BaseTestCase):
             "country": "US",
             "contact_email": "dup@acme.example",
             "status": "active",
+            "region": "North America",
+            "risk_rating": "low",
         }
         duplicate = self.client.open("/api/v1/reference/suppliers", method="POST", json=dup_payload)
         self.assertEqual(duplicate.status_code, 409)
@@ -130,7 +142,20 @@ class TestReferenceController(BaseTestCase):
             "route_id": routes["items"][0]["id"],
             "supplier_id": supplier["id"],
             "sku_ids": [sku["id"]],
-            "eta": "2026-03-10T10:00:00Z",
+            "carrier": "Maersk",
+            "order_date": "2026-03-01T10:00:00Z",
+            "expected_delivery_date": "2026-03-10T10:00:00Z",
+            "events": [
+                {
+                    "id": f"evt-{uuid4().hex[:8]}",
+                    "type": "booked",
+                    "description": "Shipment booked",
+                    "event_time": "2026-03-01T10:00:00Z",
+                    "location": "origin",
+                    "status": "ok",
+                    "metadata": {"source": "test"},
+                }
+            ],
         }
         created = self.client.open("/api/v1/reference/shipments", method="POST", json=payload)
         self.assertEqual(created.status_code, 201, created.data.decode("utf-8"))

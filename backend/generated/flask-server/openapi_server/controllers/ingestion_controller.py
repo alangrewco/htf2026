@@ -51,6 +51,17 @@ def create_ingestion_run(body):  # noqa: E501
         return _unknown_error(err)
 
 
+def list_ingestion_runs(page=None, page_size=None):  # noqa: E501
+    try:
+        page_value = page if page is not None else 1
+        page_size_value = page_size if page_size is not None else 20
+        return service.list_ingestion_runs(page=page_value, page_size=page_size_value), 200
+    except AppError as err:
+        return _error_response(err)
+    except Exception as err:
+        return _unknown_error(err)
+
+
 def get_ingestion_run(run_id):  # noqa: E501
     try:
         return service.get_ingestion_run(run_id), 200

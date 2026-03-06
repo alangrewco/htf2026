@@ -14,7 +14,7 @@ class UpdateSupplierRequest(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, supplier_code=None, name=None, country=None, contact_email=None, status=None):  # noqa: E501
+    def __init__(self, supplier_code=None, name=None, country=None, contact_email=None, status=None, region=None, risk_rating=None):  # noqa: E501
         """UpdateSupplierRequest - a model defined in OpenAPI
 
         :param supplier_code: The supplier_code of this UpdateSupplierRequest.  # noqa: E501
@@ -27,13 +27,19 @@ class UpdateSupplierRequest(Model):
         :type contact_email: str
         :param status: The status of this UpdateSupplierRequest.  # noqa: E501
         :type status: MasterStatus
+        :param region: The region of this UpdateSupplierRequest.  # noqa: E501
+        :type region: str
+        :param risk_rating: The risk_rating of this UpdateSupplierRequest.  # noqa: E501
+        :type risk_rating: str
         """
         self.openapi_types = {
             'supplier_code': str,
             'name': str,
             'country': str,
             'contact_email': str,
-            'status': MasterStatus
+            'status': MasterStatus,
+            'region': str,
+            'risk_rating': str
         }
 
         self.attribute_map = {
@@ -41,7 +47,9 @@ class UpdateSupplierRequest(Model):
             'name': 'name',
             'country': 'country',
             'contact_email': 'contact_email',
-            'status': 'status'
+            'status': 'status',
+            'region': 'region',
+            'risk_rating': 'risk_rating'
         }
 
         self._supplier_code = supplier_code
@@ -49,6 +57,8 @@ class UpdateSupplierRequest(Model):
         self._country = country
         self._contact_email = contact_email
         self._status = status
+        self._region = region
+        self._risk_rating = risk_rating
 
     @classmethod
     def from_dict(cls, dikt) -> 'UpdateSupplierRequest':
@@ -165,3 +175,45 @@ class UpdateSupplierRequest(Model):
         """
 
         self._status = status
+
+    @property
+    def region(self) -> str:
+        """Gets the region of this UpdateSupplierRequest.
+
+
+        :return: The region of this UpdateSupplierRequest.
+        :rtype: str
+        """
+        return self._region
+
+    @region.setter
+    def region(self, region: str):
+        """Sets the region of this UpdateSupplierRequest.
+
+
+        :param region: The region of this UpdateSupplierRequest.
+        :type region: str
+        """
+
+        self._region = region
+
+    @property
+    def risk_rating(self) -> str:
+        """Gets the risk_rating of this UpdateSupplierRequest.
+
+
+        :return: The risk_rating of this UpdateSupplierRequest.
+        :rtype: str
+        """
+        return self._risk_rating
+
+    @risk_rating.setter
+    def risk_rating(self, risk_rating: str):
+        """Sets the risk_rating of this UpdateSupplierRequest.
+
+
+        :param risk_rating: The risk_rating of this UpdateSupplierRequest.
+        :type risk_rating: str
+        """
+
+        self._risk_rating = risk_rating
