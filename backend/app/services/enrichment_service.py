@@ -12,6 +12,7 @@ from app.models import ArticleEnrichmentJobRecord
 from app.repositories.article_repo import ArticleRepository
 from app.repositories.enrichment_repo import EnrichmentRepository
 from app.repositories.reference_repo import ReferenceRepository
+from app.services.incident_service import IncidentService
 
 
 def _utcnow_naive() -> datetime:
@@ -36,6 +37,7 @@ class EnrichmentService:
         self._active_job_ids: set[str] = set()
         self._active_lock = threading.Lock()
         self._agent = GeminiEnrichmentAgent()
+        self._incident_service = IncidentService()
 
     def ensure_started(self):
         self._ensure_initialized()
@@ -233,6 +235,13 @@ class EnrichmentService:
             job.last_error = None
             job.next_retry_at = None
             job.updated_at = _utcnow_naive()
+
+        if enrichment["is_relevant"]:
+            try:
+                self._incident_service.upsert_incident_for_article(article_id)
+            except Exception:
+                # Incident creation should not roll back successful enrichment persistence.
+                pass
 
     def _persist_failure(self, job_id: str, article_id: str, error: str):
         with session_scope() as session:

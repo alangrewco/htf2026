@@ -161,6 +161,25 @@ class ArticleEnrichmentRecord(Base):
     )
 
 
+class IncidentRecord(Base):
+    __tablename__ = "incidents"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    article_id: Mapped[str] = mapped_column(String(64), nullable=False, unique=True, index=True)
+    classification: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    reasoning: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    overlap_tags_json: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    risk_score: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    risk_level: Mapped[str] = mapped_column(String(32), nullable=False, default="low", index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+
+
 class IngestionCheckpointRecord(Base):
     __tablename__ = "ingestion_checkpoints"
 

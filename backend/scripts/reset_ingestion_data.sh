@@ -60,6 +60,7 @@ try:
     targets = [
         "article_enrichments",
         "article_enrichment_jobs",
+        "incidents",
         "articles",
         "ingestion_checkpoints",
         "ingestion_runs",

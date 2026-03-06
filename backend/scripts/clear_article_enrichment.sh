@@ -65,6 +65,8 @@ try:
 
         if "article_enrichment_jobs" in tables:
             conn.execute(text("DELETE FROM article_enrichment_jobs"))
+        if "incidents" in tables:
+            conn.execute(text("DELETE FROM incidents"))
         if "enrichment_quota" in tables:
             conn.execute(text("DELETE FROM enrichment_quota"))
 
