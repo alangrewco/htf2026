@@ -128,18 +128,17 @@ export const useReferenceData = () => {
   }, [skuMap]);
 
   /**
-   * For a given SKU ID, derive supplier names from shipment data.
-   * Sorted alphabetically, deduplicated.
+   * For a given SKU ID, resolve supplier names from sku.supplier_ids.
    */
   const supplierNamesForSku = useMemo(() => {
     return (skuId: string): string[] => {
-      const shipments = shipmentsBySku.get(skuId) ?? [];
-      const ids = new Set(shipments.map((s) => s.supplier_id));
-      return [...ids]
+      const sku = skuMap.get(skuId);
+      if (!sku) return [];
+      return sku.supplier_ids
         .map((id) => supplierName(id))
         .sort((a, b) => a.localeCompare(b));
     };
-  }, [shipmentsBySku, supplierName]);
+  }, [skuMap, supplierName]);
 
   /**
    * For a given SKU ID, derive shipment codes from shipment data.
@@ -155,18 +154,16 @@ export const useReferenceData = () => {
   }, [shipmentsBySku]);
 
   /**
-   * For a given supplier ID, derive SKU names from shipment data.
-   * Sorted alphabetically, deduplicated.
+   * For a given supplier ID, resolve SKU names from SKUs that list this supplier.
    */
   const skuNamesForSupplier = useMemo(() => {
     return (supplierId: string): string[] => {
-      const shipments = shipmentsBySupplier.get(supplierId) ?? [];
-      const ids = new Set(shipments.flatMap((s) => s.sku_ids));
-      return [...ids]
-        .map((id) => skuName(id))
+      return rawSkus
+        .filter((sku) => sku.supplier_ids.includes(supplierId))
+        .map((sku) => sku.name)
         .sort((a, b) => a.localeCompare(b));
     };
-  }, [shipmentsBySupplier, skuName]);
+  }, [rawSkus]);
 
   return {
     // Raw API-typed arrays

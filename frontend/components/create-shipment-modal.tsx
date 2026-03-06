@@ -39,7 +39,9 @@ export function CreateShipmentModal({
     status: "planned" as CreateShipmentRequest["status"],
     origin_port_id: "",
     destination_port_id: "",
-    eta: "",
+    carrier: "",
+    order_date: "",
+    expected_delivery_date: "",
   });
 
   // Step 2: SKU/Supplier pairs
@@ -52,7 +54,7 @@ export function CreateShipmentModal({
   const reset = useCallback(() => {
     setStep(0);
     setDirection(1);
-    setForm({ shipment_code: "", status: "planned", origin_port_id: "", destination_port_id: "", eta: "" });
+    setForm({ shipment_code: "", status: "planned", origin_port_id: "", destination_port_id: "", carrier: "", order_date: "", expected_delivery_date: "" });
     setPairs([{ key: crypto.randomUUID(), skuId: "", supplierId: "" }]);
   }, []);
 
@@ -93,7 +95,10 @@ export function CreateShipmentModal({
           route_id: "",
           supplier_id: supplierId,
           sku_ids: [...new Set(skuIds)],
-          eta: form.eta ? new Date(form.eta).toISOString() : new Date().toISOString(),
+          carrier: form.carrier,
+          order_date: form.order_date ? new Date(form.order_date).toISOString() : new Date().toISOString(),
+          expected_delivery_date: form.expected_delivery_date ? new Date(form.expected_delivery_date).toISOString() : new Date().toISOString(),
+          events: [],
         });
       }
 
@@ -181,12 +186,30 @@ export function CreateShipmentModal({
                 ]}
               />
             </FormField>
-            <FormField label="ETA">
+            <FormField label="Carrier">
+              <Input
+                className="h-8 text-xs"
+                placeholder="e.g. Maersk"
+                value={form.carrier}
+                onChange={(e) => setForm((f) => ({ ...f, carrier: e.target.value }))}
+              />
+            </FormField>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Order Date">
               <Input
                 type="date"
                 className="h-8 text-xs"
-                value={form.eta}
-                onChange={(e) => setForm((f) => ({ ...f, eta: e.target.value }))}
+                value={form.order_date}
+                onChange={(e) => setForm((f) => ({ ...f, order_date: e.target.value }))}
+              />
+            </FormField>
+            <FormField label="Expected Delivery Date">
+              <Input
+                type="date"
+                className="h-8 text-xs"
+                value={form.expected_delivery_date}
+                onChange={(e) => setForm((f) => ({ ...f, expected_delivery_date: e.target.value }))}
               />
             </FormField>
           </div>

@@ -21,10 +21,6 @@ import {
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 import type { Sku, Shipment, Supplier } from "@/sdk/model";
 import { ShipmentStatus } from "@/sdk/model";
-import {
-  DEMO_SKU_ENRICHMENT,
-  DEMO_SHIPMENT_ENRICHMENT,
-} from "@/lib/fixtures/reference/demo-enrichments";
 
 // ── Risk level config ────────────────────────────────────
 
@@ -103,10 +99,7 @@ function SKURow({ sku, index, supplierNames, shipmentCodes }: {
   supplierNames: string[];
   shipmentCodes: string[];
 }) {
-  const { riskScore, riskLevel, revenue, category } = DEMO_SKU_ENRICHMENT;
-  // Derive category from description if possible
-  const displayCategory = sku.description.split("-")[0]?.trim() || category;
-  const conf = riskConfig[riskLevel];
+  const conf = riskConfig[sku.risk_level as RiskLevel] ?? riskConfig.medium;
 
   return (
     <motion.div
@@ -124,16 +117,13 @@ function SKURow({ sku, index, supplierNames, shipmentCodes }: {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium truncate">{sku.name}</span>
           <Badge variant="outline" className={`${conf.bg} ${conf.color} ${conf.border} text-[10px]`}>
-            {riskLevel}
+            {sku.risk_level}
           </Badge>
         </div>
         <div className="mt-0.5 flex items-center gap-3 text-[11px] text-muted-foreground">
           <span>{sku.sku_code}</span>
           <span>·</span>
-          <span>{displayCategory}</span>
-          <span>·</span>
-          {/* TODO: revenue should come from backend */}
-          <span>${(revenue / 1_000).toFixed(0)}K rev.</span>
+          <span>{sku.category}</span>
         </div>
       </div>
 
@@ -144,7 +134,7 @@ function SKURow({ sku, index, supplierNames, shipmentCodes }: {
         </div>
 
         {/* Right: Risk score bar */}
-        <RiskScoreBar score={riskScore} level={riskLevel} />
+        <RiskScoreBar score={sku.risk_score} level={sku.risk_level as RiskLevel} />
       </div>
 
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
@@ -153,6 +143,19 @@ function SKURow({ sku, index, supplierNames, shipmentCodes }: {
 }
 
 // ── Shipment Row ─────────────────────────────────────────
+
+/** Compute a human-readable relative ETA label, e.g. "3d away", "2d overdue", "today" */
+function relativeEta(deliveryDate: string): { label: string; overdue: boolean } {
+  const now = new Date();
+  const eta = new Date(deliveryDate);
+  const diffMs = eta.getTime() - now.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays > 1) return { label: `${diffDays}d away`, overdue: false };
+  if (diffDays === 1) return { label: "tomorrow", overdue: false };
+  if (diffDays === 0) return { label: "today", overdue: false };
+  if (diffDays === -1) return { label: "1d overdue", overdue: true };
+  return { label: `${Math.abs(diffDays)}d overdue`, overdue: true };
+}
 
 function ShipmentRow({ shipment, index, skuNames, supplierName, originName, destName }: {
   shipment: Shipment;
@@ -163,8 +166,10 @@ function ShipmentRow({ shipment, index, skuNames, supplierName, originName, dest
   destName: string;
 }) {
   const conf = statusConfig[shipment.status] ?? statusConfig[ShipmentStatus.planned];
-  const etaDate = new Date(shipment.eta);
-  const etaLabel = etaDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const eta = relativeEta(shipment.expected_delivery_date);
+  const fullDate = new Date(shipment.expected_delivery_date).toLocaleDateString("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+  });
 
   return (
     <motion.div
@@ -201,12 +206,20 @@ function ShipmentRow({ shipment, index, skuNames, supplierName, originName, dest
           <NameListWithTooltip names={skuNames} />
         </div>
 
-        {/* Right: Carrier + ETA */}
-        <div className="text-[11px] text-right w-[100px]">
-          {/* TODO: carrier should come from backend */}
-          <div className="text-muted-foreground">{DEMO_SHIPMENT_ENRICHMENT.carrier}</div>
-          <div className="text-foreground/80">{etaLabel}</div>
-        </div>
+        {/* Right: Carrier + relative ETA (hover shows exact date) */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="text-[11px] text-right w-[100px] cursor-default">
+              <div className="text-muted-foreground">{shipment.carrier}</div>
+              <div className={eta.overdue ? "text-urgency-critical" : "text-foreground/80"}>
+                {eta.label}
+              </div>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="text-xs">
+            Expected: {fullDate}
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
