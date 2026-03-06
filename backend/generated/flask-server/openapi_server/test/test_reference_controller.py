@@ -1,5 +1,6 @@
 import json
 import os
+import tempfile
 import unittest
 from pathlib import Path
 from uuid import uuid4
@@ -7,7 +8,7 @@ from uuid import uuid4
 from openapi_server.test import BaseTestCase
 
 
-TEST_DB_PATH = "/tmp/reference_api_integration_test.db"
+TEST_DB_PATH = os.path.join(tempfile.gettempdir(), f"reference_api_integration_test_{uuid4().hex}.db")
 os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH}"
 
 
@@ -92,6 +93,12 @@ class TestReferenceController(BaseTestCase):
         }
         duplicate = self.client.open("/api/v1/reference/skus", method="POST", json=dup_payload)
         self.assertEqual(duplicate.status_code, 409)
+
+        invalid_risk = dict(dup_payload)
+        invalid_risk["sku_code"] = f"SKU-{uuid4().hex[:8]}"
+        invalid_risk["risk_level"] = "urgent"
+        bad_risk = self.client.open("/api/v1/reference/skus", method="POST", json=invalid_risk)
+        self.assertEqual(bad_risk.status_code, 400)
 
     def test_supplier_create_list_update_and_conflict(self):
         created = self._create_supplier()
@@ -178,6 +185,12 @@ class TestReferenceController(BaseTestCase):
         invalid_ref["supplier_id"] = "missing-supplier"
         bad_create = self.client.open("/api/v1/reference/shipments", method="POST", json=invalid_ref)
         self.assertEqual(bad_create.status_code, 422)
+
+        invalid_event = dict(payload)
+        invalid_event["shipment_code"] = f"SHIP-{uuid4().hex[:8]}"
+        invalid_event["events"] = [{"id": f"evt-{uuid4().hex[:8]}", "type": "booked"}]
+        bad_event = self.client.open("/api/v1/reference/shipments", method="POST", json=invalid_event)
+        self.assertEqual(bad_event.status_code, 400)
 
         dup_payload = dict(payload)
         dup_payload["shipment_code"] = shipment["shipment_code"]

@@ -33,6 +33,10 @@ if ! grep -q '^psycopg2-binary' "$REQ_FILE"; then
   printf 'psycopg2-binary >= 2.9.0\n' >> "$REQ_FILE"
 fi
 
+if ! grep -qi '^flask-cors' "$REQ_FILE"; then
+  printf 'flask-cors >= 4.0.0\n' >> "$REQ_FILE"
+fi
+
 if [[ -f "$ROOT_ENV_FILE" ]]; then
   cp "$ROOT_ENV_FILE" "$GEN_ENV_FILE"
 fi

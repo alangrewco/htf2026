@@ -112,7 +112,8 @@ def _apply_non_destructive_migrations(engine):
         if dialect == "postgresql":
             statements.append("ALTER TABLE articles ADD COLUMN publish_datetime TIMESTAMP NOT NULL DEFAULT NOW()")
         else:
-            statements.append("ALTER TABLE articles ADD COLUMN publish_datetime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP")
+            statements.append("ALTER TABLE articles ADD COLUMN publish_datetime DATETIME")
+            statements.append("UPDATE articles SET publish_datetime = published_at WHERE publish_datetime IS NULL")
     if "preview_image_url" not in existing_cols:
         statements.append("ALTER TABLE articles ADD COLUMN preview_image_url TEXT")
 
@@ -145,13 +146,15 @@ def _apply_non_destructive_migrations(engine):
             if dialect == "postgresql":
                 statements.append("ALTER TABLE shipments ADD COLUMN order_date TIMESTAMP NOT NULL DEFAULT NOW()")
             else:
-                statements.append("ALTER TABLE shipments ADD COLUMN order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP")
+                statements.append("ALTER TABLE shipments ADD COLUMN order_date DATETIME")
+                statements.append("UPDATE shipments SET order_date = created_at WHERE order_date IS NULL")
         if "expected_delivery_date" not in shipment_cols:
             if dialect == "postgresql":
                 statements.append("ALTER TABLE shipments ADD COLUMN expected_delivery_date TIMESTAMP NOT NULL DEFAULT NOW()")
             else:
+                statements.append("ALTER TABLE shipments ADD COLUMN expected_delivery_date DATETIME")
                 statements.append(
-                    "ALTER TABLE shipments ADD COLUMN expected_delivery_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                    "UPDATE shipments SET expected_delivery_date = created_at WHERE expected_delivery_date IS NULL"
                 )
         if "events_json" not in shipment_cols:
             if dialect == "postgresql":
