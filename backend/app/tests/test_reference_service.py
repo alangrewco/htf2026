@@ -1,13 +1,14 @@
 import os
+from pathlib import Path
 import sys
 
 import pytest
 
-BACKEND_ROOT = '/Users/bhavjotg/Documents/projects/htf2026/backend'
-GENERATED_ROOT = f'{BACKEND_ROOT}/generated/flask-server'
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
+GENERATED_ROOT = BACKEND_ROOT / "generated" / "flask-server"
 
-sys.path.insert(0, GENERATED_ROOT)
-sys.path.insert(0, BACKEND_ROOT)
+sys.path.insert(0, str(GENERATED_ROOT))
+sys.path.insert(0, str(BACKEND_ROOT))
 
 from app.services.reference_service import ReferenceService
 from openapi_server.models.create_shipment_request import CreateShipmentRequest
