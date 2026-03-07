@@ -15,6 +15,8 @@ import { useCreateSku, useCreateSupplier, useCreateShipment } from "@/sdk/refere
 import { MasterStatus, SkuRiskLevel } from "@/sdk/model";
 import type { CreateSkuRequest, CreateShipmentRequest } from "@/sdk/model";
 import { useSWRConfig } from "swr";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const STEPS = ["SKU Details", "Suppliers", "Shipments"];
 
@@ -78,6 +80,7 @@ export function CreateSkuModal({
   const createSupplier = useCreateSupplier();
   const createShipment = useCreateShipment();
   const { mutate } = useSWRConfig();
+  const router = useRouter();
 
   // Step state
   const [step, setStep] = useState(0);
@@ -90,7 +93,8 @@ export function CreateSkuModal({
     description: "",
     unit_of_measure: "",
     status: MasterStatus.active,
-    risk_score: 0,
+    // -1 indicates freshly created SKU that yet to be analyzed.
+    risk_score: -1,
     risk_level: SkuRiskLevel.low,
     category: "",
     supplier_ids: [],
@@ -151,7 +155,7 @@ export function CreateSkuModal({
   // Validation
   const canAdvance =
     step === 0
-      ? Boolean(skuForm.sku_code && skuForm.name)
+      ? Boolean(skuForm.sku_code && skuForm.name && skuForm.category)
       : true; // steps 2 and 3 are optional
 
   // Submit
@@ -176,6 +180,8 @@ export function CreateSkuModal({
           country: s.country,
           contact_email: s.contact_email,
           status: MasterStatus.active,
+          region: s.country,
+          risk_rating: "new",
         });
         if (res.status === 201) createdSupplierIds.push(res.data.id);
       }
@@ -225,8 +231,18 @@ export function CreateSkuModal({
       mutate((key: unknown) => typeof key === "string", undefined, { revalidate: true });
 
       handleOpenChange(false);
+      
+      toast.success("SKU Created Successfully", {
+        description: "New item is ready for analysis and monitoring.",
+        action: {
+          label: "Start Analysis",
+          onClick: () => router.push("/jobs?openModal=true")
+        }
+      });
+      
     } catch (err) {
       console.error("Failed to create SKU:", err);
+      toast.error("Error creating SKU");
     } finally {
       setIsSubmitting(false);
     }
@@ -292,6 +308,24 @@ export function CreateSkuModal({
               placeholder="Brief description"
               value={skuForm.description}
               onChange={(e) => setSkuForm((f) => ({ ...f, description: e.target.value }))}
+            />
+          </FormField>
+          <FormField label="Category" required>
+            <SelectField
+              value={skuForm.category}
+              onChange={(v) => setSkuForm((f) => ({ ...f, category: v }))}
+              options={[
+                { value: "Connectivity", label: "Connectivity" },
+                { value: "Electrical", label: "Electrical" },
+                { value: "Electronics", label: "Electronics" },
+                { value: "Hardware", label: "Hardware" },
+                { value: "Metal Components", label: "Metal Components" },
+                { value: "Packaging", label: "Packaging" },
+                { value: "Sealing", label: "Sealing" },
+                { value: "Structural", label: "Structural" },
+                { value: "Thermal", label: "Thermal" },
+              ]}
+              placeholder="Select category"
             />
           </FormField>
           <div className="grid grid-cols-2 gap-3">

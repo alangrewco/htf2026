@@ -1,3 +1,6 @@
+import os
+import traceback
+
 class AppError(Exception):
     def __init__(self, code: str, message: str, status_code: int, details=None):
         super().__init__(message)
@@ -5,6 +8,12 @@ class AppError(Exception):
         self.message = message
         self.status_code = status_code
         self.details = details or {}
+        
+        # Force stack trace in development/debug mode
+        if os.getenv("FLASK_ENV") == "development" or os.getenv("DEBUG") == "true":
+            print(f"\n>>> AppError RAISED [{code} {status_code}]: {message}")
+            traceback.print_stack()
+            print("<<<\n")
 
 
 class BadRequestError(AppError):

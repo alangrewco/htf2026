@@ -1350,7 +1350,7 @@ components:
           $ref: "#/components/schemas/MasterStatus"
         risk_score:
           maximum: 100
-          minimum: 0
+          minimum: -1
           title: risk_score
           type: integer
         risk_level:
@@ -1417,7 +1417,7 @@ components:
           $ref: "#/components/schemas/MasterStatus"
         risk_score:
           maximum: 100
-          minimum: 0
+          minimum: -1
           title: risk_score
           type: integer
         risk_level:
@@ -1474,7 +1474,7 @@ components:
           $ref: "#/components/schemas/MasterStatus"
         risk_score:
           maximum: 100
-          minimum: 0
+          minimum: -1
           title: risk_score
           type: integer
         risk_level:
@@ -2487,7 +2487,7 @@ components:
           $ref: "#/components/schemas/MatchedEntities"
         risk_score:
           maximum: 100
-          minimum: 0
+          minimum: -1
           title: risk_score
           type: integer
         risk_level:
@@ -2639,7 +2639,7 @@ components:
           uniqueItems: true
         risk_score:
           maximum: 100
-          minimum: 0
+          minimum: -1
           title: risk_score
           type: integer
         risk_level:
