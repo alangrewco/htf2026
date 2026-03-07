@@ -1,158 +1,200 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import type { GlobeInstance } from "globe.gl";
 import { Globe, MapPin, Navigation } from "lucide-react";
 
+type GlobeSignal = {
+  id: string;
+  title: string;
+  summary: string;
+  source: string;
+  timestamp: string;
+  lat: number;
+  lng: number;
+};
+
+const HARDCODED_SIGNALS: GlobeSignal[] = [
+  {
+    id: "sig-houston",
+    title: "Port of Houston Workers Strike Enters Week 3",
+    summary:
+      "Dockworkers union rejected the latest proposal, reducing ship handling capacity at the port.",
+    source: "Reuters",
+    timestamp: "10 hr ago",
+    lat: 29.7604,
+    lng: -95.3698,
+  },
+  {
+    id: "sig-south-china-sea",
+    title: "Typhoon Warning Issued for South China Sea",
+    summary:
+      "A Category 3 storm warning may pause vessel loading across multiple South China hubs.",
+    source: "NOAA",
+    timestamp: "11 hr ago",
+    lat: 14.0,
+    lng: 114.0,
+  },
+  {
+    id: "sig-eu-carbon",
+    title: "EU Carbon Border Tax Takes Effect",
+    summary:
+      "Revised import tax rules are expected to raise landed costs for selected industrial inputs.",
+    source: "Financial Times",
+    timestamp: "12 hr ago",
+    lat: 50.8503,
+    lng: 4.3517,
+  },
+  {
+    id: "sig-red-sea",
+    title: "Red Sea Shipping Disruptions Continue",
+    summary:
+      "Additional rerouting through the Cape is extending transit windows for Asia-Europe voyages.",
+    source: "Lloyd's List",
+    timestamp: "12 hr ago",
+    lat: 12.6,
+    lng: 43.3,
+  },
+  {
+    id: "sig-panama-canal",
+    title: "Panama Canal Drought Restrictions Extended",
+    summary:
+      "Transit slot limits remain in effect, with queue times still above seasonal averages.",
+    source: "Canal Authority",
+    timestamp: "13 hr ago",
+    lat: 9.1012,
+    lng: -79.4029,
+  },
+  {
+    id: "sig-bangladesh",
+    title: "Bangladesh Garment Factory Closures",
+    summary: "Labor instability near supplier facilities increases short-term supply risk.",
+    source: "AP News",
+    timestamp: "13 hr ago",
+    lat: 23.8103,
+    lng: 90.4125,
+  },
+];
+
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+
 export function GeoPlaceholder() {
+  const [globeReady, setGlobeReady] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const globeRef = useRef<GlobeInstance | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const initGlobe = async () => {
+      if (!containerRef.current) return;
+
+      const Globe = (await import("globe.gl")).default;
+      if (cancelled || !containerRef.current) return;
+
+      const globe = new Globe(containerRef.current)
+        .backgroundColor("rgba(0,0,0,0)")
+        .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-night.jpg")
+        .backgroundImageUrl("https://unpkg.com/three-globe/example/img/night-sky.png")
+        .pointLat("lat")
+        .pointLng("lng")
+        .pointRadius(0.13)
+        .pointAltitude(0.025)
+        .pointColor(() => "#a78bfa")
+        .pointLabel((datum) => {
+          const point = datum as GlobeSignal;
+          return `
+            <div style="max-width:280px;background:rgba(15,23,42,0.9);color:#e2e8f0;padding:10px 12px;border-radius:10px;border:1px solid rgba(148,163,184,0.25);font-size:13px;">
+              <div style="font-weight:600;margin-bottom:4px;">${escapeHtml(point.title)}</div>
+              <div style="margin-bottom:4px;">${escapeHtml(point.summary)}</div>
+              <div style="opacity:0.85;">${escapeHtml(point.source)} · ${escapeHtml(point.timestamp)}</div>
+            </div>
+          `;
+        })
+        .labelsData(HARDCODED_SIGNALS)
+        .labelLat("lat")
+        .labelLng("lng")
+        .labelText("title")
+        .labelSize(1.15)
+        .labelDotRadius(0.22)
+        .labelColor(() => "#e2e8f0")
+        .labelAltitude(0.015)
+        .labelResolution(5)
+        .pointsData(HARDCODED_SIGNALS)
+        .pointOfView({ lat: 20, lng: 15, altitude: 2.1 }, 0);
+
+      const controls = globe.controls();
+      controls.autoRotate = false;
+      controls.autoRotateSpeed = 0;
+      controls.enablePan = false;
+      controls.minDistance = 140;
+      controls.maxDistance = 420;
+
+      const resize = () => {
+        if (!containerRef.current) return;
+        globe
+          .width(containerRef.current.clientWidth)
+          .height(containerRef.current.clientHeight);
+      };
+
+      resize();
+      resizeObserverRef.current = new ResizeObserver(resize);
+      resizeObserverRef.current.observe(containerRef.current);
+
+      globeRef.current = globe;
+      setGlobeReady(true);
+    };
+
+    void initGlobe();
+
+    return () => {
+      cancelled = true;
+      resizeObserverRef.current?.disconnect();
+      resizeObserverRef.current = null;
+      globeRef.current?._destructor();
+      globeRef.current = null;
+      setGlobeReady(false);
+    };
+  }, []);
+
   return (
-    <div className="glass flex h-full flex-col items-center justify-center rounded-xl overflow-hidden relative">
-      {/* Decorative background grid */}
-      <div className="absolute inset-0 opacity-[0.04]">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern
-              id="grid"
-              width="40"
-              height="40"
-              patternUnits="userSpaceOnUse"
-            >
-              <path
-                d="M 40 0 L 0 0 0 40"
-                fill="none"
-                stroke="white"
-                strokeWidth="0.5"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
+    <div className="glass relative h-full overflow-hidden rounded-xl">
+      <div ref={containerRef} className="absolute inset-0" />
 
-      {/* Animated decorative dots representing supply chain nodes */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[
-          { x: "20%", y: "30%", delay: 0 },
-          { x: "45%", y: "25%", delay: 0.5 },
-          { x: "70%", y: "35%", delay: 1 },
-          { x: "30%", y: "60%", delay: 1.5 },
-          { x: "55%", y: "55%", delay: 0.8 },
-          { x: "80%", y: "50%", delay: 1.2 },
-          { x: "15%", y: "70%", delay: 0.3 },
-          { x: "65%", y: "70%", delay: 1.8 },
-        ].map((dot, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{ left: dot.x, top: dot.y }}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.8, 1, 0.8] }}
-            transition={{
-              delay: dot.delay,
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <div className="h-2 w-2 rounded-full bg-primary/50" />
-            <div className="absolute inset-0 h-2 w-2 rounded-full bg-primary/20 animate-ping" />
-          </motion.div>
-        ))}
-
-        {/* Connecting lines */}
-        <svg className="absolute inset-0 w-full h-full opacity-10">
-          <line
-            x1="20%"
-            y1="30%"
-            x2="45%"
-            y2="25%"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            strokeDasharray="4,4"
-            className="text-primary"
-          />
-          <line
-            x1="45%"
-            y1="25%"
-            x2="70%"
-            y2="35%"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            strokeDasharray="4,4"
-            className="text-primary"
-          />
-          <line
-            x1="30%"
-            y1="60%"
-            x2="55%"
-            y2="55%"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            strokeDasharray="4,4"
-            className="text-primary"
-          />
-          <line
-            x1="55%"
-            y1="55%"
-            x2="80%"
-            y2="50%"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            strokeDasharray="4,4"
-            className="text-primary"
-          />
-          <line
-            x1="20%"
-            y1="30%"
-            x2="30%"
-            y2="60%"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            strokeDasharray="4,4"
-            className="text-primary"
-          />
-          <line
-            x1="70%"
-            y1="35%"
-            x2="65%"
-            y2="70%"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            strokeDasharray="4,4"
-            className="text-primary"
-          />
-        </svg>
-      </div>
-
-      {/* Center content */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative flex flex-col items-center gap-3 z-10"
-      >
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
-          <Globe className="h-7 w-7 text-primary/60" />
+      {!globeReady && (
+        <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+          Loading globe...
         </div>
-        <div className="text-center">
-          <h3 className="text-sm font-semibold text-foreground/80">
+      )}
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-background/90 via-background/45 to-transparent p-3">
+        <div className="flex items-center gap-2">
+          <Globe className="h-4 w-4 text-primary/70" />
+          <h3 className="text-sm font-semibold text-foreground/90">
             Geographic Overview
           </h3>
-          <p className="text-xs text-muted-foreground mt-1 max-w-[260px]">
-            Interactive supply chain map coming soon — track shipments, suppliers
-            & disruptions globally.
-          </p>
         </div>
-        <div className="flex items-center gap-3 mt-2">
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Hardcoded incident labels with estimated coordinates.
+        </p>
+        <div className="mt-2 flex items-center gap-3 text-[10px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
             <MapPin className="h-3 w-3" />
-            <span>42 locations</span>
-          </div>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            {HARDCODED_SIGNALS.length} mapped
+          </span>
+          <span className="inline-flex items-center gap-1">
             <Navigation className="h-3 w-3" />
-            <span>18 active routes</span>
-          </div>
+            {HARDCODED_SIGNALS.length} tracked
+          </span>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
