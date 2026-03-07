@@ -105,7 +105,7 @@ export function GeoPlaceholder() {
         .backgroundImageUrl("https://unpkg.com/three-globe/example/img/night-sky.png")
         .pointLat("lat")
         .pointLng("lng")
-        .pointRadius(0.13)
+        .pointRadius(0.8)
         .pointAltitude(0.025)
         .pointColor(() => "#a78bfa")
         .pointLabel((datum) => {
@@ -181,9 +181,6 @@ export function GeoPlaceholder() {
             Geographic Overview
           </h3>
         </div>
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          Hardcoded incident labels with estimated coordinates.
-        </p>
         <div className="mt-2 flex items-center gap-3 text-[10px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <MapPin className="h-3 w-3" />

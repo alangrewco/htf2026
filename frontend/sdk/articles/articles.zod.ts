@@ -98,7 +98,7 @@ export const GetArticleEnrichmentParams = zod.object({
 export const getArticleEnrichmentResponseImpactWindowConfidenceMin = 0;
 export const getArticleEnrichmentResponseImpactWindowConfidenceMax = 1;
 
-export const getArticleEnrichmentResponseRiskScoreMin = 0;
+export const getArticleEnrichmentResponseRiskScoreMin = -1;
 export const getArticleEnrichmentResponseRiskScoreMax = 100;
 
 
