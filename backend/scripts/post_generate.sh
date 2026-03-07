@@ -25,6 +25,11 @@ cp "$INGESTION_CONTROLLER_TEMPLATE" "$INGESTION_CONTROLLER_TARGET"
 cp "$ARTICLES_CONTROLLER_TEMPLATE" "$ARTICLES_CONTROLLER_TARGET"
 cp "$INCIDENTS_CONTROLLER_TEMPLATE" "$INCIDENTS_CONTROLLER_TARGET"
 
+# Main entrypoint with security configs
+MAIN_TEMPLATE="$ROOT_DIR/app/templates/__main__.py"
+MAIN_TARGET="$GEN_DIR/openapi_server/__main__.py"
+cp "$MAIN_TEMPLATE" "$MAIN_TARGET"
+
 if ! grep -q '^SQLAlchemy' "$REQ_FILE"; then
   printf '\nSQLAlchemy >= 2.0.0\n' >> "$REQ_FILE"
 fi
@@ -35,6 +40,10 @@ fi
 
 if ! grep -qi '^flask-cors' "$REQ_FILE"; then
   printf 'flask-cors >= 4.0.0\n' >> "$REQ_FILE"
+fi
+
+if ! grep -qi '^Flask-Limiter' "$REQ_FILE"; then
+  printf 'Flask-Limiter >= 3.5.0\n' >> "$REQ_FILE"
 fi
 
 ENCODER_FILE="$GEN_DIR/openapi_server/encoder.py"
