@@ -1,5 +1,7 @@
 # HarborGuard AI
 
+> Test our prototype live! https://htf2026.vercel.app
+
 HarborGuard AI is an operations-focused supply-chain risk platform that helps teams move from early warning signals to concrete, executable response plans.
 
 The product is designed around one core promise:
