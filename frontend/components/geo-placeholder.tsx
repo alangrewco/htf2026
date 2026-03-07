@@ -105,7 +105,7 @@ export function GeoPlaceholder() {
         .backgroundImageUrl("https://unpkg.com/three-globe/example/img/night-sky.png")
         .pointLat("lat")
         .pointLng("lng")
-        .pointRadius(0.13)
+        .pointRadius(0.8)
         .pointAltitude(0.025)
         .pointColor(() => "#a78bfa")
         .pointLabel((datum) => {
