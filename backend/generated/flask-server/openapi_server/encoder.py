@@ -4,7 +4,7 @@ from openapi_server.models.base_model import Model
 
 
 class JSONEncoder(FlaskJSONEncoder):
-    include_nulls = False
+    include_nulls = True
 
     def default(self, o):
         if isinstance(o, Model):

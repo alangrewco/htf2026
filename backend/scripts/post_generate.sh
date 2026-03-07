@@ -37,6 +37,11 @@ if ! grep -qi '^flask-cors' "$REQ_FILE"; then
   printf 'flask-cors >= 4.0.0\n' >> "$REQ_FILE"
 fi
 
+ENCODER_FILE="$GEN_DIR/openapi_server/encoder.py"
+if [[ -f "$ENCODER_FILE" ]]; then
+  sed -i.bak "s/include_nulls = False/include_nulls = True/" "$ENCODER_FILE" && rm -f "$ENCODER_FILE.bak"
+fi
+
 if [[ -f "$ROOT_ENV_FILE" ]]; then
   cp "$ROOT_ENV_FILE" "$GEN_ENV_FILE"
 fi

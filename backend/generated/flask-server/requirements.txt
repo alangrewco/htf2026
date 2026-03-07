@@ -14,4 +14,4 @@ Flask == 2.1.1
 
 SQLAlchemy >= 2.0.0
 psycopg2-binary >= 2.9.0
-flask-cors
+flask-cors >= 4.0.0

@@ -94,6 +94,21 @@ class TestArticlesController(BaseTestCase):
 
         detail = self.client.open(f"/api/v1/articles/{article_id}", method="GET")
         self.assertEqual(detail.status_code, 200, detail.data.decode("utf-8"))
+        detail_payload = self._json(detail)
+        for field in [
+            "title",
+            "summary",
+            "preview_text",
+            "analysis",
+            "keywords",
+            "tags",
+            "source_name",
+            "publish_datetime",
+            "preview_image_url",
+        ]:
+            self.assertIn(field, detail_payload)
+        self.assertIsInstance(detail_payload["keywords"], list)
+        self.assertIsInstance(detail_payload["tags"], list)
         deadline = time.time() + 10
         enrichment = None
         while time.time() < deadline:
@@ -103,6 +118,14 @@ class TestArticlesController(BaseTestCase):
             time.sleep(0.2)
         self.assertIsNotNone(enrichment)
         self.assertEqual(enrichment.status_code, 200, enrichment.data.decode("utf-8"))
+
+        enriched_detail = self.client.open(f"/api/v1/articles/{article_id}", method="GET")
+        self.assertEqual(enriched_detail.status_code, 200, enriched_detail.data.decode("utf-8"))
+        enriched_payload = self._json(enriched_detail)
+        self.assertTrue(bool(enriched_payload["summary"]))
+        self.assertTrue(bool(enriched_payload["analysis"]))
+        self.assertGreaterEqual(len(enriched_payload["keywords"]), 1)
+        self.assertGreaterEqual(len(enriched_payload["tags"]), 1)
 
         missing = self.client.open("/api/v1/articles/missing-article", method="GET")
         self.assertEqual(missing.status_code, 404)
