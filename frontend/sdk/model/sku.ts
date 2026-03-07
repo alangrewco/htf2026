@@ -16,7 +16,7 @@ export interface Sku {
   unit_of_measure: string;
   status: MasterStatus;
   /**
-   * @minimum 0
+   * @minimum -1
    * @maximum 100
    */
   risk_score: number;
