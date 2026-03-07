@@ -90,6 +90,7 @@ export function CreateSkuModal({
     description: "",
     unit_of_measure: "",
     status: MasterStatus.active,
+    // -1 indicates freshly created SKU that yet to be analyzed.
     risk_score: -1,
     risk_level: SkuRiskLevel.low,
     category: "",
@@ -151,7 +152,7 @@ export function CreateSkuModal({
   // Validation
   const canAdvance =
     step === 0
-      ? Boolean(skuForm.sku_code && skuForm.name)
+      ? Boolean(skuForm.sku_code && skuForm.name && skuForm.category)
       : true; // steps 2 and 3 are optional
 
   // Submit
@@ -294,6 +295,24 @@ export function CreateSkuModal({
               placeholder="Brief description"
               value={skuForm.description}
               onChange={(e) => setSkuForm((f) => ({ ...f, description: e.target.value }))}
+            />
+          </FormField>
+          <FormField label="Category" required>
+            <SelectField
+              value={skuForm.category}
+              onChange={(v) => setSkuForm((f) => ({ ...f, category: v }))}
+              options={[
+                { value: "Connectivity", label: "Connectivity" },
+                { value: "Electrical", label: "Electrical" },
+                { value: "Electronics", label: "Electronics" },
+                { value: "Hardware", label: "Hardware" },
+                { value: "Metal Components", label: "Metal Components" },
+                { value: "Packaging", label: "Packaging" },
+                { value: "Sealing", label: "Sealing" },
+                { value: "Structural", label: "Structural" },
+                { value: "Thermal", label: "Thermal" },
+              ]}
+              placeholder="Select category"
             />
           </FormField>
           <div className="grid grid-cols-2 gap-3">
