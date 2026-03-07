@@ -6,6 +6,7 @@ import {
   useListSkus,
   useListSuppliers,
   useListPorts,
+  useListRoutes,
 } from "@/sdk/reference/reference";
 import type {
   Shipment as ApiShipment,
@@ -17,12 +18,14 @@ import { mockShipmentListResponse } from "@/lib/fixtures/reference/shipments";
 import { mockSkuListResponse } from "@/lib/fixtures/reference/skus";
 import { mockSupplierListResponse } from "@/lib/fixtures/reference/suppliers";
 import { mockPortListResponse } from "@/lib/fixtures/reference/ports";
+import { mockRouteListResponse } from "@/lib/fixtures/reference/routes";
 
 const useMockFallback = process.env.NEXT_PUBLIC_USE_MSW !== "false";
 const EMPTY_SKUS: ApiSku[] = [];
 const EMPTY_SUPPLIERS: ApiSupplier[] = [];
 const EMPTY_SHIPMENTS: ApiShipment[] = [];
 const EMPTY_PORTS: ReferenceItem[] = [];
+const EMPTY_ROUTES: ReferenceItem[] = [];
 
 // Re-export API types directly — no divergent view types
 export type { ApiSku as Sku, ApiShipment as Shipment, ApiSupplier as Supplier };
@@ -32,6 +35,7 @@ export const useReferenceData = () => {
   const supplierQuery = useListSuppliers();
   const shipmentQuery = useListShipments();
   const portQuery = useListPorts();
+  const routeQuery = useListRoutes();
 
   const rawSkus =
     skuQuery.data?.status === 200
@@ -61,6 +65,13 @@ export const useReferenceData = () => {
         ? mockPortListResponse.items
         : EMPTY_PORTS;
 
+  const rawRoutes =
+    routeQuery.data?.status === 200
+      ? routeQuery.data.data.items
+      : useMockFallback
+        ? mockRouteListResponse.items
+        : EMPTY_ROUTES;
+
   // ── Lookup maps ──────────────────────────────────────────
 
   const skuMap = useMemo(
@@ -81,6 +92,11 @@ export const useReferenceData = () => {
   const portMap = useMemo(
     () => new Map(rawPorts.map((p) => [p.id, p])),
     [rawPorts],
+  );
+
+  const routeMap = useMemo(
+    () => new Map(rawRoutes.map((r) => [r.id, r])),
+    [rawRoutes],
   );
 
   // ── Derived associations (shipment is the "central node") ──
@@ -115,6 +131,11 @@ export const useReferenceData = () => {
   const portName = useMemo(() => {
     return (portId: string) => portMap.get(portId)?.name ?? portId;
   }, [portMap]);
+
+  /** Resolve a route ID to its human-readable name, fallback to the ID itself */
+  const routeName = useMemo(() => {
+    return (routeId: string) => routeMap.get(routeId)?.name ?? routeId;
+  }, [routeMap]);
 
   /** Resolve a supplier ID to its name */
   const supplierName = useMemo(() => {
@@ -171,12 +192,14 @@ export const useReferenceData = () => {
     suppliers: rawSuppliers,
     shipments: rawShipments,
     ports: rawPorts,
+    routes: rawRoutes,
 
     // Lookup maps
     skuMap,
     supplierMap,
     shipmentMap,
     portMap,
+    routeMap,
 
     // Derived associations
     shipmentsBySupplier,
@@ -184,6 +207,7 @@ export const useReferenceData = () => {
 
     // Name resolution helpers
     portName,
+    routeName,
     supplierName,
     skuName,
     supplierNamesForSku,
@@ -195,12 +219,14 @@ export const useReferenceData = () => {
       (!skuQuery.data && !skuQuery.error) ||
       (!supplierQuery.data && !supplierQuery.error) ||
       (!shipmentQuery.data && !shipmentQuery.error) ||
-      (!portQuery.data && !portQuery.error),
+      (!portQuery.data && !portQuery.error) ||
+      (!routeQuery.data && !routeQuery.error),
     hasError: Boolean(
       skuQuery.error ||
         supplierQuery.error ||
         shipmentQuery.error ||
-        portQuery.error,
+        portQuery.error ||
+        routeQuery.error,
     ),
   };
 };
