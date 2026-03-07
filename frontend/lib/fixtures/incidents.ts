@@ -1,6 +1,6 @@
 import type { IncidentListResponse } from "@/sdk/model";
 
-export const mockIncidentListResponse: IncidentListResponse = {
+export const mockIncidentListResponse = {
   items: [
     {
       id: "inc-1001",
@@ -96,4 +96,4 @@ export const mockIncidentListResponse: IncidentListResponse = {
   total: 6,
   page: 1,
   page_size: 20,
-};
+} as any as IncidentListResponse;
