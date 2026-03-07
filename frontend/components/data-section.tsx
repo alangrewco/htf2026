@@ -139,7 +139,7 @@ function SKURow({ sku, index, supplierNames, shipmentCodes }: {
         </div>
 
         {/* Right: Risk score bar */}
-        <RiskScoreBar score={sku.risk_score} level={sku.risk_level as RiskLevel} />
+        <RiskScoreBar score={Math.max(0, sku.risk_score)} level={sku.risk_level as RiskLevel} />
       </div>
 
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />

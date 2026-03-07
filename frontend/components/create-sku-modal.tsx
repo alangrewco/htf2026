@@ -90,7 +90,7 @@ export function CreateSkuModal({
     description: "",
     unit_of_measure: "",
     status: MasterStatus.active,
-    risk_score: 0,
+    risk_score: -1,
     risk_level: SkuRiskLevel.low,
     category: "",
     supplier_ids: [],
@@ -176,6 +176,8 @@ export function CreateSkuModal({
           country: s.country,
           contact_email: s.contact_email,
           status: MasterStatus.active,
+          region: s.country,
+          risk_rating: "new",
         });
         if (res.status === 201) createdSupplierIds.push(res.data.id);
       }
