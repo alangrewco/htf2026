@@ -43,28 +43,33 @@ const statusConfig: Record<ShipmentStatus, { color: string; bg: string; label: s
 
 // ── Helpers ──────────────────────────────────────────────
 
-/** Show top N names inline, with a tooltip for the full list when there are more */
+/** Show top N names inline, with a tooltip for the full list on hover */
 function NameListWithTooltip({ names, max = 3 }: { names: string[]; max?: number }) {
   if (names.length === 0) return <span className="text-muted-foreground/50">—</span>;
 
   const display = names.slice(0, max).join(", ");
   const hasMore = names.length > max;
 
-  if (!hasMore) {
-    return <span>{display}</span>;
-  }
-
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="cursor-default underline decoration-dotted underline-offset-2">
-          {display} +{names.length - max}
+        <span 
+          className="cursor-default hover:text-foreground transition-colors underline decoration-dotted underline-offset-2 decoration-muted-foreground/50 hover:decoration-foreground"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {display}{hasMore ? ` +${names.length - max}` : ""}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-xs">
-        <div className="space-y-0.5">
+      <TooltipContent side="top" className="max-w-xs p-3">
+        <div className="space-y-1">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 pb-1 mb-1.5">
+            Full List ({names.length})
+          </div>
           {names.map((n) => (
-            <div key={n} className="text-xs">{n}</div>
+            <div key={n} className="text-xs flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-primary/60" />
+              {n}
+            </div>
           ))}
         </div>
       </TooltipContent>
