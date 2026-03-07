@@ -14,6 +14,8 @@ import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 import { useCreateShipment } from "@/sdk/reference/reference";
 import type { CreateShipmentRequest } from "@/sdk/model";
 import { useSWRConfig } from "swr";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const STEPS = ["Shipment Details", "SKU & Supplier Pairs"];
 
@@ -29,6 +31,7 @@ export function CreateShipmentModal({
   const { skus, suppliers, ports } = useReferenceData();
   const createShipment = useCreateShipment();
   const { mutate } = useSWRConfig();
+  const router = useRouter();
 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -104,8 +107,18 @@ export function CreateShipmentModal({
 
       mutate((key: unknown) => typeof key === "string", undefined, { revalidate: true });
       handleOpenChange(false);
+
+      toast.success("Shipment Created Successfully", {
+        description: "New item is ready for analysis and monitoring.",
+        action: {
+          label: "Start Analysis",
+          onClick: () => router.push("/jobs?openModal=true")
+        }
+      });
+
     } catch (err) {
       console.error("Failed to create shipment:", err);
+      toast.error("Error creating shipment");
     } finally {
       setIsSubmitting(false);
     }

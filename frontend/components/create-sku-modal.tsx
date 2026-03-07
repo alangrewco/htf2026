@@ -15,6 +15,8 @@ import { useCreateSku, useCreateSupplier, useCreateShipment } from "@/sdk/refere
 import { MasterStatus, SkuRiskLevel } from "@/sdk/model";
 import type { CreateSkuRequest, CreateShipmentRequest } from "@/sdk/model";
 import { useSWRConfig } from "swr";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const STEPS = ["SKU Details", "Suppliers", "Shipments"];
 
@@ -78,6 +80,7 @@ export function CreateSkuModal({
   const createSupplier = useCreateSupplier();
   const createShipment = useCreateShipment();
   const { mutate } = useSWRConfig();
+  const router = useRouter();
 
   // Step state
   const [step, setStep] = useState(0);
@@ -228,8 +231,18 @@ export function CreateSkuModal({
       mutate((key: unknown) => typeof key === "string", undefined, { revalidate: true });
 
       handleOpenChange(false);
+      
+      toast.success("SKU Created Successfully", {
+        description: "New item is ready for analysis and monitoring.",
+        action: {
+          label: "Start Analysis",
+          onClick: () => router.push("/jobs?openModal=true")
+        }
+      });
+      
     } catch (err) {
       console.error("Failed to create SKU:", err);
+      toast.error("Error creating SKU");
     } finally {
       setIsSubmitting(false);
     }

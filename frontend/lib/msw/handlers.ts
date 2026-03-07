@@ -2,8 +2,15 @@ import { getArticlesMock } from "@/sdk/articles/articles.msw";
 import { getCompanyConfigMock } from "@/sdk/company-config/company-config.msw";
 import { getFeedbackMock } from "@/sdk/feedback/feedback.msw";
 import { getIncidentsMock } from "@/sdk/incidents/incidents.msw";
-import { getIngestionMock } from "@/sdk/ingestion/ingestion.msw";
+import {
+  getCreateIngestionRunMockHandler,
+  getGetIngestionRunMockHandler,
+  getGetIngestionStatusMockHandler,
+  getListIngestionRunsMockHandler,
+} from "@/sdk/ingestion/ingestion.msw";
 import { getProposalsMock } from "@/sdk/proposals/proposals.msw";
+import { ListIngestionRunsResponse } from "@/sdk/ingestion/ingestion.zod";
+import { mockIngestionRunListResponse } from "@/lib/fixtures/reference/ingestion-runs";
 import {
   getListShipmentsMockHandler,
   getListSkusMockHandler,
@@ -71,6 +78,12 @@ const validatedRouteListResponse = validateFixture(
   mockRouteListResponse
 );
 
+const validatedIngestionRunListResponse = validateFixture(
+  "/ingestion/runs",
+  ListIngestionRunsResponse,
+  mockIngestionRunListResponse
+);
+
 export const handlers = [
   getListSkusMockHandler(validatedSkuListResponse),
   getListSuppliersMockHandler(validatedSupplierListResponse),
@@ -80,7 +93,10 @@ export const handlers = [
   ...getReferenceMock(),
   ...getArticlesMock(),
   ...getIncidentsMock(),
-  ...getIngestionMock(),
+  getListIngestionRunsMockHandler(validatedIngestionRunListResponse),
+  getCreateIngestionRunMockHandler(),
+  getGetIngestionRunMockHandler(),
+  getGetIngestionStatusMockHandler(),
   ...getProposalsMock(),
   ...getCompanyConfigMock(),
   ...getFeedbackMock(),

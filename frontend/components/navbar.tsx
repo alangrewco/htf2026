@@ -15,6 +15,7 @@ import {
   Newspaper,
   BarChart3,
   Home as HomeIcon,
+  Activity,
 } from "lucide-react";
 import {
   CommandDialog,
@@ -32,6 +33,7 @@ const navLinks = [
   { label: "Suppliers", icon: Users, href: "/?tab=suppliers#data-explorer-section", id: "suppliers", tab: "suppliers" },
   { label: "News", icon: Newspaper, href: "/news", id: "news" },
   { label: "Analytics", icon: BarChart3, href: "/analytics", id: "analytics" },
+  { label: "Jobs", icon: Activity, href: "/jobs", id: "jobs" },
 ] as const;
 
 export function NavbarContent() {
