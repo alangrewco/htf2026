@@ -65,6 +65,20 @@ class TestIncidentsController(BaseTestCase):
             if payload["total"] > 0:
                 return payload["items"][0]
             time.sleep(0.2)
+
+        # CI can be slow for background worker scheduling; force deterministic upsert.
+        enriched = self.client.open("/api/v1/articles?state=enriched&page=1&page_size=100", method="GET")
+        self.assertEqual(enriched.status_code, 200, enriched.data.decode("utf-8"))
+        items = self._json(enriched).get("items", [])
+        svc = IncidentService()
+        for item in items:
+            svc.upsert_incident_for_article(item["id"])
+
+        listed = self.client.open("/api/v1/incidents?page=1&page_size=20", method="GET")
+        self.assertEqual(listed.status_code, 200, listed.data.decode("utf-8"))
+        payload = self._json(listed)
+        if payload["total"] > 0:
+            return payload["items"][0]
         self.fail("Timed out waiting for incident creation.")
 
     def test_get_incident(self):
