@@ -1,4 +1,4 @@
-.PHONY: validate-openapi generate-server post-generate
+.PHONY: validate-openapi generate-server post-generate deploy-gcp smoke-api
 
 OPENAPI_SPEC := openapi.yaml
 GEN_OUT := generated/flask-server
@@ -12,3 +12,9 @@ generate-server: validate-openapi
 
 post-generate:
 	./scripts/post_generate.sh
+
+deploy-gcp:
+	./scripts/deploy_cloud_run.sh
+
+smoke-api:
+	./scripts/smoke_api.sh
