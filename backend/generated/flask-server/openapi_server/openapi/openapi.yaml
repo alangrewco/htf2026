@@ -1,0 +1,3302 @@
+openapi: 3.0.3
+info:
+  description: "MVP v1 REST API for ACME Inc. to ingest shipping disruption signals,\
+    \ enrich relevance and impact, escalate incidents, and generate action proposals\
+    \ for manager decisioning."
+  title: Shipping Disruption Management API
+  version: 1.0.0
+servers:
+- url: /api/v1
+tags:
+- name: Reference
+- name: Ingestion
+- name: Articles
+- name: Incidents
+- name: Proposals
+- name: CompanyConfig
+- name: Feedback
+paths:
+  /articles:
+    get:
+      operationId: list_articles
+      parameters:
+      - explode: true
+        in: query
+        name: state
+        required: false
+        schema:
+          $ref: "#/components/schemas/ArticleProcessingState"
+        style: form
+      - explode: true
+        in: query
+        name: relevant
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArticleListResponse"
+          description: Paginated articles
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List articles
+      tags:
+      - Articles
+      x-openapi-router-controller: openapi_server.controllers.articles_controller
+  /articles/{article_id}:
+    get:
+      operationId: get_article
+      parameters:
+      - explode: false
+        in: path
+        name: article_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+          description: Article
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Get article by id
+      tags:
+      - Articles
+      x-openapi-router-controller: openapi_server.controllers.articles_controller
+  /articles/{article_id}/enrichment:
+    get:
+      operationId: get_article_enrichment
+      parameters:
+      - explode: false
+        in: path
+        name: article_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrichment"
+          description: Enrichment payload
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Get enrichment for an article
+      tags:
+      - Articles
+      x-openapi-router-controller: openapi_server.controllers.articles_controller
+  /company/profile:
+    get:
+      operationId: get_company_profile
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyProfile"
+          description: Company profile
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Get company policy settings
+      tags:
+      - CompanyConfig
+      x-openapi-router-controller: openapi_server.controllers.company_config_controller
+    put:
+      operationId: update_company_profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCompanyProfileRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyProfile"
+          description: Updated company profile
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Update company policy settings
+      tags:
+      - CompanyConfig
+      x-openapi-router-controller: openapi_server.controllers.company_config_controller
+  /config/risk-profile:
+    get:
+      operationId: get_risk_profile
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskProfile"
+          description: Soft risk profile
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Get learned manager risk profile
+      tags:
+      - CompanyConfig
+      x-openapi-router-controller: openapi_server.controllers.company_config_controller
+  /feedback/proposals/{proposal_id}:
+    post:
+      operationId: submit_proposal_feedback
+      parameters:
+      - explode: false
+        in: path
+        name: proposal_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProposalFeedbackRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalFeedbackResponse"
+          description: Feedback accepted
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Submit feedback to improve soft risk profile
+      tags:
+      - Feedback
+      x-openapi-router-controller: openapi_server.controllers.feedback_controller
+  /incidents:
+    get:
+      operationId: list_incidents
+      parameters:
+      - explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          $ref: "#/components/schemas/IncidentStatus"
+        style: form
+      - explode: true
+        in: query
+        name: classification
+        required: false
+        schema:
+          $ref: "#/components/schemas/IncidentClassification"
+        style: form
+      - explode: true
+        in: query
+        name: risk_level
+        required: false
+        schema:
+          $ref: "#/components/schemas/RiskLevel"
+        style: form
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IncidentListResponse"
+          description: Paginated incidents
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List incidents
+      tags:
+      - Incidents
+      x-openapi-router-controller: openapi_server.controllers.incidents_controller
+  /incidents/{incident_id}:
+    get:
+      operationId: get_incident
+      parameters:
+      - explode: false
+        in: path
+        name: incident_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+          description: Incident
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Get incident by id
+      tags:
+      - Incidents
+      x-openapi-router-controller: openapi_server.controllers.incidents_controller
+  /incidents/{incident_id}/proposals:
+    get:
+      operationId: list_incident_proposals
+      parameters:
+      - explode: false
+        in: path
+        name: incident_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalListResponse"
+          description: Proposals for incident
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List proposals for an incident
+      tags:
+      - Proposals
+      x-openapi-router-controller: openapi_server.controllers.proposals_controller
+  /incidents/{incident_id}/proposals:generate:
+    post:
+      operationId: generate_proposals
+      parameters:
+      - explode: false
+        in: path
+        name: incident_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalGenerateResponse"
+          description: Proposal generation queued/completed for incident
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Generate proposals for an incident
+      tags:
+      - Proposals
+      x-openapi-router-controller: openapi_server.controllers.proposals_controller
+  /ingestion/runs:
+    get:
+      operationId: list_ingestion_runs
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestionRunListResponse"
+          description: Paginated ingestion runs
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List ingestion runs
+      tags:
+      - Ingestion
+      x-openapi-router-controller: openapi_server.controllers.ingestion_controller
+    post:
+      operationId: create_ingestion_run
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIngestionRunRequest"
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestionRunQueuedResponse"
+          description: Ingestion run queued
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Queue an ingestion run
+      tags:
+      - Ingestion
+      x-openapi-router-controller: openapi_server.controllers.ingestion_controller
+  /ingestion/runs/{run_id}:
+    get:
+      operationId: get_ingestion_run
+      parameters:
+      - explode: false
+        in: path
+        name: run_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestionRun"
+          description: Ingestion run
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Get ingestion run status
+      tags:
+      - Ingestion
+      x-openapi-router-controller: openapi_server.controllers.ingestion_controller
+  /ingestion/status:
+    get:
+      operationId: get_ingestion_status
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestionStatus"
+          description: Scheduler status with last and next run metadata
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Get ingestion scheduler status
+      tags:
+      - Ingestion
+      x-openapi-router-controller: openapi_server.controllers.ingestion_controller
+  /proposals/{proposal_id}:
+    get:
+      operationId: get_proposal
+      parameters:
+      - explode: false
+        in: path
+        name: proposal_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionProposal"
+          description: Proposal
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Get proposal by id
+      tags:
+      - Proposals
+      x-openapi-router-controller: openapi_server.controllers.proposals_controller
+  /proposals/{proposal_id}/decision:
+    post:
+      operationId: decide_proposal
+      parameters:
+      - explode: false
+        in: path
+        name: proposal_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProposalDecisionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalDecisionResponse"
+          description: Proposal decision accepted
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Submit manager decision for a proposal
+      tags:
+      - Proposals
+      x-openapi-router-controller: openapi_server.controllers.proposals_controller
+  /reference/ports:
+    get:
+      operationId: list_ports
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferenceListResponse"
+          description: Port reference list
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List port reference data
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+  /reference/routes:
+    get:
+      operationId: list_routes
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferenceListResponse"
+          description: Route reference list
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List route reference data
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+  /reference/shipments:
+    get:
+      operationId: list_shipments
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShipmentListResponse"
+          description: Shipment reference list
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List shipment reference data
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+    post:
+      operationId: create_shipment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateShipmentRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shipment"
+          description: Shipment created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Create shipment reference record
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+  /reference/shipments/{shipment_id}:
+    patch:
+      operationId: update_shipment
+      parameters:
+      - explode: false
+        in: path
+        name: shipment_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateShipmentRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shipment"
+          description: Shipment updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Update shipment reference record
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+  /reference/skus:
+    get:
+      operationId: list_skus
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkuListResponse"
+          description: SKU reference list
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List SKU reference data
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+    post:
+      operationId: create_sku
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSkuRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sku"
+          description: SKU created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Create SKU reference record
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+  /reference/skus/{sku_id}:
+    patch:
+      operationId: update_sku
+      parameters:
+      - explode: false
+        in: path
+        name: sku_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSkuRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sku"
+          description: SKU updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Update SKU reference record
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+  /reference/suppliers:
+    get:
+      operationId: list_suppliers
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplierListResponse"
+          description: Supplier reference list
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: List supplier reference data
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+    post:
+      operationId: create_supplier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupplierRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+          description: Supplier created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Create supplier reference record
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+  /reference/suppliers/{supplier_id}:
+    patch:
+      operationId: update_supplier
+      parameters:
+      - explode: false
+        in: path
+        name: supplier_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSupplierRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+          description: Supplier updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Invalid request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource not found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Resource conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Semantic validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal server error
+      summary: Update supplier reference record
+      tags:
+      - Reference
+      x-openapi-router-controller: openapi_server.controllers.reference_controller
+components:
+  parameters:
+    Page:
+      explode: true
+      in: query
+      name: page
+      required: false
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+      style: form
+    PageSize:
+      explode: true
+      in: query
+      name: page_size
+      required: false
+      schema:
+        default: 20
+        maximum: 100
+        minimum: 1
+        type: integer
+      style: form
+    Relevant:
+      explode: true
+      in: query
+      name: relevant
+      required: false
+      schema:
+        type: boolean
+      style: form
+    ArticleState:
+      explode: true
+      in: query
+      name: state
+      required: false
+      schema:
+        $ref: "#/components/schemas/ArticleProcessingState"
+      style: form
+    IncidentStatus:
+      explode: true
+      in: query
+      name: status
+      required: false
+      schema:
+        $ref: "#/components/schemas/IncidentStatus"
+      style: form
+    IncidentClassification:
+      explode: true
+      in: query
+      name: classification
+      required: false
+      schema:
+        $ref: "#/components/schemas/IncidentClassification"
+      style: form
+    RiskLevel:
+      explode: true
+      in: query
+      name: risk_level
+      required: false
+      schema:
+        $ref: "#/components/schemas/RiskLevel"
+      style: form
+    RunId:
+      explode: false
+      in: path
+      name: run_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    ArticleId:
+      explode: false
+      in: path
+      name: article_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    IncidentId:
+      explode: false
+      in: path
+      name: incident_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    ProposalId:
+      explode: false
+      in: path
+      name: proposal_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    SkuId:
+      explode: false
+      in: path
+      name: sku_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    SupplierId:
+      explode: false
+      in: path
+      name: supplier_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    ShipmentId:
+      explode: false
+      in: path
+      name: shipment_id
+      required: true
+      schema:
+        type: string
+      style: simple
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+      description: Invalid request
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+      description: Resource not found
+    UnprocessableEntity:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+      description: Semantic validation failed
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+      description: Resource conflict
+    InternalServerError:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+      description: Internal server error
+  schemas:
+    ErrorEnvelope:
+      example:
+        error:
+          code: INVALID_ARGUMENT
+          details:
+            key: ""
+          message: human readable
+      properties:
+        error:
+          $ref: "#/components/schemas/ErrorObject"
+      required:
+      - error
+      title: ErrorEnvelope
+      type: object
+    ErrorObject:
+      example:
+        code: INVALID_ARGUMENT
+        details:
+          key: ""
+        message: human readable
+      properties:
+        code:
+          example: INVALID_ARGUMENT
+          title: code
+          type: string
+        message:
+          example: human readable
+          title: message
+          type: string
+        details:
+          additionalProperties: true
+          title: details
+          type: object
+      required:
+      - code
+      - details
+      - message
+      title: ErrorObject
+      type: object
+    ReferenceItem:
+      example:
+        metadata:
+          key: ""
+        code: code
+        name: name
+        id: id
+      properties:
+        id:
+          title: id
+          type: string
+        name:
+          title: name
+          type: string
+        code:
+          nullable: true
+          title: code
+          type: string
+        metadata:
+          additionalProperties: true
+          title: metadata
+          type: object
+      required:
+      - id
+      - name
+      title: ReferenceItem
+      type: object
+    ReferenceListResponse:
+      example:
+        total: 0
+        items:
+        - metadata:
+            key: ""
+          code: code
+          name: name
+          id: id
+        - metadata:
+            key: ""
+          code: code
+          name: name
+          id: id
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/ReferenceItem"
+          title: items
+          type: array
+        total:
+          minimum: 0
+          title: total
+          type: integer
+      required:
+      - items
+      - total
+      title: ReferenceListResponse
+      type: object
+    Sku:
+      example:
+        risk_level: critical
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        risk_score: 8
+        name: name
+        description: description
+        unit_of_measure: unit_of_measure
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: id
+        supplier_ids:
+        - supplier_ids
+        - supplier_ids
+        category: category
+        sku_code: sku_code
+        status: active
+      properties:
+        id:
+          title: id
+          type: string
+        sku_code:
+          title: sku_code
+          type: string
+        name:
+          title: name
+          type: string
+        description:
+          title: description
+          type: string
+        unit_of_measure:
+          title: unit_of_measure
+          type: string
+        status:
+          $ref: "#/components/schemas/MasterStatus"
+        risk_score:
+          maximum: 100
+          minimum: 0
+          title: risk_score
+          type: integer
+        risk_level:
+          $ref: "#/components/schemas/SkuRiskLevel"
+        category:
+          title: category
+          type: string
+        supplier_ids:
+          items:
+            type: string
+          title: supplier_ids
+          type: array
+        created_at:
+          format: date-time
+          title: created_at
+          type: string
+        updated_at:
+          format: date-time
+          title: updated_at
+          type: string
+      required:
+      - category
+      - created_at
+      - description
+      - id
+      - name
+      - risk_level
+      - risk_score
+      - sku_code
+      - status
+      - supplier_ids
+      - unit_of_measure
+      - updated_at
+      title: Sku
+      type: object
+    CreateSkuRequest:
+      additionalProperties: false
+      example:
+        risk_level: critical
+        risk_score: 8
+        name: name
+        description: description
+        unit_of_measure: unit_of_measure
+        supplier_ids:
+        - supplier_ids
+        - supplier_ids
+        category: category
+        sku_code: sku_code
+        status: active
+      properties:
+        sku_code:
+          title: sku_code
+          type: string
+        name:
+          title: name
+          type: string
+        description:
+          title: description
+          type: string
+        unit_of_measure:
+          title: unit_of_measure
+          type: string
+        status:
+          $ref: "#/components/schemas/MasterStatus"
+        risk_score:
+          maximum: 100
+          minimum: 0
+          title: risk_score
+          type: integer
+        risk_level:
+          $ref: "#/components/schemas/SkuRiskLevel"
+        category:
+          title: category
+          type: string
+        supplier_ids:
+          items:
+            type: string
+          title: supplier_ids
+          type: array
+      required:
+      - category
+      - description
+      - name
+      - risk_level
+      - risk_score
+      - sku_code
+      - status
+      - supplier_ids
+      - unit_of_measure
+      title: CreateSkuRequest
+      type: object
+    UpdateSkuRequest:
+      additionalProperties: false
+      example:
+        risk_level: critical
+        risk_score: 8
+        name: name
+        description: description
+        unit_of_measure: unit_of_measure
+        supplier_ids:
+        - supplier_ids
+        - supplier_ids
+        category: category
+        sku_code: sku_code
+        status: active
+      minProperties: 1
+      properties:
+        sku_code:
+          title: sku_code
+          type: string
+        name:
+          title: name
+          type: string
+        description:
+          title: description
+          type: string
+        unit_of_measure:
+          title: unit_of_measure
+          type: string
+        status:
+          $ref: "#/components/schemas/MasterStatus"
+        risk_score:
+          maximum: 100
+          minimum: 0
+          title: risk_score
+          type: integer
+        risk_level:
+          $ref: "#/components/schemas/SkuRiskLevel"
+        category:
+          title: category
+          type: string
+        supplier_ids:
+          items:
+            type: string
+          title: supplier_ids
+          type: array
+      title: UpdateSkuRequest
+      type: object
+    SkuListResponse:
+      example:
+        total: 0
+        items:
+        - risk_level: critical
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_score: 8
+          name: name
+          description: description
+          unit_of_measure: unit_of_measure
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          supplier_ids:
+          - supplier_ids
+          - supplier_ids
+          category: category
+          sku_code: sku_code
+          status: active
+        - risk_level: critical
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_score: 8
+          name: name
+          description: description
+          unit_of_measure: unit_of_measure
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          supplier_ids:
+          - supplier_ids
+          - supplier_ids
+          category: category
+          sku_code: sku_code
+          status: active
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/Sku"
+          title: items
+          type: array
+        total:
+          minimum: 0
+          title: total
+          type: integer
+      required:
+      - items
+      - total
+      title: SkuListResponse
+      type: object
+    Supplier:
+      example:
+        country: country
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        risk_rating: risk_rating
+        name: name
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: id
+        region: region
+        supplier_code: supplier_code
+        contact_email: contact_email
+        status: active
+      properties:
+        id:
+          title: id
+          type: string
+        supplier_code:
+          title: supplier_code
+          type: string
+        name:
+          title: name
+          type: string
+        country:
+          title: country
+          type: string
+        contact_email:
+          format: email
+          title: contact_email
+          type: string
+        status:
+          $ref: "#/components/schemas/MasterStatus"
+        region:
+          title: region
+          type: string
+        risk_rating:
+          title: risk_rating
+          type: string
+        created_at:
+          format: date-time
+          title: created_at
+          type: string
+        updated_at:
+          format: date-time
+          title: updated_at
+          type: string
+      required:
+      - contact_email
+      - country
+      - created_at
+      - id
+      - name
+      - region
+      - risk_rating
+      - status
+      - supplier_code
+      - updated_at
+      title: Supplier
+      type: object
+    CreateSupplierRequest:
+      additionalProperties: false
+      example:
+        country: country
+        risk_rating: risk_rating
+        name: name
+        region: region
+        supplier_code: supplier_code
+        contact_email: contact_email
+        status: active
+      properties:
+        supplier_code:
+          title: supplier_code
+          type: string
+        name:
+          title: name
+          type: string
+        country:
+          title: country
+          type: string
+        contact_email:
+          format: email
+          title: contact_email
+          type: string
+        status:
+          $ref: "#/components/schemas/MasterStatus"
+        region:
+          title: region
+          type: string
+        risk_rating:
+          title: risk_rating
+          type: string
+      required:
+      - contact_email
+      - country
+      - name
+      - region
+      - risk_rating
+      - status
+      - supplier_code
+      title: CreateSupplierRequest
+      type: object
+    UpdateSupplierRequest:
+      additionalProperties: false
+      example:
+        country: country
+        risk_rating: risk_rating
+        name: name
+        region: region
+        supplier_code: supplier_code
+        contact_email: contact_email
+        status: active
+      minProperties: 1
+      properties:
+        supplier_code:
+          title: supplier_code
+          type: string
+        name:
+          title: name
+          type: string
+        country:
+          title: country
+          type: string
+        contact_email:
+          format: email
+          title: contact_email
+          type: string
+        status:
+          $ref: "#/components/schemas/MasterStatus"
+        region:
+          title: region
+          type: string
+        risk_rating:
+          title: risk_rating
+          type: string
+      title: UpdateSupplierRequest
+      type: object
+    SupplierListResponse:
+      example:
+        total: 0
+        items:
+        - country: country
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_rating: risk_rating
+          name: name
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          region: region
+          supplier_code: supplier_code
+          contact_email: contact_email
+          status: active
+        - country: country
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_rating: risk_rating
+          name: name
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          region: region
+          supplier_code: supplier_code
+          contact_email: contact_email
+          status: active
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/Supplier"
+          title: items
+          type: array
+        total:
+          minimum: 0
+          title: total
+          type: integer
+      required:
+      - items
+      - total
+      title: SupplierListResponse
+      type: object
+    Shipment:
+      example:
+        route_id: route_id
+        expected_delivery_date: 2000-01-23T04:56:07.000+00:00
+        created_at: 2000-01-23T04:56:07.000+00:00
+        shipment_code: shipment_code
+        order_date: 2000-01-23T04:56:07.000+00:00
+        carrier: carrier
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        sku_ids:
+        - sku_ids
+        - sku_ids
+        destination_port_id: destination_port_id
+        id: id
+        origin_port_id: origin_port_id
+        supplier_id: supplier_id
+        events:
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
+        status: planned
+      properties:
+        id:
+          title: id
+          type: string
+        shipment_code:
+          title: shipment_code
+          type: string
+        status:
+          $ref: "#/components/schemas/ShipmentStatus"
+        origin_port_id:
+          title: origin_port_id
+          type: string
+        destination_port_id:
+          title: destination_port_id
+          type: string
+        route_id:
+          title: route_id
+          type: string
+        supplier_id:
+          title: supplier_id
+          type: string
+        sku_ids:
+          items:
+            type: string
+          title: sku_ids
+          type: array
+        carrier:
+          title: carrier
+          type: string
+        order_date:
+          format: date-time
+          title: order_date
+          type: string
+        expected_delivery_date:
+          format: date-time
+          title: expected_delivery_date
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/ShipmentEvent"
+          title: events
+          type: array
+        created_at:
+          format: date-time
+          title: created_at
+          type: string
+        updated_at:
+          format: date-time
+          title: updated_at
+          type: string
+      required:
+      - carrier
+      - created_at
+      - destination_port_id
+      - events
+      - expected_delivery_date
+      - id
+      - order_date
+      - origin_port_id
+      - route_id
+      - shipment_code
+      - sku_ids
+      - status
+      - supplier_id
+      - updated_at
+      title: Shipment
+      type: object
+    CreateShipmentRequest:
+      additionalProperties: false
+      example:
+        order_date: 2000-01-23T04:56:07.000+00:00
+        carrier: carrier
+        route_id: route_id
+        sku_ids:
+        - sku_ids
+        - sku_ids
+        destination_port_id: destination_port_id
+        expected_delivery_date: 2000-01-23T04:56:07.000+00:00
+        shipment_code: shipment_code
+        origin_port_id: origin_port_id
+        supplier_id: supplier_id
+        events:
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
+        status: planned
+      properties:
+        shipment_code:
+          title: shipment_code
+          type: string
+        status:
+          $ref: "#/components/schemas/ShipmentStatus"
+        origin_port_id:
+          title: origin_port_id
+          type: string
+        destination_port_id:
+          title: destination_port_id
+          type: string
+        route_id:
+          title: route_id
+          type: string
+        supplier_id:
+          title: supplier_id
+          type: string
+        sku_ids:
+          items:
+            type: string
+          title: sku_ids
+          type: array
+        carrier:
+          title: carrier
+          type: string
+        order_date:
+          format: date-time
+          title: order_date
+          type: string
+        expected_delivery_date:
+          format: date-time
+          title: expected_delivery_date
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/ShipmentEvent"
+          title: events
+          type: array
+      required:
+      - carrier
+      - destination_port_id
+      - events
+      - expected_delivery_date
+      - order_date
+      - origin_port_id
+      - route_id
+      - shipment_code
+      - sku_ids
+      - status
+      - supplier_id
+      title: CreateShipmentRequest
+      type: object
+    UpdateShipmentRequest:
+      additionalProperties: false
+      example:
+        order_date: 2000-01-23T04:56:07.000+00:00
+        carrier: carrier
+        route_id: route_id
+        sku_ids:
+        - sku_ids
+        - sku_ids
+        destination_port_id: destination_port_id
+        expected_delivery_date: 2000-01-23T04:56:07.000+00:00
+        shipment_code: shipment_code
+        origin_port_id: origin_port_id
+        supplier_id: supplier_id
+        events:
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
+        - metadata:
+            key: ""
+          description: description
+          location: location
+          id: id
+          type: type
+          event_time: 2000-01-23T04:56:07.000+00:00
+          status: status
+        status: planned
+      minProperties: 1
+      properties:
+        shipment_code:
+          title: shipment_code
+          type: string
+        status:
+          $ref: "#/components/schemas/ShipmentStatus"
+        origin_port_id:
+          title: origin_port_id
+          type: string
+        destination_port_id:
+          title: destination_port_id
+          type: string
+        route_id:
+          title: route_id
+          type: string
+        supplier_id:
+          title: supplier_id
+          type: string
+        sku_ids:
+          items:
+            type: string
+          title: sku_ids
+          type: array
+        carrier:
+          title: carrier
+          type: string
+        order_date:
+          format: date-time
+          title: order_date
+          type: string
+        expected_delivery_date:
+          format: date-time
+          title: expected_delivery_date
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/ShipmentEvent"
+          title: events
+          type: array
+      title: UpdateShipmentRequest
+      type: object
+    ShipmentListResponse:
+      example:
+        total: 0
+        items:
+        - route_id: route_id
+          expected_delivery_date: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          shipment_code: shipment_code
+          order_date: 2000-01-23T04:56:07.000+00:00
+          carrier: carrier
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          sku_ids:
+          - sku_ids
+          - sku_ids
+          destination_port_id: destination_port_id
+          id: id
+          origin_port_id: origin_port_id
+          supplier_id: supplier_id
+          events:
+          - metadata:
+              key: ""
+            description: description
+            location: location
+            id: id
+            type: type
+            event_time: 2000-01-23T04:56:07.000+00:00
+            status: status
+          - metadata:
+              key: ""
+            description: description
+            location: location
+            id: id
+            type: type
+            event_time: 2000-01-23T04:56:07.000+00:00
+            status: status
+          status: planned
+        - route_id: route_id
+          expected_delivery_date: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          shipment_code: shipment_code
+          order_date: 2000-01-23T04:56:07.000+00:00
+          carrier: carrier
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          sku_ids:
+          - sku_ids
+          - sku_ids
+          destination_port_id: destination_port_id
+          id: id
+          origin_port_id: origin_port_id
+          supplier_id: supplier_id
+          events:
+          - metadata:
+              key: ""
+            description: description
+            location: location
+            id: id
+            type: type
+            event_time: 2000-01-23T04:56:07.000+00:00
+            status: status
+          - metadata:
+              key: ""
+            description: description
+            location: location
+            id: id
+            type: type
+            event_time: 2000-01-23T04:56:07.000+00:00
+            status: status
+          status: planned
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/Shipment"
+          title: items
+          type: array
+        total:
+          minimum: 0
+          title: total
+          type: integer
+      required:
+      - items
+      - total
+      title: ShipmentListResponse
+      type: object
+    CreateIngestionRunRequest:
+      additionalProperties: false
+      example:
+        max_articles: 100
+      properties:
+        max_articles:
+          example: 100
+          maximum: 1000
+          minimum: 1
+          title: max_articles
+          type: integer
+      required:
+      - max_articles
+      title: CreateIngestionRunRequest
+      type: object
+    IngestionRunQueuedResponse:
+      example:
+        run_id: run_id
+        status: queued
+      properties:
+        run_id:
+          title: run_id
+          type: string
+        status:
+          $ref: "#/components/schemas/IngestionRunStatus"
+      required:
+      - run_id
+      - status
+      title: IngestionRunQueuedResponse
+      type: object
+    IngestionRun:
+      example:
+        finished_at: 2000-01-23T04:56:07.000+00:00
+        stats:
+          articles_relevant: 0
+          incidents_created: 0
+          articles_ingested: 0
+          proposals_generated: 0
+        started_at: 2000-01-23T04:56:07.000+00:00
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: id
+        error: error
+        status: queued
+      properties:
+        id:
+          title: id
+          type: string
+        status:
+          $ref: "#/components/schemas/IngestionRunStatus"
+        started_at:
+          format: date-time
+          title: started_at
+          type: string
+        finished_at:
+          format: date-time
+          nullable: true
+          title: finished_at
+          type: string
+        created_at:
+          format: date-time
+          title: created_at
+          type: string
+        stats:
+          $ref: "#/components/schemas/IngestionStats"
+        error:
+          nullable: true
+          title: error
+          type: string
+      required:
+      - created_at
+      - id
+      - started_at
+      - stats
+      - status
+      title: IngestionRun
+      type: object
+    IngestionRunListResponse:
+      example:
+        total: 0
+        page: 1
+        items:
+        - finished_at: 2000-01-23T04:56:07.000+00:00
+          stats:
+            articles_relevant: 0
+            incidents_created: 0
+            articles_ingested: 0
+            proposals_generated: 0
+          started_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          error: error
+          status: queued
+        - finished_at: 2000-01-23T04:56:07.000+00:00
+          stats:
+            articles_relevant: 0
+            incidents_created: 0
+            articles_ingested: 0
+            proposals_generated: 0
+          started_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          error: error
+          status: queued
+        page_size: 70
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/IngestionRun"
+          title: items
+          type: array
+        total:
+          minimum: 0
+          title: total
+          type: integer
+        page:
+          minimum: 1
+          title: page
+          type: integer
+        page_size:
+          maximum: 100
+          minimum: 1
+          title: page_size
+          type: integer
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      title: IngestionRunListResponse
+      type: object
+    IngestionStatus:
+      example:
+        last_run: ""
+        next_scheduled_run_at: 2000-01-23T04:56:07.000+00:00
+      properties:
+        last_run:
+          allOf:
+          - $ref: "#/components/schemas/IngestionRun"
+          nullable: true
+          title: last_run
+        next_scheduled_run_at:
+          format: date-time
+          nullable: true
+          title: next_scheduled_run_at
+          type: string
+      required:
+      - last_run
+      - next_scheduled_run_at
+      title: IngestionStatus
+      type: object
+    IngestionStats:
+      example:
+        articles_relevant: 0
+        incidents_created: 0
+        articles_ingested: 0
+        proposals_generated: 0
+      properties:
+        articles_ingested:
+          minimum: 0
+          title: articles_ingested
+          type: integer
+        articles_relevant:
+          minimum: 0
+          title: articles_relevant
+          type: integer
+        incidents_created:
+          minimum: 0
+          title: incidents_created
+          type: integer
+        proposals_generated:
+          minimum: 0
+          title: proposals_generated
+          type: integer
+      required:
+      - articles_ingested
+      - articles_relevant
+      - incidents_created
+      - proposals_generated
+      title: IngestionStats
+      type: object
+    Article:
+      example:
+        summary: summary
+        preview_text: preview_text
+        keywords:
+        - keywords
+        - keywords
+        created_at: 2000-01-23T04:56:07.000+00:00
+        source: source
+        ingestion_run_id: ingestion_run_id
+        title: title
+        analysis: analysis
+        body: body
+        processing_state: raw
+        source_url: https://openapi-generator.tech
+        tags:
+        - tags
+        - tags
+        publish_datetime: 2000-01-23T04:56:07.000+00:00
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        preview_image_url: https://openapi-generator.tech
+        id: id
+        published_at: 2000-01-23T04:56:07.000+00:00
+        headline: headline
+        source_name: source_name
+      properties:
+        id:
+          title: id
+          type: string
+        source:
+          title: source
+          type: string
+        source_url:
+          format: uri
+          title: source_url
+          type: string
+        headline:
+          title: headline
+          type: string
+        title:
+          title: title
+          type: string
+        summary:
+          title: summary
+          type: string
+        preview_text:
+          title: preview_text
+          type: string
+        analysis:
+          title: analysis
+          type: string
+        keywords:
+          items:
+            type: string
+          title: keywords
+          type: array
+        tags:
+          items:
+            type: string
+          title: tags
+          type: array
+        source_name:
+          title: source_name
+          type: string
+        body:
+          title: body
+          type: string
+        published_at:
+          format: date-time
+          title: published_at
+          type: string
+        publish_datetime:
+          format: date-time
+          title: publish_datetime
+          type: string
+        preview_image_url:
+          format: uri
+          nullable: true
+          title: preview_image_url
+          type: string
+        ingestion_run_id:
+          title: ingestion_run_id
+          type: string
+        processing_state:
+          $ref: "#/components/schemas/ArticleProcessingState"
+        created_at:
+          format: date-time
+          title: created_at
+          type: string
+        updated_at:
+          format: date-time
+          title: updated_at
+          type: string
+      required:
+      - analysis
+      - body
+      - created_at
+      - headline
+      - id
+      - ingestion_run_id
+      - keywords
+      - preview_image_url
+      - preview_text
+      - processing_state
+      - publish_datetime
+      - published_at
+      - source
+      - source_name
+      - source_url
+      - summary
+      - tags
+      - title
+      - updated_at
+      title: Article
+      type: object
+    ArticleListResponse:
+      example:
+        total: 0
+        page: 1
+        items:
+        - summary: summary
+          preview_text: preview_text
+          keywords:
+          - keywords
+          - keywords
+          created_at: 2000-01-23T04:56:07.000+00:00
+          source: source
+          ingestion_run_id: ingestion_run_id
+          title: title
+          analysis: analysis
+          body: body
+          processing_state: raw
+          source_url: https://openapi-generator.tech
+          tags:
+          - tags
+          - tags
+          publish_datetime: 2000-01-23T04:56:07.000+00:00
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          preview_image_url: https://openapi-generator.tech
+          id: id
+          published_at: 2000-01-23T04:56:07.000+00:00
+          headline: headline
+          source_name: source_name
+        - summary: summary
+          preview_text: preview_text
+          keywords:
+          - keywords
+          - keywords
+          created_at: 2000-01-23T04:56:07.000+00:00
+          source: source
+          ingestion_run_id: ingestion_run_id
+          title: title
+          analysis: analysis
+          body: body
+          processing_state: raw
+          source_url: https://openapi-generator.tech
+          tags:
+          - tags
+          - tags
+          publish_datetime: 2000-01-23T04:56:07.000+00:00
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          preview_image_url: https://openapi-generator.tech
+          id: id
+          published_at: 2000-01-23T04:56:07.000+00:00
+          headline: headline
+          source_name: source_name
+        page_size: 15
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/Article"
+          title: items
+          type: array
+        total:
+          minimum: 0
+          title: total
+          type: integer
+        page:
+          minimum: 1
+          title: page
+          type: integer
+        page_size:
+          maximum: 100
+          minimum: 1
+          title: page_size
+          type: integer
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      title: ArticleListResponse
+      type: object
+    Enrichment:
+      example:
+        article_id: article_id
+        geo:
+          route_ids:
+          - route_ids
+          - route_ids
+          lng: 6.027456183070403
+          countries:
+          - countries
+          - countries
+          ports:
+          - ports
+          - ports
+          lat: 0.8008281904610115
+        relevance_tags:
+        - sku
+        - sku
+        horizon: short_term
+        risk_level: low
+        matched_entities:
+          sku_ids:
+          - sku_ids
+          - sku_ids
+          supplier_ids:
+          - supplier_ids
+          - supplier_ids
+        risk_score: 59
+        impact_window:
+          end_at: 2000-01-23T04:56:07.000+00:00
+          confidence: 0.14658129
+          start_at: 2000-01-23T04:56:07.000+00:00
+        explanation: explanation
+        is_relevant: true
+      properties:
+        article_id:
+          title: article_id
+          type: string
+        is_relevant:
+          title: is_relevant
+          type: boolean
+        relevance_tags:
+          items:
+            $ref: "#/components/schemas/RelevanceTag"
+          title: relevance_tags
+          type: array
+          uniqueItems: true
+        horizon:
+          enum:
+          - short_term
+          - long_term
+          title: horizon
+          type: string
+        geo:
+          $ref: "#/components/schemas/GeoInfo"
+        impact_window:
+          $ref: "#/components/schemas/ImpactWindow"
+        matched_entities:
+          $ref: "#/components/schemas/MatchedEntities"
+        risk_score:
+          maximum: 100
+          minimum: 0
+          title: risk_score
+          type: integer
+        risk_level:
+          $ref: "#/components/schemas/RiskLevel"
+        explanation:
+          title: explanation
+          type: string
+      required:
+      - article_id
+      - explanation
+      - geo
+      - horizon
+      - impact_window
+      - is_relevant
+      - matched_entities
+      - relevance_tags
+      - risk_level
+      - risk_score
+      title: Enrichment
+      type: object
+    GeoInfo:
+      example:
+        route_ids:
+        - route_ids
+        - route_ids
+        lng: 6.027456183070403
+        countries:
+        - countries
+        - countries
+        ports:
+        - ports
+        - ports
+        lat: 0.8008281904610115
+      properties:
+        countries:
+          items:
+            type: string
+          title: countries
+          type: array
+        ports:
+          items:
+            type: string
+          title: ports
+          type: array
+        route_ids:
+          items:
+            type: string
+          title: route_ids
+          type: array
+        lat:
+          format: double
+          nullable: true
+          title: lat
+          type: number
+        lng:
+          format: double
+          nullable: true
+          title: lng
+          type: number
+      required:
+      - countries
+      - ports
+      - route_ids
+      title: GeoInfo
+      type: object
+    ImpactWindow:
+      example:
+        end_at: 2000-01-23T04:56:07.000+00:00
+        confidence: 0.14658129
+        start_at: 2000-01-23T04:56:07.000+00:00
+      properties:
+        start_at:
+          format: date-time
+          title: start_at
+          type: string
+        end_at:
+          format: date-time
+          title: end_at
+          type: string
+        confidence:
+          format: float
+          maximum: 1
+          minimum: 0
+          title: confidence
+          type: number
+      required:
+      - confidence
+      - end_at
+      - start_at
+      title: ImpactWindow
+      type: object
+    MatchedEntities:
+      example:
+        sku_ids:
+        - sku_ids
+        - sku_ids
+        supplier_ids:
+        - supplier_ids
+        - supplier_ids
+      properties:
+        sku_ids:
+          items:
+            type: string
+          title: sku_ids
+          type: array
+        supplier_ids:
+          items:
+            type: string
+          title: supplier_ids
+          type: array
+      required:
+      - sku_ids
+      - supplier_ids
+      title: MatchedEntities
+      type: object
+    Incident:
+      example:
+        article_id: article_id
+        risk_level: low
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        risk_score: 8
+        reasoning: reasoning
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: id
+        classification: risk_exposure
+        overlap_tags:
+        - port_overlap
+        - port_overlap
+        status: open
+      properties:
+        id:
+          title: id
+          type: string
+        article_id:
+          title: article_id
+          type: string
+        classification:
+          $ref: "#/components/schemas/IncidentClassification"
+        status:
+          $ref: "#/components/schemas/IncidentStatus"
+        reasoning:
+          title: reasoning
+          type: string
+        overlap_tags:
+          items:
+            $ref: "#/components/schemas/OverlapTag"
+          title: overlap_tags
+          type: array
+          uniqueItems: true
+        risk_score:
+          maximum: 100
+          minimum: 0
+          title: risk_score
+          type: integer
+        risk_level:
+          $ref: "#/components/schemas/RiskLevel"
+        created_at:
+          format: date-time
+          title: created_at
+          type: string
+        updated_at:
+          format: date-time
+          title: updated_at
+          type: string
+      required:
+      - article_id
+      - classification
+      - created_at
+      - id
+      - overlap_tags
+      - reasoning
+      - risk_level
+      - risk_score
+      - status
+      - updated_at
+      title: Incident
+      type: object
+    IncidentListResponse:
+      example:
+        total: 0
+        page: 1
+        items:
+        - article_id: article_id
+          risk_level: low
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_score: 8
+          reasoning: reasoning
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          classification: risk_exposure
+          overlap_tags:
+          - port_overlap
+          - port_overlap
+          status: open
+        - article_id: article_id
+          risk_level: low
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          risk_score: 8
+          reasoning: reasoning
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          classification: risk_exposure
+          overlap_tags:
+          - port_overlap
+          - port_overlap
+          status: open
+        page_size: 60
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/Incident"
+          title: items
+          type: array
+        total:
+          minimum: 0
+          title: total
+          type: integer
+        page:
+          minimum: 1
+          title: page
+          type: integer
+        page_size:
+          maximum: 100
+          minimum: 1
+          title: page_size
+          type: integer
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      title: IncidentListResponse
+      type: object
+    ActionProposal:
+      example:
+        summary: summary
+        incident_id: incident_id
+        overall_risk: low
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        created_at: 2000-01-23T04:56:07.000+00:00
+        estimated_impact: estimated_impact
+        autonomy_eligibility:
+          reason: risk_above_company_threshold
+          auto_eligible: true
+        id: id
+        title: title
+        steps:
+        - requires_human_review: true
+          step_type: autonomous
+          description: description
+          id: id
+          category: email
+          suggested_payload:
+            key: ""
+        - requires_human_review: true
+          step_type: autonomous
+          description: description
+          id: id
+          category: email
+          suggested_payload:
+            key: ""
+        status: proposed
+      properties:
+        id:
+          title: id
+          type: string
+        incident_id:
+          title: incident_id
+          type: string
+        title:
+          title: title
+          type: string
+        summary:
+          title: summary
+          type: string
+        overall_risk:
+          $ref: "#/components/schemas/RiskLevel"
+        estimated_impact:
+          title: estimated_impact
+          type: string
+        status:
+          $ref: "#/components/schemas/ProposalStatus"
+        autonomy_eligibility:
+          $ref: "#/components/schemas/AutonomyEligibility"
+        steps:
+          items:
+            $ref: "#/components/schemas/ActionStep"
+          minItems: 1
+          title: steps
+          type: array
+        created_at:
+          format: date-time
+          title: created_at
+          type: string
+        updated_at:
+          format: date-time
+          title: updated_at
+          type: string
+      required:
+      - autonomy_eligibility
+      - created_at
+      - estimated_impact
+      - id
+      - incident_id
+      - overall_risk
+      - status
+      - steps
+      - summary
+      - title
+      - updated_at
+      title: ActionProposal
+      type: object
+    ProposalListResponse:
+      example:
+        total: 0
+        page: 1
+        items:
+        - summary: summary
+          incident_id: incident_id
+          overall_risk: low
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          estimated_impact: estimated_impact
+          autonomy_eligibility:
+            reason: risk_above_company_threshold
+            auto_eligible: true
+          id: id
+          title: title
+          steps:
+          - requires_human_review: true
+            step_type: autonomous
+            description: description
+            id: id
+            category: email
+            suggested_payload:
+              key: ""
+          - requires_human_review: true
+            step_type: autonomous
+            description: description
+            id: id
+            category: email
+            suggested_payload:
+              key: ""
+          status: proposed
+        - summary: summary
+          incident_id: incident_id
+          overall_risk: low
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          estimated_impact: estimated_impact
+          autonomy_eligibility:
+            reason: risk_above_company_threshold
+            auto_eligible: true
+          id: id
+          title: title
+          steps:
+          - requires_human_review: true
+            step_type: autonomous
+            description: description
+            id: id
+            category: email
+            suggested_payload:
+              key: ""
+          - requires_human_review: true
+            step_type: autonomous
+            description: description
+            id: id
+            category: email
+            suggested_payload:
+              key: ""
+          status: proposed
+        page_size: 15
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/ActionProposal"
+          title: items
+          type: array
+        total:
+          minimum: 0
+          title: total
+          type: integer
+        page:
+          minimum: 1
+          title: page
+          type: integer
+        page_size:
+          maximum: 100
+          minimum: 1
+          title: page_size
+          type: integer
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      title: ProposalListResponse
+      type: object
+    AutonomyEligibility:
+      example:
+        reason: risk_above_company_threshold
+        auto_eligible: true
+      properties:
+        auto_eligible:
+          title: auto_eligible
+          type: boolean
+        reason:
+          $ref: "#/components/schemas/AutonomyIneligibilityReason"
+      required:
+      - auto_eligible
+      - reason
+      title: AutonomyEligibility
+      type: object
+    ActionStep:
+      example:
+        requires_human_review: true
+        step_type: autonomous
+        description: description
+        id: id
+        category: email
+        suggested_payload:
+          key: ""
+      properties:
+        id:
+          title: id
+          type: string
+        step_type:
+          $ref: "#/components/schemas/StepType"
+        category:
+          $ref: "#/components/schemas/StepCategory"
+        description:
+          title: description
+          type: string
+        requires_human_review:
+          title: requires_human_review
+          type: boolean
+        suggested_payload:
+          additionalProperties: true
+          title: suggested_payload
+          type: object
+      required:
+      - category
+      - description
+      - id
+      - requires_human_review
+      - step_type
+      - suggested_payload
+      title: ActionStep
+      type: object
+    ProposalGenerateResponse:
+      example:
+        incident_id: incident_id
+        proposal_ids:
+        - proposal_ids
+        - proposal_ids
+      properties:
+        incident_id:
+          title: incident_id
+          type: string
+        proposal_ids:
+          items:
+            type: string
+          title: proposal_ids
+          type: array
+      required:
+      - incident_id
+      - proposal_ids
+      title: ProposalGenerateResponse
+      type: object
+    ProposalDecisionRequest:
+      additionalProperties: false
+      example:
+        approved_step_ids:
+        - approved_step_ids
+        - approved_step_ids
+        decision: approve
+        manager_note: manager_note
+      properties:
+        decision:
+          $ref: "#/components/schemas/DecisionType"
+        approved_step_ids:
+          items:
+            type: string
+          title: approved_step_ids
+          type: array
+        manager_note:
+          title: manager_note
+          type: string
+      required:
+      - approved_step_ids
+      - decision
+      - manager_note
+      title: ProposalDecisionRequest
+      type: object
+    ProposalDecisionResponse:
+      example:
+        proposal:
+          summary: summary
+          incident_id: incident_id
+          overall_risk: low
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          estimated_impact: estimated_impact
+          autonomy_eligibility:
+            reason: risk_above_company_threshold
+            auto_eligible: true
+          id: id
+          title: title
+          steps:
+          - requires_human_review: true
+            step_type: autonomous
+            description: description
+            id: id
+            category: email
+            suggested_payload:
+              key: ""
+          - requires_human_review: true
+            step_type: autonomous
+            description: description
+            id: id
+            category: email
+            suggested_payload:
+              key: ""
+          status: proposed
+        incident_status: open
+      properties:
+        proposal:
+          $ref: "#/components/schemas/ActionProposal"
+        incident_status:
+          $ref: "#/components/schemas/IncidentStatus"
+      required:
+      - incident_status
+      - proposal
+      title: ProposalDecisionResponse
+      type: object
+    CompanyProfile:
+      example:
+        max_auto_risk_level: low
+        autonomy_enabled: true
+        disallowed_categories:
+        - disallowed_categories
+        - disallowed_categories
+      properties:
+        autonomy_enabled:
+          title: autonomy_enabled
+          type: boolean
+        max_auto_risk_level:
+          $ref: "#/components/schemas/RiskLevel"
+        disallowed_categories:
+          items:
+            type: string
+          title: disallowed_categories
+          type: array
+      required:
+      - autonomy_enabled
+      - disallowed_categories
+      - max_auto_risk_level
+      title: CompanyProfile
+      type: object
+    UpdateCompanyProfileRequest:
+      additionalProperties: false
+      example:
+        max_auto_risk_level: low
+        autonomy_enabled: true
+        disallowed_categories:
+        - disallowed_categories
+        - disallowed_categories
+      properties:
+        autonomy_enabled:
+          title: autonomy_enabled
+          type: boolean
+        max_auto_risk_level:
+          $ref: "#/components/schemas/RiskLevel"
+        disallowed_categories:
+          items:
+            type: string
+          title: disallowed_categories
+          type: array
+      required:
+      - autonomy_enabled
+      - disallowed_categories
+      - max_auto_risk_level
+      title: UpdateCompanyProfileRequest
+      type: object
+    RiskProfile:
+      example:
+        last_updated_at: 2000-01-23T04:56:07.000+00:00
+        manager_risk_tolerance_score: 0.08008282
+      properties:
+        manager_risk_tolerance_score:
+          format: float
+          maximum: 1
+          minimum: 0
+          title: manager_risk_tolerance_score
+          type: number
+        last_updated_at:
+          format: date-time
+          title: last_updated_at
+          type: string
+      required:
+      - last_updated_at
+      - manager_risk_tolerance_score
+      title: RiskProfile
+      type: object
+    ProposalFeedbackRequest:
+      additionalProperties: false
+      example:
+        notes: notes
+        accepted: true
+        override_reason: too_risky
+      properties:
+        accepted:
+          title: accepted
+          type: boolean
+        override_reason:
+          enum:
+          - too_risky
+          - too_conservative
+          - other
+          title: override_reason
+          type: string
+        notes:
+          title: notes
+          type: string
+      required:
+      - accepted
+      - notes
+      - override_reason
+      title: ProposalFeedbackRequest
+      type: object
+    ProposalFeedbackResponse:
+      example:
+        risk_profile:
+          last_updated_at: 2000-01-23T04:56:07.000+00:00
+          manager_risk_tolerance_score: 0.08008282
+        status: accepted
+      properties:
+        status:
+          enum:
+          - accepted
+          title: status
+          type: string
+        risk_profile:
+          $ref: "#/components/schemas/RiskProfile"
+      required:
+      - risk_profile
+      - status
+      title: ProposalFeedbackResponse
+      type: object
+    ArticleProcessingState:
+      enum:
+      - raw
+      - enriched
+      - irrelevant
+      - evaluated
+      - proposal_generated
+      title: ArticleProcessingState
+      type: string
+    IngestionRunStatus:
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      title: IngestionRunStatus
+      type: string
+    IncidentClassification:
+      enum:
+      - risk_exposure
+      - active_disruption
+      title: IncidentClassification
+      type: string
+    IncidentStatus:
+      enum:
+      - open
+      - monitoring
+      - awaiting_decision
+      - resolved
+      - dismissed
+      title: IncidentStatus
+      type: string
+    ProposalStatus:
+      enum:
+      - proposed
+      - approved
+      - rejected
+      - partially_approved
+      - executed_manual
+      title: ProposalStatus
+      type: string
+    StepType:
+      enum:
+      - autonomous
+      - semi_autonomous
+      - manual
+      title: StepType
+      type: string
+    StepCategory:
+      enum:
+      - email
+      - documentation
+      - supplier_change
+      - shipment_reroute
+      - other
+      title: StepCategory
+      type: string
+    RiskLevel:
+      enum:
+      - low
+      - medium
+      - high
+      title: RiskLevel
+      type: string
+    MasterStatus:
+      enum:
+      - active
+      - inactive
+      title: MasterStatus
+      type: string
+    ShipmentStatus:
+      enum:
+      - planned
+      - in_transit
+      - delayed
+      - delivered
+      - cancelled
+      title: ShipmentStatus
+      type: string
+    SkuRiskLevel:
+      enum:
+      - critical
+      - high
+      - medium
+      - low
+      title: SkuRiskLevel
+      type: string
+    ShipmentEvent:
+      example:
+        metadata:
+          key: ""
+        description: description
+        location: location
+        id: id
+        type: type
+        event_time: 2000-01-23T04:56:07.000+00:00
+        status: status
+      properties:
+        id:
+          title: id
+          type: string
+        type:
+          title: type
+          type: string
+        description:
+          title: description
+          type: string
+        event_time:
+          format: date-time
+          title: event_time
+          type: string
+        location:
+          nullable: true
+          title: location
+          type: string
+        status:
+          nullable: true
+          title: status
+          type: string
+        metadata:
+          additionalProperties: true
+          nullable: true
+          title: metadata
+          type: object
+      required:
+      - description
+      - event_time
+      - id
+      - type
+      title: ShipmentEvent
+      type: object
+    DecisionType:
+      enum:
+      - approve
+      - reject
+      - partial_approve
+      title: DecisionType
+      type: string
+    AutonomyIneligibilityReason:
+      enum:
+      - risk_above_company_threshold
+      - blocked_category
+      - autonomy_disabled
+      - eligible
+      title: AutonomyIneligibilityReason
+      type: string
+    RelevanceTag:
+      enum:
+      - sku
+      - shipment
+      - supplier
+      - weather
+      - geopolitical
+      - financial
+      title: RelevanceTag
+      type: string
+    OverlapTag:
+      enum:
+      - port_overlap
+      - route_overlap
+      - immediate_sku_threat
+      title: OverlapTag
+      type: string

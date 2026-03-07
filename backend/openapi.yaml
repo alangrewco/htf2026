@@ -1,0 +1,1770 @@
+openapi: 3.0.3
+info:
+  title: Shipping Disruption Management API
+  version: 1.0.0
+  description: >-
+    MVP v1 REST API for ACME Inc. to ingest shipping disruption signals,
+    enrich relevance and impact, escalate incidents, and generate action
+    proposals for manager decisioning.
+servers:
+  - url: /api/v1
+tags:
+  - name: Reference
+  - name: Ingestion
+  - name: Articles
+  - name: Incidents
+  - name: Proposals
+  - name: CompanyConfig
+  - name: Feedback
+paths:
+  /reference/skus:
+    get:
+      tags: [Reference]
+      operationId: listSkus
+      summary: List SKU reference data
+      responses:
+        '200':
+          description: SKU reference list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkuListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Reference]
+      operationId: createSku
+      summary: Create SKU reference record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSkuRequest'
+      responses:
+        '201':
+          description: SKU created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sku'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/skus/{sku_id}:
+    patch:
+      tags: [Reference]
+      operationId: updateSku
+      summary: Update SKU reference record
+      parameters:
+        - $ref: '#/components/parameters/SkuId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSkuRequest'
+      responses:
+        '200':
+          description: SKU updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sku'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/suppliers:
+    get:
+      tags: [Reference]
+      operationId: listSuppliers
+      summary: List supplier reference data
+      responses:
+        '200':
+          description: Supplier reference list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Reference]
+      operationId: createSupplier
+      summary: Create supplier reference record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSupplierRequest'
+      responses:
+        '201':
+          description: Supplier created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/suppliers/{supplier_id}:
+    patch:
+      tags: [Reference]
+      operationId: updateSupplier
+      summary: Update supplier reference record
+      parameters:
+        - $ref: '#/components/parameters/SupplierId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSupplierRequest'
+      responses:
+        '200':
+          description: Supplier updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/shipments:
+    get:
+      tags: [Reference]
+      operationId: listShipments
+      summary: List shipment reference data
+      responses:
+        '200':
+          description: Shipment reference list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShipmentListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Reference]
+      operationId: createShipment
+      summary: Create shipment reference record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShipmentRequest'
+      responses:
+        '201':
+          description: Shipment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shipment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/shipments/{shipment_id}:
+    patch:
+      tags: [Reference]
+      operationId: updateShipment
+      summary: Update shipment reference record
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateShipmentRequest'
+      responses:
+        '200':
+          description: Shipment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shipment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/ports:
+    get:
+      tags: [Reference]
+      operationId: listPorts
+      summary: List port reference data
+      responses:
+        '200':
+          description: Port reference list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReferenceListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/routes:
+    get:
+      tags: [Reference]
+      operationId: listRoutes
+      summary: List route reference data
+      responses:
+        '200':
+          description: Route reference list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReferenceListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /ingestion/runs:
+    get:
+      tags: [Ingestion]
+      operationId: listIngestionRuns
+      summary: List ingestion runs
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Paginated ingestion runs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionRunListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Ingestion]
+      operationId: createIngestionRun
+      summary: Queue an ingestion run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIngestionRunRequest'
+      responses:
+        '202':
+          description: Ingestion run queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionRunQueuedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /ingestion/runs/{run_id}:
+    get:
+      tags: [Ingestion]
+      operationId: getIngestionRun
+      summary: Get ingestion run status
+      parameters:
+        - $ref: '#/components/parameters/RunId'
+      responses:
+        '200':
+          description: Ingestion run
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionRun'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /ingestion/status:
+    get:
+      tags: [Ingestion]
+      operationId: getIngestionStatus
+      summary: Get ingestion scheduler status
+      responses:
+        '200':
+          description: Scheduler status with last and next run metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionStatus'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /articles:
+    get:
+      tags: [Articles]
+      operationId: listArticles
+      summary: List articles
+      parameters:
+        - $ref: '#/components/parameters/ArticleState'
+        - $ref: '#/components/parameters/Relevant'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Paginated articles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /articles/{article_id}:
+    get:
+      tags: [Articles]
+      operationId: getArticle
+      summary: Get article by id
+      parameters:
+        - $ref: '#/components/parameters/ArticleId'
+      responses:
+        '200':
+          description: Article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /articles/{article_id}/enrichment:
+    get:
+      tags: [Articles]
+      operationId: getArticleEnrichment
+      summary: Get enrichment for an article
+      parameters:
+        - $ref: '#/components/parameters/ArticleId'
+      responses:
+        '200':
+          description: Enrichment payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrichment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /incidents:
+    get:
+      tags: [Incidents]
+      operationId: listIncidents
+      summary: List incidents
+      parameters:
+        - $ref: '#/components/parameters/IncidentStatus'
+        - $ref: '#/components/parameters/IncidentClassification'
+        - $ref: '#/components/parameters/RiskLevel'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Paginated incidents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /incidents/{incident_id}:
+    get:
+      tags: [Incidents]
+      operationId: getIncident
+      summary: Get incident by id
+      parameters:
+        - $ref: '#/components/parameters/IncidentId'
+      responses:
+        '200':
+          description: Incident
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /incidents/{incident_id}/proposals:generate:
+    post:
+      tags: [Proposals]
+      operationId: generateProposals
+      summary: Generate proposals for an incident
+      parameters:
+        - $ref: '#/components/parameters/IncidentId'
+      responses:
+        '202':
+          description: Proposal generation queued/completed for incident
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalGenerateResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /incidents/{incident_id}/proposals:
+    get:
+      tags: [Proposals]
+      operationId: listIncidentProposals
+      summary: List proposals for an incident
+      parameters:
+        - $ref: '#/components/parameters/IncidentId'
+      responses:
+        '200':
+          description: Proposals for incident
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /proposals/{proposal_id}:
+    get:
+      tags: [Proposals]
+      operationId: getProposal
+      summary: Get proposal by id
+      parameters:
+        - $ref: '#/components/parameters/ProposalId'
+      responses:
+        '200':
+          description: Proposal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionProposal'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /proposals/{proposal_id}/decision:
+    post:
+      tags: [Proposals]
+      operationId: decideProposal
+      summary: Submit manager decision for a proposal
+      parameters:
+        - $ref: '#/components/parameters/ProposalId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalDecisionRequest'
+      responses:
+        '200':
+          description: Proposal decision accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalDecisionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /company/profile:
+    get:
+      tags: [CompanyConfig]
+      operationId: getCompanyProfile
+      summary: Get company policy settings
+      responses:
+        '200':
+          description: Company profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyProfile'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags: [CompanyConfig]
+      operationId: updateCompanyProfile
+      summary: Update company policy settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyProfileRequest'
+      responses:
+        '200':
+          description: Updated company profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /config/risk-profile:
+    get:
+      tags: [CompanyConfig]
+      operationId: getRiskProfile
+      summary: Get learned manager risk profile
+      responses:
+        '200':
+          description: Soft risk profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskProfile'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /feedback/proposals/{proposal_id}:
+    post:
+      tags: [Feedback]
+      operationId: submitProposalFeedback
+      summary: Submit feedback to improve soft risk profile
+      parameters:
+        - $ref: '#/components/parameters/ProposalId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalFeedbackRequest'
+      responses:
+        '200':
+          description: Feedback accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalFeedbackResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: page_size
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Relevant:
+      name: relevant
+      in: query
+      required: false
+      schema:
+        type: boolean
+    ArticleState:
+      name: state
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/ArticleProcessingState'
+    IncidentStatus:
+      name: status
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/IncidentStatus'
+    IncidentClassification:
+      name: classification
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/IncidentClassification'
+    RiskLevel:
+      name: risk_level
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/RiskLevel'
+    RunId:
+      name: run_id
+      in: path
+      required: true
+      schema:
+        type: string
+    ArticleId:
+      name: article_id
+      in: path
+      required: true
+      schema:
+        type: string
+    IncidentId:
+      name: incident_id
+      in: path
+      required: true
+      schema:
+        type: string
+    ProposalId:
+      name: proposal_id
+      in: path
+      required: true
+      schema:
+        type: string
+    SkuId:
+      name: sku_id
+      in: path
+      required: true
+      schema:
+        type: string
+    SupplierId:
+      name: supplier_id
+      in: path
+      required: true
+      schema:
+        type: string
+    ShipmentId:
+      name: shipment_id
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    UnprocessableEntity:
+      description: Semantic validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    Conflict:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorObject'
+
+    ErrorObject:
+      type: object
+      required: [code, message, details]
+      properties:
+        code:
+          type: string
+          example: INVALID_ARGUMENT
+        message:
+          type: string
+          example: human readable
+        details:
+          type: object
+          additionalProperties: true
+
+    ReferenceItem:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        code:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+
+    ReferenceListResponse:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReferenceItem'
+        total:
+          type: integer
+          minimum: 0
+
+    Sku:
+      type: object
+      required:
+        - id
+        - sku_code
+        - name
+        - description
+        - unit_of_measure
+        - status
+        - risk_score
+        - risk_level
+        - category
+        - supplier_ids
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        sku_code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        unit_of_measure:
+          type: string
+        status:
+          $ref: '#/components/schemas/MasterStatus'
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        risk_level:
+          $ref: '#/components/schemas/SkuRiskLevel'
+        category:
+          type: string
+        supplier_ids:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateSkuRequest:
+      type: object
+      required: [sku_code, name, description, unit_of_measure, status, risk_score, risk_level, category, supplier_ids]
+      properties:
+        sku_code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        unit_of_measure:
+          type: string
+        status:
+          $ref: '#/components/schemas/MasterStatus'
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        risk_level:
+          $ref: '#/components/schemas/SkuRiskLevel'
+        category:
+          type: string
+        supplier_ids:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+
+    UpdateSkuRequest:
+      type: object
+      minProperties: 1
+      properties:
+        sku_code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        unit_of_measure:
+          type: string
+        status:
+          $ref: '#/components/schemas/MasterStatus'
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        risk_level:
+          $ref: '#/components/schemas/SkuRiskLevel'
+        category:
+          type: string
+        supplier_ids:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+
+    SkuListResponse:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sku'
+        total:
+          type: integer
+          minimum: 0
+
+    Supplier:
+      type: object
+      required:
+        - id
+        - supplier_code
+        - name
+        - country
+        - contact_email
+        - status
+        - region
+        - risk_rating
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        supplier_code:
+          type: string
+        name:
+          type: string
+        country:
+          type: string
+        contact_email:
+          type: string
+          format: email
+        status:
+          $ref: '#/components/schemas/MasterStatus'
+        region:
+          type: string
+        risk_rating:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateSupplierRequest:
+      type: object
+      required: [supplier_code, name, country, contact_email, status, region, risk_rating]
+      properties:
+        supplier_code:
+          type: string
+        name:
+          type: string
+        country:
+          type: string
+        contact_email:
+          type: string
+          format: email
+        status:
+          $ref: '#/components/schemas/MasterStatus'
+        region:
+          type: string
+        risk_rating:
+          type: string
+      additionalProperties: false
+
+    UpdateSupplierRequest:
+      type: object
+      minProperties: 1
+      properties:
+        supplier_code:
+          type: string
+        name:
+          type: string
+        country:
+          type: string
+        contact_email:
+          type: string
+          format: email
+        status:
+          $ref: '#/components/schemas/MasterStatus'
+        region:
+          type: string
+        risk_rating:
+          type: string
+      additionalProperties: false
+
+    SupplierListResponse:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Supplier'
+        total:
+          type: integer
+          minimum: 0
+
+    Shipment:
+      type: object
+      required:
+        - id
+        - shipment_code
+        - status
+        - origin_port_id
+        - destination_port_id
+        - route_id
+        - supplier_id
+        - sku_ids
+        - carrier
+        - order_date
+        - expected_delivery_date
+        - events
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        shipment_code:
+          type: string
+        status:
+          $ref: '#/components/schemas/ShipmentStatus'
+        origin_port_id:
+          type: string
+        destination_port_id:
+          type: string
+        route_id:
+          type: string
+        supplier_id:
+          type: string
+        sku_ids:
+          type: array
+          items:
+            type: string
+        carrier:
+          type: string
+        order_date:
+          type: string
+          format: date-time
+        expected_delivery_date:
+          type: string
+          format: date-time
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShipmentEvent'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateShipmentRequest:
+      type: object
+      required:
+        - shipment_code
+        - status
+        - origin_port_id
+        - destination_port_id
+        - route_id
+        - supplier_id
+        - sku_ids
+        - carrier
+        - order_date
+        - expected_delivery_date
+        - events
+      properties:
+        shipment_code:
+          type: string
+        status:
+          $ref: '#/components/schemas/ShipmentStatus'
+        origin_port_id:
+          type: string
+        destination_port_id:
+          type: string
+        route_id:
+          type: string
+        supplier_id:
+          type: string
+        sku_ids:
+          type: array
+          items:
+            type: string
+        carrier:
+          type: string
+        order_date:
+          type: string
+          format: date-time
+        expected_delivery_date:
+          type: string
+          format: date-time
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShipmentEvent'
+      additionalProperties: false
+
+    UpdateShipmentRequest:
+      type: object
+      minProperties: 1
+      properties:
+        shipment_code:
+          type: string
+        status:
+          $ref: '#/components/schemas/ShipmentStatus'
+        origin_port_id:
+          type: string
+        destination_port_id:
+          type: string
+        route_id:
+          type: string
+        supplier_id:
+          type: string
+        sku_ids:
+          type: array
+          items:
+            type: string
+        carrier:
+          type: string
+        order_date:
+          type: string
+          format: date-time
+        expected_delivery_date:
+          type: string
+          format: date-time
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShipmentEvent'
+      additionalProperties: false
+
+    ShipmentListResponse:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Shipment'
+        total:
+          type: integer
+          minimum: 0
+
+    CreateIngestionRunRequest:
+      type: object
+      required: [max_articles]
+      properties:
+        max_articles:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          example: 100
+      additionalProperties: false
+
+    IngestionRunQueuedResponse:
+      type: object
+      required: [run_id, status]
+      properties:
+        run_id:
+          type: string
+        status:
+          $ref: '#/components/schemas/IngestionRunStatus'
+
+    IngestionRun:
+      type: object
+      required:
+        - id
+        - status
+        - started_at
+        - created_at
+        - stats
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/IngestionRunStatus'
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        stats:
+          $ref: '#/components/schemas/IngestionStats'
+        error:
+          type: string
+          nullable: true
+
+    IngestionRunListResponse:
+      type: object
+      required: [items, total, page, page_size]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestionRun'
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+
+    IngestionStatus:
+      type: object
+      required: [last_run, next_scheduled_run_at]
+      properties:
+        last_run:
+          allOf:
+            - $ref: '#/components/schemas/IngestionRun'
+          nullable: true
+        next_scheduled_run_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    IngestionStats:
+      type: object
+      required:
+        - articles_ingested
+        - articles_relevant
+        - incidents_created
+        - proposals_generated
+      properties:
+        articles_ingested:
+          type: integer
+          minimum: 0
+        articles_relevant:
+          type: integer
+          minimum: 0
+        incidents_created:
+          type: integer
+          minimum: 0
+        proposals_generated:
+          type: integer
+          minimum: 0
+
+    Article:
+      type: object
+      required:
+        - id
+        - source
+        - source_url
+        - headline
+        - title
+        - summary
+        - preview_text
+        - analysis
+        - keywords
+        - tags
+        - source_name
+        - body
+        - published_at
+        - publish_datetime
+        - preview_image_url
+        - ingestion_run_id
+        - processing_state
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        source_url:
+          type: string
+          format: uri
+        headline:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        preview_text:
+          type: string
+        analysis:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        source_name:
+          type: string
+        body:
+          type: string
+        published_at:
+          type: string
+          format: date-time
+        publish_datetime:
+          type: string
+          format: date-time
+        preview_image_url:
+          type: string
+          format: uri
+          nullable: true
+        ingestion_run_id:
+          type: string
+        processing_state:
+          $ref: '#/components/schemas/ArticleProcessingState'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ArticleListResponse:
+      type: object
+      required: [items, total, page, page_size]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Article'
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+
+    Enrichment:
+      type: object
+      required:
+        - article_id
+        - is_relevant
+        - relevance_tags
+        - horizon
+        - geo
+        - impact_window
+        - matched_entities
+        - risk_score
+        - risk_level
+        - explanation
+      properties:
+        article_id:
+          type: string
+        is_relevant:
+          type: boolean
+        relevance_tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelevanceTag'
+          uniqueItems: true
+        horizon:
+          type: string
+          enum: [short_term, long_term]
+        geo:
+          $ref: '#/components/schemas/GeoInfo'
+        impact_window:
+          $ref: '#/components/schemas/ImpactWindow'
+        matched_entities:
+          $ref: '#/components/schemas/MatchedEntities'
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        risk_level:
+          $ref: '#/components/schemas/RiskLevel'
+        explanation:
+          type: string
+
+    GeoInfo:
+      type: object
+      required: [countries, ports, route_ids]
+      properties:
+        countries:
+          type: array
+          items:
+            type: string
+        ports:
+          type: array
+          items:
+            type: string
+        route_ids:
+          type: array
+          items:
+            type: string
+        lat:
+          type: number
+          format: double
+          nullable: true
+        lng:
+          type: number
+          format: double
+          nullable: true
+
+    ImpactWindow:
+      type: object
+      required: [start_at, end_at, confidence]
+      properties:
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+
+    MatchedEntities:
+      type: object
+      required: [sku_ids, supplier_ids]
+      properties:
+        sku_ids:
+          type: array
+          items:
+            type: string
+        supplier_ids:
+          type: array
+          items:
+            type: string
+
+    Incident:
+      type: object
+      required:
+        - id
+        - article_id
+        - classification
+        - status
+        - reasoning
+        - overlap_tags
+        - risk_score
+        - risk_level
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        article_id:
+          type: string
+        classification:
+          $ref: '#/components/schemas/IncidentClassification'
+        status:
+          $ref: '#/components/schemas/IncidentStatus'
+        reasoning:
+          type: string
+        overlap_tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/OverlapTag'
+          uniqueItems: true
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        risk_level:
+          $ref: '#/components/schemas/RiskLevel'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    IncidentListResponse:
+      type: object
+      required: [items, total, page, page_size]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Incident'
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+
+    ActionProposal:
+      type: object
+      required:
+        - id
+        - incident_id
+        - title
+        - summary
+        - overall_risk
+        - estimated_impact
+        - status
+        - autonomy_eligibility
+        - steps
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        incident_id:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        overall_risk:
+          $ref: '#/components/schemas/RiskLevel'
+        estimated_impact:
+          type: string
+        status:
+          $ref: '#/components/schemas/ProposalStatus'
+        autonomy_eligibility:
+          $ref: '#/components/schemas/AutonomyEligibility'
+        steps:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ActionStep'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ProposalListResponse:
+      type: object
+      required: [items, total, page, page_size]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionProposal'
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+
+    AutonomyEligibility:
+      type: object
+      required: [auto_eligible, reason]
+      properties:
+        auto_eligible:
+          type: boolean
+        reason:
+          $ref: '#/components/schemas/AutonomyIneligibilityReason'
+
+    ActionStep:
+      type: object
+      required:
+        - id
+        - step_type
+        - category
+        - description
+        - requires_human_review
+        - suggested_payload
+      properties:
+        id:
+          type: string
+        step_type:
+          $ref: '#/components/schemas/StepType'
+        category:
+          $ref: '#/components/schemas/StepCategory'
+        description:
+          type: string
+        requires_human_review:
+          type: boolean
+        suggested_payload:
+          type: object
+          additionalProperties: true
+
+    ProposalGenerateResponse:
+      type: object
+      required: [incident_id, proposal_ids]
+      properties:
+        incident_id:
+          type: string
+        proposal_ids:
+          type: array
+          items:
+            type: string
+
+    ProposalDecisionRequest:
+      type: object
+      required: [decision, approved_step_ids, manager_note]
+      properties:
+        decision:
+          $ref: '#/components/schemas/DecisionType'
+        approved_step_ids:
+          type: array
+          items:
+            type: string
+        manager_note:
+          type: string
+      additionalProperties: false
+
+    ProposalDecisionResponse:
+      type: object
+      required: [proposal, incident_status]
+      properties:
+        proposal:
+          $ref: '#/components/schemas/ActionProposal'
+        incident_status:
+          $ref: '#/components/schemas/IncidentStatus'
+
+    CompanyProfile:
+      type: object
+      required:
+        - autonomy_enabled
+        - max_auto_risk_level
+        - disallowed_categories
+      properties:
+        autonomy_enabled:
+          type: boolean
+        max_auto_risk_level:
+          $ref: '#/components/schemas/RiskLevel'
+        disallowed_categories:
+          type: array
+          items:
+            type: string
+
+    UpdateCompanyProfileRequest:
+      type: object
+      required:
+        - autonomy_enabled
+        - max_auto_risk_level
+        - disallowed_categories
+      properties:
+        autonomy_enabled:
+          type: boolean
+        max_auto_risk_level:
+          $ref: '#/components/schemas/RiskLevel'
+        disallowed_categories:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+
+    RiskProfile:
+      type: object
+      required: [manager_risk_tolerance_score, last_updated_at]
+      properties:
+        manager_risk_tolerance_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        last_updated_at:
+          type: string
+          format: date-time
+
+    ProposalFeedbackRequest:
+      type: object
+      required: [accepted, override_reason, notes]
+      properties:
+        accepted:
+          type: boolean
+        override_reason:
+          type: string
+          enum: [too_risky, too_conservative, other]
+        notes:
+          type: string
+      additionalProperties: false
+
+    ProposalFeedbackResponse:
+      type: object
+      required: [status, risk_profile]
+      properties:
+        status:
+          type: string
+          enum: [accepted]
+        risk_profile:
+          $ref: '#/components/schemas/RiskProfile'
+
+    ArticleProcessingState:
+      type: string
+      enum: [raw, enriched, irrelevant, evaluated, proposal_generated]
+
+    IngestionRunStatus:
+      type: string
+      enum: [queued, running, completed, failed]
+
+    IncidentClassification:
+      type: string
+      enum: [risk_exposure, active_disruption]
+
+    IncidentStatus:
+      type: string
+      enum: [open, monitoring, awaiting_decision, resolved, dismissed]
+
+    ProposalStatus:
+      type: string
+      enum: [proposed, approved, rejected, partially_approved, executed_manual]
+
+    StepType:
+      type: string
+      enum: [autonomous, semi_autonomous, manual]
+
+    StepCategory:
+      type: string
+      enum: [email, documentation, supplier_change, shipment_reroute, other]
+
+    RiskLevel:
+      type: string
+      enum: [low, medium, high]
+
+    MasterStatus:
+      type: string
+      enum: [active, inactive]
+
+    ShipmentStatus:
+      type: string
+      enum: [planned, in_transit, delayed, delivered, cancelled]
+
+    SkuRiskLevel:
+      type: string
+      enum: [critical, high, medium, low]
+
+    ShipmentEvent:
+      type: object
+      required: [id, type, description, event_time]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        event_time:
+          type: string
+          format: date-time
+        location:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+          nullable: true
+
+    DecisionType:
+      type: string
+      enum: [approve, reject, partial_approve]
+
+    AutonomyIneligibilityReason:
+      type: string
+      enum:
+        - risk_above_company_threshold
+        - blocked_category
+        - autonomy_disabled
+        - eligible
+
+    RelevanceTag:
+      type: string
+      enum: [sku, shipment, supplier, weather, geopolitical, financial]
+
+    OverlapTag:
+      type: string
+      enum: [port_overlap, route_overlap, immediate_sku_threat]
