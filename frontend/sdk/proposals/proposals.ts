@@ -66,7 +66,7 @@ export const getGenerateProposalsUrl = (incidentId: string,) => {
 
   
 
-  return `http://localhost:8080/api/v1/incidents/${incidentId}/proposals:generate`
+  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/incidents/${incidentId}/proposals:generate`
 }
 
 export const generateProposals = async (incidentId: string, options?: RequestInit): Promise<generateProposalsResponse> => {
@@ -94,7 +94,7 @@ export const getGenerateProposalsMutationFetcher = (incidentId: string, options?
     return generateProposals(incidentId, options);
   }
 }
-export const getGenerateProposalsMutationKey = (incidentId: string,) => [`http://localhost:8080/api/v1/incidents/${incidentId}/proposals:generate`] as const;
+export const getGenerateProposalsMutationKey = (incidentId: string,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/incidents/${incidentId}/proposals:generate`] as const;
 
 export type GenerateProposalsMutationResult = NonNullable<Awaited<ReturnType<typeof generateProposals>>>
 
@@ -149,7 +149,7 @@ export const getListIncidentProposalsUrl = (incidentId: string,) => {
 
   
 
-  return `http://localhost:8080/api/v1/incidents/${incidentId}/proposals`
+  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/incidents/${incidentId}/proposals`
 }
 
 export const listIncidentProposals = async (incidentId: string, options?: RequestInit): Promise<listIncidentProposalsResponse> => {
@@ -172,7 +172,7 @@ export const listIncidentProposals = async (incidentId: string, options?: Reques
 
 
 
-export const getListIncidentProposalsKey = (incidentId: string,) => [`http://localhost:8080/api/v1/incidents/${incidentId}/proposals`] as const;
+export const getListIncidentProposalsKey = (incidentId: string,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/incidents/${incidentId}/proposals`] as const;
 
 export type ListIncidentProposalsQueryResult = NonNullable<Awaited<ReturnType<typeof listIncidentProposals>>>
 
@@ -227,7 +227,7 @@ export const getGetProposalUrl = (proposalId: string,) => {
 
   
 
-  return `http://localhost:8080/api/v1/proposals/${proposalId}`
+  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/proposals/${proposalId}`
 }
 
 export const getProposal = async (proposalId: string, options?: RequestInit): Promise<getProposalResponse> => {
@@ -250,7 +250,7 @@ export const getProposal = async (proposalId: string, options?: RequestInit): Pr
 
 
 
-export const getGetProposalKey = (proposalId: string,) => [`http://localhost:8080/api/v1/proposals/${proposalId}`] as const;
+export const getGetProposalKey = (proposalId: string,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/proposals/${proposalId}`] as const;
 
 export type GetProposalQueryResult = NonNullable<Awaited<ReturnType<typeof getProposal>>>
 
@@ -315,7 +315,7 @@ export const getDecideProposalUrl = (proposalId: string,) => {
 
   
 
-  return `http://localhost:8080/api/v1/proposals/${proposalId}/decision`
+  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/proposals/${proposalId}/decision`
 }
 
 export const decideProposal = async (proposalId: string,
@@ -345,7 +345,7 @@ export const getDecideProposalMutationFetcher = (proposalId: string, options?: R
     return decideProposal(proposalId, arg, options);
   }
 }
-export const getDecideProposalMutationKey = (proposalId: string,) => [`http://localhost:8080/api/v1/proposals/${proposalId}/decision`] as const;
+export const getDecideProposalMutationKey = (proposalId: string,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/proposals/${proposalId}/decision`] as const;
 
 export type DecideProposalMutationResult = NonNullable<Awaited<ReturnType<typeof decideProposal>>>
 
