@@ -21,7 +21,7 @@ export interface Enrichment {
   impact_window: ImpactWindow;
   matched_entities: MatchedEntities;
   /**
-   * @minimum 0
+   * @minimum -1
    * @maximum 100
    */
   risk_score: number;

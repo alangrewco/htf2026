@@ -55,7 +55,8 @@ const mapIncidentsToGlobeData = (incidents: Incident[]): IncidentGlobeData => {
   const points = incidents
     .filter(
       (incident): incident is Incident & { lat: number; lng: number } =>
-        typeof incident.lat === "number" && typeof incident.lng === "number"
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        typeof (incident as any).lat === "number" && typeof (incident as any).lng === "number"
     )
     .map((incident) => ({
       id: incident.id,
@@ -66,8 +67,10 @@ const mapIncidentsToGlobeData = (incidents: Incident[]): IncidentGlobeData => {
       riskLevel: incident.risk_level,
       riskScore: incident.risk_score,
       updatedAt: incident.updated_at,
-      lat: incident.lat,
-      lng: incident.lng,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      lat: (incident as any).lat,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      lng: (incident as any).lng,
     }));
 
   return {

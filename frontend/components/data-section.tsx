@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, Suspense, useEffect } from "react";
+import { useMemo, Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -21,6 +21,7 @@ import {
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 import type { Sku, Shipment, Supplier } from "@/sdk/model";
 import { ShipmentStatus } from "@/sdk/model";
+import { SKUDetailModal, ShipmentDetailModal, SupplierDetailModal } from "@/components/detail-modals";
 
 // ── Risk level config ────────────────────────────────────
 
@@ -53,7 +54,7 @@ function NameListWithTooltip({ names, max = 3 }: { names: string[]; max?: number
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span 
+        <span
           className="cursor-default hover:text-foreground transition-colors underline decoration-dotted underline-offset-2 decoration-muted-foreground/50 hover:decoration-foreground"
           onClick={(e) => e.stopPropagation()}
         >
@@ -98,11 +99,12 @@ function RiskScoreBar({ score, level }: { score: number; level: RiskLevel }) {
 
 // ── SKU Row ──────────────────────────────────────────────
 
-function SKURow({ sku, index, supplierNames, shipmentCodes }: {
+function SKURow({ sku, index, supplierNames, shipmentCodes, onClick }: {
   sku: Sku;
   index: number;
   supplierNames: string[];
   shipmentCodes: string[];
+  onClick: () => void;
 }) {
   const conf = riskConfig[sku.risk_level as RiskLevel] ?? riskConfig.medium;
 
@@ -111,6 +113,7 @@ function SKURow({ sku, index, supplierNames, shipmentCodes }: {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03, duration: 0.3 }}
+      onClick={onClick}
       className="group flex items-center gap-4 rounded-lg border border-border/50 bg-card/50 p-3 transition-all hover:bg-accent/30 hover:border-border cursor-pointer"
     >
       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${conf.bg}`}>
@@ -162,13 +165,14 @@ function relativeEta(deliveryDate: string): { label: string; overdue: boolean } 
   return { label: `${Math.abs(diffDays)}d overdue`, overdue: true };
 }
 
-function ShipmentRow({ shipment, index, skuNames, supplierName, originName, destName }: {
+function ShipmentRow({ shipment, index, skuNames, supplierName, originName, destName, onClick }: {
   shipment: Shipment;
   index: number;
   skuNames: string[];
   supplierName: string;
   originName: string;
   destName: string;
+  onClick: () => void;
 }) {
   const conf = statusConfig[shipment.status] ?? statusConfig[ShipmentStatus.planned];
   const eta = relativeEta(shipment.expected_delivery_date);
@@ -181,6 +185,7 @@ function ShipmentRow({ shipment, index, skuNames, supplierName, originName, dest
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03, duration: 0.3 }}
+      onClick={onClick}
       className="group flex items-center gap-4 rounded-lg border border-border/50 bg-card/50 p-3 transition-all hover:bg-accent/30 hover:border-border cursor-pointer"
     >
       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${conf.bg}`}>
@@ -234,11 +239,12 @@ function ShipmentRow({ shipment, index, skuNames, supplierName, originName, dest
 
 // ── Supplier Row ─────────────────────────────────────────
 
-function SupplierRow({ supplier, index, skuNames, shipmentCount }: {
+function SupplierRow({ supplier, index, skuNames, shipmentCount, onClick }: {
   supplier: Supplier;
   index: number;
   skuNames: string[];
   shipmentCount: number;
+  onClick: () => void;
 }) {
   // Use status from API (MasterStatus), not a fake risk rating
   const statusConf = supplier.status === "active"
@@ -250,6 +256,7 @@ function SupplierRow({ supplier, index, skuNames, shipmentCount }: {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03, duration: 0.3 }}
+      onClick={onClick}
       className="group flex items-center gap-4 rounded-lg border border-border/50 bg-card/50 p-3 transition-all hover:bg-accent/30 hover:border-border cursor-pointer"
     >
       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${statusConf.bg}`}>
@@ -304,6 +311,10 @@ function DataSectionContent() {
   const router = useRouter();
   const activeTab = searchParams.get("tab") || "skus";
   const search = searchParams.get("q") || "";
+
+  const [selectedSku, setSelectedSku] = useState<Sku | null>(null);
+  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
   // Listen for navbar tab-switch events (for same-page navigation)
   useEffect(() => {
@@ -375,6 +386,7 @@ function DataSectionContent() {
                     index={i}
                     supplierNames={supplierNamesForSku(sku.id)}
                     shipmentCodes={shipmentCodesForSku(sku.id)}
+                    onClick={() => setSelectedSku(sku)}
                   />
                 ))}
                 {filteredSKUs.length === 0 && (
@@ -400,6 +412,7 @@ function DataSectionContent() {
                     supplierName={resolveSupplierName(shipment.supplier_id)}
                     originName={portName(shipment.origin_port_id)}
                     destName={portName(shipment.destination_port_id)}
+                    onClick={() => setSelectedShipment(shipment)}
                   />
                 ))}
                 {filteredShipments.length === 0 && (
@@ -421,6 +434,7 @@ function DataSectionContent() {
                     index={i}
                     skuNames={skuNamesForSupplier(supplier.id)}
                     shipmentCount={shipmentsBySupplier.get(supplier.id)?.length ?? 0}
+                    onClick={() => setSelectedSupplier(supplier)}
                   />
                 ))}
                 {filteredSuppliers.length === 0 && (
@@ -432,6 +446,23 @@ function DataSectionContent() {
             </AnimatePresence>
           </TabsContent>
         </Tabs>
+
+        {/* Detail Modals */}
+        <SKUDetailModal
+          sku={selectedSku}
+          open={!!selectedSku}
+          onOpenChange={(o) => !o && setSelectedSku(null)}
+        />
+        <ShipmentDetailModal
+          shipment={selectedShipment}
+          open={!!selectedShipment}
+          onOpenChange={(o) => !o && setSelectedShipment(null)}
+        />
+        <SupplierDetailModal
+          supplier={selectedSupplier}
+          open={!!selectedSupplier}
+          onOpenChange={(o) => !o && setSelectedSupplier(null)}
+        />
       </div>
     </TooltipProvider>
   );

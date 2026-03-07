@@ -26,7 +26,7 @@ export const ListIncidentsQueryParams = zod.object({
   "page_size": zod.number().min(1).max(listIncidentsQueryPageSizeMax).default(listIncidentsQueryPageSizeDefault)
 })
 
-export const listIncidentsResponseItemsItemRiskScoreMin = 0;
+export const listIncidentsResponseItemsItemRiskScoreMin = -1;
 export const listIncidentsResponseItemsItemRiskScoreMax = 100;
 
 export const listIncidentsResponseTotalMin = 0;
@@ -61,7 +61,7 @@ export const GetIncidentParams = zod.object({
   "incident_id": zod.string()
 })
 
-export const getIncidentResponseRiskScoreMin = 0;
+export const getIncidentResponseRiskScoreMin = -1;
 export const getIncidentResponseRiskScoreMax = 100;
 
 

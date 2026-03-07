@@ -11,7 +11,7 @@ import * as zod from 'zod';
 /**
  * @summary List SKU reference data
  */
-export const listSkusResponseItemsItemRiskScoreMin = 0;
+export const listSkusResponseItemsItemRiskScoreMin = -1;
 export const listSkusResponseItemsItemRiskScoreMax = 100;
 
 export const listSkusResponseTotalMin = 0;
@@ -39,7 +39,7 @@ export const ListSkusResponse = zod.object({
 /**
  * @summary Create SKU reference record
  */
-export const createSkuBodyRiskScoreMin = 0;
+export const createSkuBodyRiskScoreMin = -1;
 export const createSkuBodyRiskScoreMax = 100;
 
 
@@ -63,7 +63,7 @@ export const UpdateSkuParams = zod.object({
   "sku_id": zod.string()
 })
 
-export const updateSkuBodyRiskScoreMin = 0;
+export const updateSkuBodyRiskScoreMin = -1;
 export const updateSkuBodyRiskScoreMax = 100;
 
 
@@ -80,7 +80,7 @@ export const UpdateSkuBody = zod.object({
   "supplier_ids": zod.array(zod.string()).optional()
 })
 
-export const updateSkuResponseRiskScoreMin = 0;
+export const updateSkuResponseRiskScoreMin = -1;
 export const updateSkuResponseRiskScoreMax = 100;
 
 

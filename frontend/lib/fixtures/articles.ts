@@ -1,4 +1,4 @@
-import type { ArticleListResponse } from "@/sdk/model";
+import type { ArticleListResponse, Enrichment } from "@/sdk/model";
 
 export const mockArticleListResponse: ArticleListResponse = {
   items: [
@@ -156,4 +156,57 @@ export const mockArticleListResponse: ArticleListResponse = {
   total: 6,
   page: 1,
   page_size: 20,
+};
+
+export const mockArticleEnrichments: Record<string, Enrichment> = {
+  "art-2001": {
+    article_id: "art-2001",
+    is_relevant: true,
+    relevance_tags: ["shipment"],
+    horizon: "short_term",
+    geo: {
+      countries: ["United States"],
+      ports: ["Houston"],
+      route_ids: [],
+      lat: 29.76,
+      lng: -95.36
+    },
+    impact_window: {
+      start_at: "2026-03-06T15:30:00Z",
+      end_at: "2026-03-20T15:30:00Z",
+      confidence: 0.90
+    },
+    matched_entities: {
+      sku_ids: ["sku-1", "sku-2"],
+      supplier_ids: ["sup-1"]
+    },
+    risk_score: 85,
+    risk_level: "high",
+    explanation: "Strike has significantly reduced capacity causing major delays."
+  },
+  "art-2002": {
+    article_id: "art-2002",
+    is_relevant: true,
+    relevance_tags: ["weather", "shipment"],
+    horizon: "short_term",
+    geo: {
+      countries: ["China"],
+      ports: ["Shenzhen"],
+      route_ids: [],
+      lat: 22.54,
+      lng: 114.05
+    },
+    impact_window: {
+      start_at: "2026-03-06T14:55:00Z",
+      end_at: "2026-03-10T14:55:00Z",
+      confidence: 0.80
+    },
+    matched_entities: {
+      sku_ids: ["sku-3"],
+      supplier_ids: ["sup-2"]
+    },
+    risk_score: 75,
+    risk_level: "high",
+    explanation: "Typhoon is causing temporary port closures."
+  }
 };

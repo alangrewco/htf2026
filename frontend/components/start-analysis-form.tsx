@@ -58,7 +58,7 @@ export function StartAnalysisForm({
     setIsSubmitting(true);
     try {
       // Dummy submission. Request model only takes max_articles currently.
-      const res = await createRun.trigger({ max_articles: 100 });
+      const res = await createRun.trigger({ max_articles: 20 });
       if (res.status === 202) {
         toast.success("Analysis started successfully", {
           description: `Job ID: ${res.data.run_id} has been queued.`,

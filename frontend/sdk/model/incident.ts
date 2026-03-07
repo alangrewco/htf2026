@@ -18,7 +18,7 @@ export interface Incident {
   reasoning: string;
   overlap_tags: OverlapTag[];
   /**
-   * @minimum 0
+   * @minimum -1
    * @maximum 100
    */
   risk_score: number;
