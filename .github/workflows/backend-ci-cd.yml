@@ -33,7 +33,9 @@ jobs:
         run: pytest -q app/tests
 
       - name: Run generated controller tests
-        run: python -m unittest discover -s generated/flask-server/openapi_server/test -p 'test_*_controller.py' -v
+        run: |
+          cd generated/flask-server
+          python -m unittest discover -s openapi_server/test -p 'test_*_controller.py' -v
 
   deploy:
     runs-on: ubuntu-latest
