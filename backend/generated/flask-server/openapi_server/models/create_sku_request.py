@@ -220,7 +220,7 @@ class CreateSkuRequest(Model):
             raise ValueError("Invalid value for `risk_score`, must not be `None`")  # noqa: E501
         if risk_score is not None and risk_score > 100:  # noqa: E501
             raise ValueError("Invalid value for `risk_score`, must be a value less than or equal to `100`")  # noqa: E501
-        if risk_score is not None and risk_score < 0:  # noqa: E501
+        if risk_score is not None and risk_score < -1:  # noqa: E501
             raise ValueError("Invalid value for `risk_score`, must be a value greater than or equal to `0`")  # noqa: E501
 
         self._risk_score = risk_score

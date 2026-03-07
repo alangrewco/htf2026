@@ -381,8 +381,8 @@ class ReferenceService:
     @staticmethod
     def _validate_risk_score(value) -> int:
         score = int(value)
-        if score < 0 or score > 100:
-            raise ValidationError("Invalid risk score.", {"min": 0, "max": 100, "received": score})
+        if score < -1 or score > 100:
+            raise ValidationError("Invalid risk score.", {"min": -1, "max": 100, "received": score})
         return score
 
     @staticmethod

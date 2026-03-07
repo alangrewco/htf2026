@@ -42,4 +42,4 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   export "$key=$value"
 done < "$ENV_FILE"
 
-python3 -m openapi_server
+FLASK_ENV=development python3 -m openapi_server

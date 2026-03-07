@@ -33,9 +33,11 @@ export function StartAnalysisForm({
   useEffect(() => {
     if (selectedIdsFromQuery) {
       setIsOpen(true);
+      console.log(skus)
       const unanalyzedSkus = skus.filter((s) => s.risk_score === -1).map((s) => s.id);
       const unanalyzedSuppliers = suppliers.filter((s) => s.risk_rating === "new" || s.risk_rating === "").map((s) => s.id);
-      const unanalyzedShipments = shipments.filter((s) => !s.events || s.events.length === 0).map((s) => s.id);
+      // const unanalyzedShipments = shipments.filter((s) => !s.events || s.events.length === 0).map((s) => s.id);
+      const unanalyzedShipments: string[] = [];
 
       // Only set if we haven't already selected something
       if (selectedSkuIds.length === 0) setSelectedSkuIds(unanalyzedSkus);
