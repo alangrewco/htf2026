@@ -13,4 +13,6 @@ export interface UpdateSupplierRequest {
   country?: string;
   contact_email?: string;
   status?: MasterStatus;
+  region?: string;
+  risk_rating?: string;
 }

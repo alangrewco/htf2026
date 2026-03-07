@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { MasterStatus } from './masterStatus';
+import type { SkuRiskLevel } from './skuRiskLevel';
 
 export interface UpdateSkuRequest {
   sku_code?: string;
@@ -13,4 +14,12 @@ export interface UpdateSkuRequest {
   description?: string;
   unit_of_measure?: string;
   status?: MasterStatus;
+  /**
+   * @minimum 0
+   * @maximum 100
+   */
+  risk_score?: number;
+  risk_level?: SkuRiskLevel;
+  category?: string;
+  supplier_ids?: string[];
 }

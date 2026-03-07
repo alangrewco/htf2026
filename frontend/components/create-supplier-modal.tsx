@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 import { useCreateSupplier, useCreateSku } from "@/sdk/reference/reference";
-import { MasterStatus } from "@/sdk/model";
+import { MasterStatus, SkuRiskLevel } from "@/sdk/model";
 import type { CreateSupplierRequest } from "@/sdk/model";
 import { useSWRConfig } from "swr";
 
@@ -62,6 +62,8 @@ export function CreateSupplierModal({
     country: "",
     contact_email: "",
     status: MasterStatus.active,
+    region: "",
+    risk_rating: "",
   });
 
   // Step 2: SKUs
@@ -74,7 +76,7 @@ export function CreateSupplierModal({
   const reset = useCallback(() => {
     setStep(0);
     setDirection(1);
-    setForm({ supplier_code: "", name: "", country: "", contact_email: "", status: MasterStatus.active });
+    setForm({ supplier_code: "", name: "", country: "", contact_email: "", status: MasterStatus.active, region: "", risk_rating: "" });
     setSelectedSkuIds([]);
     setInlineSkus([]);
     setEditingSku(null);
@@ -112,6 +114,10 @@ export function CreateSupplierModal({
           description: s.description,
           unit_of_measure: s.unit_of_measure,
           status: MasterStatus.active,
+          risk_score: 0,
+          risk_level: SkuRiskLevel.low,
+          category: "",
+          supplier_ids: res.data?.id ? [res.data.id] : [],
         });
       }
 
@@ -188,14 +194,37 @@ export function CreateSupplierModal({
               />
             </FormField>
           </div>
-          <FormField label="Status">
-            <SelectField
-              value={form.status}
-              onChange={(v) => setForm((f) => ({ ...f, status: v as CreateSupplierRequest["status"] }))}
-              options={[
-                { value: "active", label: "Active" },
-                { value: "inactive", label: "Inactive" },
-              ]}
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Status">
+              <SelectField
+                value={form.status}
+                onChange={(v) => setForm((f) => ({ ...f, status: v as CreateSupplierRequest["status"] }))}
+                options={[
+                  { value: "active", label: "Active" },
+                  { value: "inactive", label: "Inactive" },
+                ]}
+              />
+            </FormField>
+            <FormField label="Risk Rating">
+              <SelectField
+                value={form.risk_rating}
+                onChange={(v) => setForm((f) => ({ ...f, risk_rating: v }))}
+                options={[
+                  { value: "low", label: "Low" },
+                  { value: "medium", label: "Medium" },
+                  { value: "high", label: "High" },
+                  { value: "critical", label: "Critical" },
+                ]}
+                placeholder="Select rating…"
+              />
+            </FormField>
+          </div>
+          <FormField label="Region">
+            <Input
+              className="h-8 text-xs"
+              placeholder="e.g. Asia Pacific"
+              value={form.region}
+              onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))}
             />
           </FormField>
         </div>

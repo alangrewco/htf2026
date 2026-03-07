@@ -9,6 +9,56 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary List ingestion runs
+ */
+export const listIngestionRunsQueryPageDefault = 1;
+
+export const listIngestionRunsQueryPageSizeDefault = 20;
+export const listIngestionRunsQueryPageSizeMax = 100;
+
+
+
+export const ListIngestionRunsQueryParams = zod.object({
+  "page": zod.number().min(1).default(listIngestionRunsQueryPageDefault),
+  "page_size": zod.number().min(1).max(listIngestionRunsQueryPageSizeMax).default(listIngestionRunsQueryPageSizeDefault)
+})
+
+export const listIngestionRunsResponseItemsItemStatsArticlesIngestedMin = 0;
+
+export const listIngestionRunsResponseItemsItemStatsArticlesRelevantMin = 0;
+
+export const listIngestionRunsResponseItemsItemStatsIncidentsCreatedMin = 0;
+
+export const listIngestionRunsResponseItemsItemStatsProposalsGeneratedMin = 0;
+
+export const listIngestionRunsResponseTotalMin = 0;
+
+
+export const listIngestionRunsResponsePageSizeMax = 100;
+
+
+
+export const ListIngestionRunsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['queued', 'running', 'completed', 'failed']),
+  "started_at": zod.string().datetime({}),
+  "finished_at": zod.string().datetime({}).nullish(),
+  "created_at": zod.string().datetime({}),
+  "stats": zod.object({
+  "articles_ingested": zod.number().min(listIngestionRunsResponseItemsItemStatsArticlesIngestedMin),
+  "articles_relevant": zod.number().min(listIngestionRunsResponseItemsItemStatsArticlesRelevantMin),
+  "incidents_created": zod.number().min(listIngestionRunsResponseItemsItemStatsIncidentsCreatedMin),
+  "proposals_generated": zod.number().min(listIngestionRunsResponseItemsItemStatsProposalsGeneratedMin)
+}),
+  "error": zod.string().nullish()
+})),
+  "total": zod.number().min(listIngestionRunsResponseTotalMin),
+  "page": zod.number().min(1),
+  "page_size": zod.number().min(1).max(listIngestionRunsResponsePageSizeMax)
+})
+
+/**
  * @summary Queue an ingestion run
  */
 export const createIngestionRunBodyMaxArticlesMax = 1000;

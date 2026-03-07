@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 import { useCreateSku, useCreateSupplier, useCreateShipment } from "@/sdk/reference/reference";
-import { MasterStatus } from "@/sdk/model";
+import { MasterStatus, SkuRiskLevel } from "@/sdk/model";
 import type { CreateSkuRequest, CreateShipmentRequest } from "@/sdk/model";
 import { useSWRConfig } from "swr";
 
@@ -46,7 +46,9 @@ interface InlineShipment {
   status: string;
   origin_port_id: string;
   destination_port_id: string;
-  eta: string;
+  carrier: string;
+  order_date: string;
+  expected_delivery_date: string;
 }
 
 function emptyInlineShipment(): InlineShipment {
@@ -56,7 +58,9 @@ function emptyInlineShipment(): InlineShipment {
     status: "planned",
     origin_port_id: "",
     destination_port_id: "",
-    eta: "",
+    carrier: "",
+    order_date: "",
+    expected_delivery_date: "",
   };
 }
 
@@ -86,6 +90,10 @@ export function CreateSkuModal({
     description: "",
     unit_of_measure: "",
     status: MasterStatus.active,
+    risk_score: 0,
+    risk_level: SkuRiskLevel.low,
+    category: "",
+    supplier_ids: [],
   });
 
   // Step 2: Suppliers
@@ -104,7 +112,7 @@ export function CreateSkuModal({
   const reset = useCallback(() => {
     setStep(0);
     setDirection(1);
-    setSkuForm({ sku_code: "", name: "", description: "", unit_of_measure: "", status: MasterStatus.active });
+    setSkuForm({ sku_code: "", name: "", description: "", unit_of_measure: "", status: MasterStatus.active, risk_score: 0, risk_level: SkuRiskLevel.low, category: "", supplier_ids: [] });
     setSelectedSupplierIds([]);
     setInlineSuppliers([]);
     setEditingSupplier(null);
@@ -175,8 +183,11 @@ export function CreateSkuModal({
       // All supplier IDs for this SKU (existing selected + newly created).
       const allSupplierIds = [...selectedSupplierIds, ...createdSupplierIds];
 
-      // 2. Create the SKU.
-      const skuRes = await createSku.trigger(skuForm);
+      // 2. Create the SKU with supplier_ids.
+      const skuRes = await createSku.trigger({
+        ...skuForm,
+        supplier_ids: allSupplierIds,
+      });
       const newSkuId = skuRes.status === 201 ? skuRes.data.id : null;
       if (!newSkuId) throw new Error("Failed to create SKU");
 
@@ -195,9 +206,14 @@ export function CreateSkuModal({
             route_id: "",
             supplier_id: supplierId,
             sku_ids: [newSkuId],
-            eta: sh.eta
-              ? new Date(sh.eta).toISOString()
+            carrier: sh.carrier,
+            order_date: sh.order_date
+              ? new Date(sh.order_date).toISOString()
               : new Date().toISOString(),
+            expected_delivery_date: sh.expected_delivery_date
+              ? new Date(sh.expected_delivery_date).toISOString()
+              : new Date().toISOString(),
+            events: [],
           });
         }
       }
@@ -456,14 +472,41 @@ export function CreateSkuModal({
                     placeholder="Destination port"
                   />
                 </div>
-                <Input
-                  type="date"
-                  className="h-7 text-xs"
-                  value={editingShipment.eta}
-                  onChange={(e) =>
-                    setEditingShipment((s) => s && { ...s, eta: e.target.value })
-                  }
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Carrier</label>
+                    <Input
+                      className="h-7 text-xs"
+                      placeholder="e.g. Maersk"
+                      value={editingShipment.carrier}
+                      onChange={(e) =>
+                        setEditingShipment((s) => s && { ...s, carrier: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Order Date</label>
+                    <Input
+                      type="date"
+                      className="h-7 text-xs"
+                      value={editingShipment.order_date}
+                      onChange={(e) =>
+                        setEditingShipment((s) => s && { ...s, order_date: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-muted-foreground mb-0.5 block">Expected Delivery Date</label>
+                  <Input
+                    type="date"
+                    className="h-7 text-xs"
+                    value={editingShipment.expected_delivery_date}
+                    onChange={(e) =>
+                      setEditingShipment((s) => s && { ...s, expected_delivery_date: e.target.value })
+                    }
+                  />
+                </div>
                 <div className="flex gap-2 justify-end">
                   <button
                     type="button"

@@ -12,8 +12,18 @@ export interface Article {
   source: string;
   source_url: string;
   headline: string;
+  title: string;
+  summary: string;
+  preview_text: string;
+  analysis: string;
+  keywords: string[];
+  tags: string[];
+  source_name: string;
   body: string;
   published_at: string;
+  publish_datetime: string;
+  /** @nullable */
+  preview_image_url: string | null;
   ingestion_run_id: string;
   processing_state: ArticleProcessingState;
   created_at: string;
