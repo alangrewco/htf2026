@@ -96,7 +96,19 @@ export default function ShipmentMapClient({
         )}
 
         {articlesWithGeo.map((article) => (
-          <Marker key={article.id} position={[article.lat, article.lng]} icon={AlertIcon}>
+          <Marker 
+              key={article.id} 
+              position={[article.lat, article.lng]} 
+              icon={AlertIcon}
+              eventHandlers={{
+                mouseover: (e) => {
+                  e.target.openPopup();
+                },
+                mouseout: (e) => {
+                  e.target.closePopup();
+                }
+              }}
+          >
             <Popup className="custom-popup" closeButton={false}>
               <div className="max-w-[280px] p-1 font-sans text-[13px] leading-snug">
                 <div className="font-semibold mb-1">{article.title}</div>
