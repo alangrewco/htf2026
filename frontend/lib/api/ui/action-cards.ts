@@ -46,9 +46,9 @@ export const mockActionCards: ActionCard[] = [
     summary:
       "Active worker strike at Port of Houston is severely delaying shipments through the port.",
     whatHappened: [
-      "Workers on strike at Port of Houston since Feb 15",
-      "Ship handling rate degraded from 5 ships to 1 ship per day",
-      "Strikes expected to continue for weeks (~April 1st)",
+      "Workers on strike at Port of Houston since Feb 15 ([Reuters Transport News](#))",
+      "Ship handling rate degraded from 5 ships to 1 ship per day ([Port Authority Logs](#))",
+      "Strikes expected to continue for weeks (~April 1st) ([Labor Union Statement](#))",
     ],
     howItAffects: [
       "LEDs shipped by Supplier GlobalTech planned to pass Port of Houston",
@@ -232,9 +232,9 @@ export const mockActionCards: ActionCard[] = [
     summary:
       "Category 3 typhoon approaching Shenzhen could shut down port operations for up to 5 days.",
     whatHappened: [
-      "Category 3 typhoon forming in South China Sea",
-      "Expected landfall near Shenzhen within 48 hours",
-      "Port authority issued preemptive shutdown advisory",
+      "Category 3 typhoon forming in South China Sea ([Global Weather Monitor](#))",
+      "Expected landfall near Shenzhen within 48 hours ([Meteorological Dept](#))",
+      "Port authority issued preemptive shutdown advisory ([Shenzhen Port Alert](#))",
     ],
     howItAffects: [
       "Shipment SH-3021 containing microcontrollers at port awaiting load",
@@ -340,9 +340,9 @@ export const mockActionCards: ActionCard[] = [
     summary:
       "New EU carbon border tax increases costs on steel imports. Consider domestic sourcing alternatives.",
     whatHappened: [
-      "EU Carbon Border Adjustment Mechanism (CBAM) took effect March 1",
-      "Steel and aluminum imports face 8-12% surcharge",
-      "Phase-in period extends through 2026",
+      "EU Carbon Border Adjustment Mechanism (CBAM) took effect March 1 ([EU Trade Comission](#))",
+      "Steel and aluminum imports face 8-12% surcharge ([Global Tarif Tracker](#))",
+      "Phase-in period extends through 2026 ([Trade Policy Update](#))",
     ],
     howItAffects: [
       "5 SKUs use imported steel components",
@@ -449,9 +449,9 @@ export const mockActionCards: ActionCard[] = [
     summary:
       "3 SKUs depend on a single capacitor supplier. Onboard backup to reduce disruption risk.",
     whatHappened: [
-      "Supplier NipponCap provides 100% of type-C capacitors",
-      "No qualified backup supplier exists in current network",
-      "NipponCap facility is in earthquake-prone Osaka region",
+      "Supplier NipponCap provides 100% of type-C capacitors ([ERP Vendor Analysis](#))",
+      "No qualified backup supplier exists in current network ([Supplier DB](#))",
+      "NipponCap facility is in earthquake-prone Osaka region ([Risk Assessment Group](#))",
     ],
     howItAffects: [
       "If NipponCap has a disruption, 3 critical SKUs go offline",
@@ -509,9 +509,9 @@ export const mockActionCards: ActionCard[] = [
     summary:
       "System detected low inventory for SKU-456 and automatically triggered reorder from qualified backup.",
     whatHappened: [
-      "SKU-456 inventory dropped below safety stock threshold",
-      "Primary supplier lead time exceeded reorder window",
-      "Automated rule triggered backup supplier order",
+      "SKU-456 inventory dropped below safety stock threshold ([WMS Alert](#))",
+      "Primary supplier lead time exceeded reorder window ([Lead Time Tracker](#))",
+      "Automated rule triggered backup supplier order ([Auto-Procure Engine](#))",
     ],
     howItAffects: [
       "SKU-456 restocked via ElectroParts — arriving in 4 days",
@@ -563,9 +563,9 @@ export const mockActionCards: ActionCard[] = [
     summary:
       "AI detected seasonal demand spike pattern and increased buffer stock for 6 SKUs ahead of Q2.",
     whatHappened: [
-      "Historical analysis shows 22% demand increase in Q2 for electronics",
-      "Current buffer stock levels insufficient for projected demand",
-      "System auto-adjusted safety stock levels for 6 SKUs",
+      "Historical analysis shows 22% demand increase in Q2 for electronics ([Sales Forecast AI](#))",
+      "Current buffer stock levels insufficient for projected demand ([Inventory Planning](#))",
+      "System auto-adjusted safety stock levels for 6 SKUs ([Inventory Agent](#))",
     ],
     howItAffects: [
       "Buffer stock increased by 15% across 6 SKUs",
