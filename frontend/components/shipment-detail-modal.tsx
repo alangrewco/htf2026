@@ -24,10 +24,14 @@ export function ShipmentDetailModal({
     shipment,
     open,
     onOpenChange,
+    onOpenSku,
+    onOpenSupplier,
 }: {
     shipment: Shipment | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onOpenSku?: (id: string) => void;
+    onOpenSupplier?: (id: string) => void;
 }) {
     const { portName, skuName, supplierName } = useReferenceData();
     if (!shipment) return null;
@@ -85,7 +89,11 @@ export function ShipmentDetailModal({
                             <SectionLabel>Shipping Details</SectionLabel>
                             <div className="grid grid-cols-2 gap-4">
                                 <InfoRow icon={Truck} label="Carrier" value={shipment.carrier || "—"} />
-                                <InfoRow icon={Users} label="Supplier" value={supplierName(shipment.supplier_id)} />
+                                <InfoRow icon={Users} label="Supplier" value={
+                                    <span className="cursor-pointer hover:underline text-primary transition-colors" onClick={() => onOpenSupplier?.(shipment.supplier_id)}>
+                                        {supplierName(shipment.supplier_id)}
+                                    </span>
+                                } />
                             </div>
                         </div>
 
@@ -94,7 +102,7 @@ export function ShipmentDetailModal({
                             <SectionLabel>SKUs in Shipment</SectionLabel>
                             <div className="flex flex-wrap gap-1.5">
                                 {Object.entries(shipment.skus || {}).map(([skuId, qty]) => (
-                                    <Badge key={skuId} variant="outline" className="bg-muted/30 text-[10px] font-mono">
+                                    <Badge key={skuId} variant="outline" className="bg-muted/30 text-[10px] font-mono cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onOpenSku?.(skuId)}>
                                         {skuName(skuId)} (x{qty as number})
                                     </Badge>
                                 ))}

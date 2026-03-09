@@ -14,15 +14,19 @@ export function SupplierDetailModal({
     supplier,
     open,
     onOpenChange,
+    onOpenSku,
+    onOpenShipment,
 }: {
     supplier: Supplier | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onOpenSku?: (id: string) => void;
+    onOpenShipment?: (id: string) => void;
 }) {
-    const { skuNamesForSupplier, shipmentsBySupplier } = useReferenceData();
+    const { skus, shipmentsBySupplier } = useReferenceData();
     if (!supplier) return null;
     const conf = riskConfig[supplier.risk_rating as keyof typeof riskConfig] || riskConfig.medium;
-    const supplierSkus = skuNamesForSupplier(supplier.id);
+    const supplierSkus = skus.filter((sku) => sku.supplier_ids.includes(supplier.id));
     const supplierShipments = shipmentsBySupplier.get(supplier.id) || [];
     
     const activeShipments = supplierShipments.filter(s => s.status === ShipmentStatus.in_transit).length;
@@ -86,7 +90,7 @@ export function SupplierDetailModal({
                                     <SectionLabel>SKUs Supplied</SectionLabel>
                                     <div className="flex flex-wrap gap-2">
                                         {supplierSkus.map((s) => (
-                                            <Badge key={s} variant="outline" className="bg-muted/30 text-xs">{s}</Badge>
+                                            <Badge key={s.id} variant="outline" className="bg-muted/30 text-xs cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onOpenSku?.(s.id)}>{s.name}</Badge>
                                         ))}
                                     </div>
                                 </div>
@@ -106,7 +110,7 @@ export function SupplierDetailModal({
                                             .map((shipment) => {
                                                 const shipmentConf = statusConfig[shipment.status];
                                                 return (
-                                                    <div key={shipment.id} className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/10 px-4 py-2.5">
+                                                    <div key={shipment.id} className="cursor-pointer hover:bg-muted/20 flex items-center justify-between rounded-lg border border-border/50 bg-muted/10 px-4 py-2.5 transition-colors" onClick={() => onOpenShipment?.(shipment.id)}>
                                                         <div className="flex items-center gap-3">
                                                             <span className="text-sm font-mono font-medium">{shipment.shipment_code}</span>
                                                             <span className="text-[11px] text-muted-foreground">

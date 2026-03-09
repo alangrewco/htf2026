@@ -17,7 +17,7 @@ export const statusConfig: Record<ShipmentStatus, { color: string; bg: string; l
     [ShipmentStatus.cancelled]: { color: "text-muted-foreground", bg: "bg-muted/50", label: "Cancelled" },
 };
 
-export function InfoRow({ icon: Icon, label, value, className = "" }: { icon: React.ElementType; label: string; value: string | number; className?: string }) {
+export function InfoRow({ icon: Icon, label, value, className = "" }: { icon: React.ElementType; label: string; value: React.ReactNode; className?: string }) {
     return (
         <div className={`flex items-start gap-3 ${className}`}>
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted/50">
@@ -25,7 +25,7 @@ export function InfoRow({ icon: Icon, label, value, className = "" }: { icon: Re
             </div>
             <div className="min-w-0">
                 <div className="text-[11px] text-muted-foreground">{label}</div>
-                <div className="text-sm font-medium">{String(value)}</div>
+                <div className="text-sm font-medium">{value}</div>
             </div>
         </div>
     );

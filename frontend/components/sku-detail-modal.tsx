@@ -15,16 +15,19 @@ export function SKUDetailModal({
     sku,
     open,
     onOpenChange,
+    onOpenSupplier,
+    onOpenShipment,
 }: {
     sku: Sku | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onOpenSupplier?: (id: string) => void;
+    onOpenShipment?: (id: string) => void;
 }) {
-    const { supplierNamesForSku, shipmentsBySku } = useReferenceData();
+    const { supplierName, shipmentsBySku } = useReferenceData();
     const router = useRouter();
     if (!sku) return null;
     const conf = riskConfig[sku.risk_level as keyof typeof riskConfig] || riskConfig.medium;
-    const supplierNames = supplierNamesForSku(sku.id);
     const skuShipments = shipmentsBySku.get(sku.id) || [];
 
     return (
@@ -104,13 +107,15 @@ export function SKUDetailModal({
                         <Separator />
 
                         {/* Suppliers */}
-                        {supplierNames.length > 0 && (
+                        {sku.supplier_ids && sku.supplier_ids.length > 0 && (
                             <>
                                 <div>
                                     <SectionLabel>Suppliers</SectionLabel>
                                     <div className="flex flex-wrap gap-2">
-                                        {supplierNames.map((s) => (
-                                            <Badge key={s} variant="outline" className="bg-muted/30 text-xs">{s}</Badge>
+                                        {sku.supplier_ids.map((sId) => (
+                                            <Badge key={sId} variant="outline" className="bg-muted/30 text-xs cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onOpenSupplier?.(sId)}>
+                                                {supplierName(sId)}
+                                            </Badge>
                                         ))}
                                     </div>
                                 </div>
@@ -127,7 +132,7 @@ export function SKUDetailModal({
                                         {skuShipments.map((shipment) => {
                                             const shipmentConf = statusConfig[shipment.status];
                                             return (
-                                                <div key={shipment.id} className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/10 px-4 py-2.5">
+                                                <div key={shipment.id} className="cursor-pointer hover:bg-muted/20 transition-colors flex items-center justify-between rounded-lg border border-border/50 bg-muted/10 px-4 py-2.5" onClick={() => onOpenShipment?.(shipment.id)}>
                                                     <div className="flex items-center gap-3">
                                                         <span className="text-sm font-mono font-medium">{shipment.shipment_code}</span>
                                                         <Badge variant="outline" className="text-[10px] bg-muted/30">
