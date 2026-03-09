@@ -8,11 +8,14 @@ import { useCreateIngestionRun } from "@/sdk/ingestion/ingestion";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 
 export function StartAnalysisForm({
   selectedIdsFromQuery
@@ -26,6 +29,10 @@ export function StartAnalysisForm({
   const [selectedSkuIds, setSelectedSkuIds] = useState<string[]>([]);
   const [selectedSupplierIds, setSelectedSupplierIds] = useState<string[]>([]);
   const [selectedShipmentIds, setSelectedShipmentIds] = useState<string[]>([]);
+  const [preSelectedSkuIds, setPreSelectedSkuIds] = useState<string[]>([]);
+  const [preSelectedSupplierIds, setPreSelectedSupplierIds] = useState<string[]>([]);
+  const [preSelectedShipmentIds, setPreSelectedShipmentIds] = useState<string[]>([]);
+  const [frequency, setFrequency] = useState("once");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,16 +40,23 @@ export function StartAnalysisForm({
   useEffect(() => {
     if (selectedIdsFromQuery) {
       setIsOpen(true);
-      console.log(skus)
       const unanalyzedSkus = skus.filter((s) => s.risk_score === -1).map((s) => s.id);
       const unanalyzedSuppliers = suppliers.filter((s) => s.risk_rating === "new" || s.risk_rating === "").map((s) => s.id);
-      // const unanalyzedShipments = shipments.filter((s) => !s.events || s.events.length === 0).map((s) => s.id);
       const unanalyzedShipments: string[] = [];
 
       // Only set if we haven't already selected something
-      if (selectedSkuIds.length === 0) setSelectedSkuIds(unanalyzedSkus);
-      if (selectedSupplierIds.length === 0) setSelectedSupplierIds(unanalyzedSuppliers);
-      if (selectedShipmentIds.length === 0) setSelectedShipmentIds(unanalyzedShipments);
+      if (selectedSkuIds.length === 0) {
+        setSelectedSkuIds(unanalyzedSkus);
+        setPreSelectedSkuIds(unanalyzedSkus);
+      }
+      if (selectedSupplierIds.length === 0) {
+        setSelectedSupplierIds(unanalyzedSuppliers);
+        setPreSelectedSupplierIds(unanalyzedSuppliers);
+      }
+      if (selectedShipmentIds.length === 0) {
+        setSelectedShipmentIds(unanalyzedShipments);
+        setPreSelectedShipmentIds(unanalyzedShipments);
+      }
     }
   }, [
     selectedIdsFromQuery,
@@ -69,6 +83,7 @@ export function StartAnalysisForm({
         setSelectedSkuIds([]);
         setSelectedSupplierIds([]);
         setSelectedShipmentIds([]);
+        setIsOpen(false);
       } else {
         throw new Error("Failed to start analysis");
       }
@@ -83,35 +98,39 @@ export function StartAnalysisForm({
   };
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      value={isOpen ? "form" : ""}
-      onValueChange={(val) => setIsOpen(val === "form")}
-      className="mb-8"
-    >
-      <AccordionItem value="form" className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <AccordionTrigger className="px-6 py-4 hover:no-underline rounded-lg [&[data-state=open]]:border-b [&[data-state=open]]:rounded-b-none transition-none">
-          <div className="flex flex-col items-start gap-1.5 text-left">
-            <h3 className="text-lg font-semibold leading-none tracking-tight">Start New Analysis</h3>
-            <p className="text-sm text-muted-foreground font-normal">
-              Select the entities you want to analyze for real-time risk intelligence.
-            </p>
-          </div>
-        </AccordionTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button className="mb-8 gap-2">
+          <Plus className="h-4 w-4" /> Start New Analysis
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[900px]">
+        <DialogHeader>
+          <DialogTitle>Start New Analysis</DialogTitle>
+          <DialogDescription>
+            Select the entities you want to analyze for real-time risk intelligence.
+          </DialogDescription>
+        </DialogHeader>
 
-        <AccordionContent className="pt-0 pb-0">
-          <div className="px-6 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium">Select SKUs</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Select SKUs</h3>
             <EntityPickerOrCreate
               entityLabel="SKUs"
-              existingItems={skus.map((s) => ({
-                id: s.id,
-                label: s.name,
-                sub: s.sku_code,
-              }))}
+              existingItems={skus
+                .slice()
+                .sort((a, b) => {
+                  const aPre = preSelectedSkuIds.includes(a.id);
+                  const bPre = preSelectedSkuIds.includes(b.id);
+                  if (aPre && !bPre) return -1;
+                  if (!aPre && bPre) return 1;
+                  return 0;
+                })
+                .map((s) => ({
+                  id: s.id,
+                  label: s.name,
+                  sub: s.sku_code,
+                }))}
               selectedIds={selectedSkuIds}
               onToggleId={(id) =>
                 setSelectedSkuIds((prev) =>
@@ -125,11 +144,20 @@ export function StartAnalysisForm({
             <h3 className="text-sm font-medium">Select Suppliers</h3>
             <EntityPickerOrCreate
               entityLabel="Suppliers"
-              existingItems={suppliers.map((s) => ({
-                id: s.id,
-                label: s.name,
-                sub: s.supplier_code,
-              }))}
+              existingItems={suppliers
+                .slice()
+                .sort((a, b) => {
+                  const aPre = preSelectedSupplierIds.includes(a.id);
+                  const bPre = preSelectedSupplierIds.includes(b.id);
+                  if (aPre && !bPre) return -1;
+                  if (!aPre && bPre) return 1;
+                  return 0;
+                })
+                .map((s) => ({
+                  id: s.id,
+                  label: s.name,
+                  sub: s.supplier_code,
+                }))}
               selectedIds={selectedSupplierIds}
               onToggleId={(id) =>
                 setSelectedSupplierIds((prev) =>
@@ -143,11 +171,20 @@ export function StartAnalysisForm({
             <h3 className="text-sm font-medium">Select Shipments</h3>
             <EntityPickerOrCreate
               entityLabel="Shipments"
-              existingItems={shipments.map((s) => ({
-                id: s.id,
-                label: s.shipment_code,
-                sub: s.status,
-              }))}
+              existingItems={shipments
+                .slice()
+                .sort((a, b) => {
+                  const aPre = preSelectedShipmentIds.includes(a.id);
+                  const bPre = preSelectedShipmentIds.includes(b.id);
+                  if (aPre && !bPre) return -1;
+                  if (!aPre && bPre) return 1;
+                  return 0;
+                })
+                .map((s) => ({
+                  id: s.id,
+                  label: s.shipment_code,
+                  sub: s.status,
+                }))}
               selectedIds={selectedShipmentIds}
               onToggleId={(id) =>
                 setSelectedShipmentIds((prev) =>
@@ -157,14 +194,29 @@ export function StartAnalysisForm({
             />
           </div>
         </div>
-      </div>
-      <div className="flex justify-end border-t border-border/50 px-6 py-4 bg-muted/20 rounded-b-lg">
-        <Button onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting ? "Starting..." : "Start Gathering Intel"}
-        </Button>
-      </div>
-      </AccordionContent>
-    </AccordionItem>
-    </Accordion>
+
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 pt-4 border-t gap-4">
+          <div className="flex items-center gap-3">
+            <label htmlFor="frequency" className="text-sm font-medium whitespace-nowrap">
+              Run frequency:
+            </label>
+            <select
+              id="frequency"
+              value={frequency}
+              onChange={(e) => setFrequency(e.target.value)}
+              className="flex h-9 w-[180px] items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="once">Standard (Once)</option>
+              <option value="hourly">Hourly Monitor</option>
+              <option value="daily">Daily Briefing</option>
+              <option value="weekly">Weekly Digest</option>
+            </select>
+          </div>
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "Starting..." : "Start Gathering Intel"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
