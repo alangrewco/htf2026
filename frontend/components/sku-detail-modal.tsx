@@ -31,7 +31,7 @@ export function SKUDetailModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-2xl max-h-[85vh] p-0 overflow-hidden border-border/50 bg-card/95 backdrop-blur-xl">
                 <ScrollArea className="max-h-[85vh]">
-                    <div className="p-6 space-y-6">
+                    <div className="pt-10 px-6 pb-6 space-y-6">
                         {/* Header */}
                         <DialogHeader className="space-y-3">
                             <div className="flex items-start gap-4">
