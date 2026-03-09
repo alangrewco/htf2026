@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { useListArticles, useGetArticleEnrichment } from "@/sdk/articles/articles";
 import { NavbarSpacer } from "@/components/navbar";
@@ -9,6 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   AlertTriangle, 
   Calendar, 
@@ -16,7 +24,6 @@ import {
   MapPin, 
   Link as LinkIcon,
   Activity,
-  ArrowRight,
   Package,
   Truck,
   Building2,
@@ -26,6 +33,7 @@ import {
   ChevronLeft,
   ChevronUp,
   ChevronDown,
+  Filter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Article, Enrichment } from "@/sdk/model";
@@ -48,8 +56,12 @@ const getProcessingStateBadge = (state: string) => {
     case "evaluated":
     case "proposal_generated":
       return <Badge variant="default" className="bg-green-600/20 text-green-600 border-green-600/30">Actionable</Badge>;
+    case "enriched":
+      return <Badge variant="outline" className="text-yellow-500 border-yellow-500/30 bg-yellow-500/10 capitalize">Enriched</Badge>;
     case "irrelevant":
-      return <Badge variant="secondary" className="text-muted-foreground">Ignored</Badge>;
+      return <Badge variant="secondary" className="text-muted-foreground bg-gray-500/10 border-gray-500/30">Ignored</Badge>;
+    case "raw":
+      return <Badge variant="outline" className="text-blue-500 border-blue-500/30 bg-blue-500/10 capitalize">Raw</Badge>;
     default:
       return <Badge variant="outline" className="text-blue-500 border-blue-500/30 bg-blue-500/10 capitalize">{state}</Badge>;
   }
@@ -57,8 +69,40 @@ const getProcessingStateBadge = (state: string) => {
 
 export default function NewsPage() {
   const { data: articlesResponse, isLoading: isLoadingArticles } = useListArticles();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const articles = (articlesResponse?.data as any)?.items as Article[] || [];
+  
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, boolean>>({
+    actionable: true,
+    enriched: true,
+    ignored: true,
+    raw: true,
+  });
+
+  const articles = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rawArticles = (articlesResponse?.data as any)?.items as Article[] || [];
+    return rawArticles
+      .filter((a: Article) => {
+        const state = a.processing_state.toLowerCase();
+        if (["evaluated", "proposal_generated"].includes(state)) return selectedFilters.actionable;
+        if (state === "enriched") return selectedFilters.enriched;
+        if (state === "irrelevant") return selectedFilters.ignored;
+        if (state === "raw") return selectedFilters.raw;
+        return true;
+      })
+      .sort((a: Article, b: Article) => {
+        const getPriority = (state: string) => {
+          const s = state.toLowerCase();
+          if (["evaluated", "proposal_generated"].includes(s)) return 0;
+          if (s === "enriched") return 1;
+          if (s === "irrelevant") return 2;
+          if (s === "raw") return 3;
+          return 4;
+        };
+        const diff = getPriority(a.processing_state) - getPriority(b.processing_state);
+        if (diff !== 0) return diff;
+        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+      });
+  }, [articlesResponse?.data, selectedFilters]);
   
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
 
@@ -154,13 +198,50 @@ export default function NewsPage() {
                     <Globe2 className="h-5 w-5 text-muted-foreground shrink-0" />
                     <span className="truncate">Live Feed</span>
                   </h2>
-                  <button 
-                    onClick={() => setLeftNavCollapsed(true)} 
-                    className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0 ml-2" 
-                    aria-label="Collapse feed"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
+                  <div className="flex items-center shrink-0 ml-2 gap-1">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" aria-label="Filter feed">
+                          <Filter className="h-5 w-5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuLabel>Filter by State</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuCheckboxItem
+                          checked={selectedFilters.actionable}
+                          onCheckedChange={(checked) => setSelectedFilters(prev => ({ ...prev, actionable: checked as boolean }))}
+                        >
+                          Actionable
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                          checked={selectedFilters.enriched}
+                          onCheckedChange={(checked) => setSelectedFilters(prev => ({ ...prev, enriched: checked as boolean }))}
+                        >
+                          Enriched
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                          checked={selectedFilters.ignored}
+                          onCheckedChange={(checked) => setSelectedFilters(prev => ({ ...prev, ignored: checked as boolean }))}
+                        >
+                          Ignored
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                          checked={selectedFilters.raw}
+                          onCheckedChange={(checked) => setSelectedFilters(prev => ({ ...prev, raw: checked as boolean }))}
+                        >
+                          Raw
+                        </DropdownMenuCheckboxItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <button 
+                      onClick={() => setLeftNavCollapsed(true)} 
+                      className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" 
+                      aria-label="Collapse feed"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
               )}
               {leftNavCollapsed && (
@@ -473,8 +554,10 @@ export default function NewsPage() {
                       Open
                     </a>
                   </div>
-                  <iframe 
-                    src={selectedArticle.source_url} 
+                  <iframe
+                    // Due to content block issues, we hardcode to wikipedia:
+                    src="https://en.wikipedia.org/wiki/2025%E2%80%932026_China%E2%80%93Japan_diplomatic_crisis" 
+                    // src={selectedArticle.source_url}
                     className="w-full h-full border-0 bg-white"
                     title={`Source article for ${selectedArticle.headline}`}
                     sandbox="allow-same-origin allow-scripts"
