@@ -18,6 +18,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import type { Sku, Shipment, Supplier } from "@/sdk/model";
 import { ShipmentStatus } from "@/sdk/model";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
@@ -69,6 +71,7 @@ export function SKUDetailModal({
     onOpenChange: (open: boolean) => void;
 }) {
     const { supplierNamesForSku, shipmentsBySku } = useReferenceData();
+    const router = useRouter();
     if (!sku) return null;
     const conf = riskConfig[sku.risk_level as keyof typeof riskConfig] || riskConfig.medium;
     const supplierNames = supplierNamesForSku(sku.id);
@@ -98,18 +101,43 @@ export function SKUDetailModal({
                         </DialogHeader>
 
                         {/* Risk Score Bar */}
-                        <div className={`rounded-lg p-3 ${conf.bg} border ${conf.border}`}>
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs font-medium text-muted-foreground">Risk Score</span>
-                                <span className={`text-sm font-bold ${conf.color}`}>{sku.risk_score}/100</span>
+                        {sku.risk_score < 0 ? (
+                            <div className="rounded-lg p-3 bg-muted/5 border border-border/50">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xs font-medium text-muted-foreground">Risk Score</span>
+                                    <span className="text-sm font-bold text-muted-foreground">Pending Analysis</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
+                                        <div className="h-full rounded-full transition-all duration-500 bg-muted" style={{ width: "100%" }} />
+                                    </div>
+                                    <Button 
+                                        size="sm" 
+                                        variant="secondary" 
+                                        className="h-7 text-[10px] shrink-0" 
+                                        onClick={() => {
+                                            onOpenChange(false);
+                                            router.push("/jobs?openModal=true");
+                                        }}
+                                    >
+                                        Start Analysis
+                                    </Button>
+                                </div>
                             </div>
-                            <div className="h-2 w-full rounded-full bg-muted/50 overflow-hidden">
-                                <div
-                                    className={`h-full rounded-full transition-all duration-500 ${sku.risk_score >= 70 ? "bg-urgency-critical" : sku.risk_score >= 40 ? "bg-urgency-warning" : "bg-urgency-safe"}`}
-                                    style={{ width: `${sku.risk_score}%` }}
-                                />
+                        ) : (
+                            <div className={`rounded-lg p-3 ${conf.bg} border ${conf.border}`}>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xs font-medium text-muted-foreground">Risk Score</span>
+                                    <span className={`text-sm font-bold ${conf.color}`}>{sku.risk_score}/100</span>
+                                </div>
+                                <div className="h-2 w-full rounded-full bg-muted/50 overflow-hidden">
+                                    <div
+                                        className={`h-full rounded-full transition-all duration-500 ${sku.risk_score >= 70 ? "bg-urgency-critical" : sku.risk_score >= 40 ? "bg-urgency-warning" : "bg-urgency-safe"}`}
+                                        style={{ width: `${sku.risk_score}%` }}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <Separator />
 
