@@ -5,6 +5,7 @@
  * MVP v1 REST API for ACME Inc. to ingest shipping disruption signals, enrich relevance and impact, escalate incidents, and generate action proposals for manager decisioning.
  * OpenAPI spec version: 1.0.0
  */
+import type { CreateShipmentRequestSkus } from './createShipmentRequestSkus';
 import type { ShipmentEvent } from './shipmentEvent';
 import type { ShipmentStatus } from './shipmentStatus';
 
@@ -15,7 +16,8 @@ export interface CreateShipmentRequest {
   destination_port_id: string;
   route_id: string;
   supplier_id: string;
-  sku_ids: string[];
+  /** Map of sku_id to quantity required */
+  skus: CreateShipmentRequestSkus;
   carrier: string;
   order_date: string;
   expected_delivery_date: string;

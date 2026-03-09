@@ -1316,13 +1316,14 @@ components:
       type: object
     Sku:
       example:
+        risk_score: 7
+        required_qty: 0
+        description: description
+        created_at: 2000-01-23T04:56:07.000+00:00
         risk_level: critical
         updated_at: 2000-01-23T04:56:07.000+00:00
-        risk_score: 8
         name: name
-        description: description
         unit_of_measure: unit_of_measure
-        created_at: 2000-01-23T04:56:07.000+00:00
         id: id
         supplier_ids:
         - supplier_ids
@@ -1355,6 +1356,10 @@ components:
           type: integer
         risk_level:
           $ref: "#/components/schemas/SkuRiskLevel"
+        required_qty:
+          minimum: 0
+          title: required_qty
+          type: integer
         category:
           title: category
           type: string
@@ -1377,6 +1382,7 @@ components:
       - description
       - id
       - name
+      - required_qty
       - risk_level
       - risk_score
       - sku_code
@@ -1390,7 +1396,8 @@ components:
       additionalProperties: false
       example:
         risk_level: critical
-        risk_score: 8
+        risk_score: 7
+        required_qty: 0
         name: name
         description: description
         unit_of_measure: unit_of_measure
@@ -1422,6 +1429,10 @@ components:
           type: integer
         risk_level:
           $ref: "#/components/schemas/SkuRiskLevel"
+        required_qty:
+          minimum: 0
+          title: required_qty
+          type: integer
         category:
           title: category
           type: string
@@ -1434,6 +1445,7 @@ components:
       - category
       - description
       - name
+      - required_qty
       - risk_level
       - risk_score
       - sku_code
@@ -1446,7 +1458,8 @@ components:
       additionalProperties: false
       example:
         risk_level: critical
-        risk_score: 8
+        risk_score: 7
+        required_qty: 0
         name: name
         description: description
         unit_of_measure: unit_of_measure
@@ -1479,6 +1492,10 @@ components:
           type: integer
         risk_level:
           $ref: "#/components/schemas/SkuRiskLevel"
+        required_qty:
+          minimum: 0
+          title: required_qty
+          type: integer
         category:
           title: category
           type: string
@@ -1493,13 +1510,14 @@ components:
       example:
         total: 0
         items:
-        - risk_level: critical
-          updated_at: 2000-01-23T04:56:07.000+00:00
-          risk_score: 8
-          name: name
+        - risk_score: 7
+          required_qty: 0
           description: description
-          unit_of_measure: unit_of_measure
           created_at: 2000-01-23T04:56:07.000+00:00
+          risk_level: critical
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          name: name
+          unit_of_measure: unit_of_measure
           id: id
           supplier_ids:
           - supplier_ids
@@ -1507,13 +1525,14 @@ components:
           category: category
           sku_code: sku_code
           status: active
-        - risk_level: critical
-          updated_at: 2000-01-23T04:56:07.000+00:00
-          risk_score: 8
-          name: name
+        - risk_score: 7
+          required_qty: 0
           description: description
-          unit_of_measure: unit_of_measure
           created_at: 2000-01-23T04:56:07.000+00:00
+          risk_level: critical
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          name: name
+          unit_of_measure: unit_of_measure
           id: id
           supplier_ids:
           - supplier_ids
@@ -1713,15 +1732,14 @@ components:
     Shipment:
       example:
         route_id: route_id
+        skus:
+          key: 1
         expected_delivery_date: 2000-01-23T04:56:07.000+00:00
         created_at: 2000-01-23T04:56:07.000+00:00
         shipment_code: shipment_code
         order_date: 2000-01-23T04:56:07.000+00:00
         carrier: carrier
         updated_at: 2000-01-23T04:56:07.000+00:00
-        sku_ids:
-        - sku_ids
-        - sku_ids
         destination_port_id: destination_port_id
         id: id
         origin_port_id: origin_port_id
@@ -1765,11 +1783,13 @@ components:
         supplier_id:
           title: supplier_id
           type: string
-        sku_ids:
-          items:
-            type: string
-          title: sku_ids
-          type: array
+        skus:
+          additionalProperties:
+            minimum: 1
+            type: integer
+          description: Map of sku_id to quantity required
+          title: skus
+          type: object
         carrier:
           title: carrier
           type: string
@@ -1805,7 +1825,7 @@ components:
       - origin_port_id
       - route_id
       - shipment_code
-      - sku_ids
+      - skus
       - status
       - supplier_id
       - updated_at
@@ -1817,9 +1837,8 @@ components:
         order_date: 2000-01-23T04:56:07.000+00:00
         carrier: carrier
         route_id: route_id
-        sku_ids:
-        - sku_ids
-        - sku_ids
+        skus:
+          key: 1
         destination_port_id: destination_port_id
         expected_delivery_date: 2000-01-23T04:56:07.000+00:00
         shipment_code: shipment_code
@@ -1861,11 +1880,13 @@ components:
         supplier_id:
           title: supplier_id
           type: string
-        sku_ids:
-          items:
-            type: string
-          title: sku_ids
-          type: array
+        skus:
+          additionalProperties:
+            minimum: 1
+            type: integer
+          description: Map of sku_id to quantity required
+          title: skus
+          type: object
         carrier:
           title: carrier
           type: string
@@ -1891,7 +1912,7 @@ components:
       - origin_port_id
       - route_id
       - shipment_code
-      - sku_ids
+      - skus
       - status
       - supplier_id
       title: CreateShipmentRequest
@@ -1902,9 +1923,8 @@ components:
         order_date: 2000-01-23T04:56:07.000+00:00
         carrier: carrier
         route_id: route_id
-        sku_ids:
-        - sku_ids
-        - sku_ids
+        skus:
+          key: 1
         destination_port_id: destination_port_id
         expected_delivery_date: 2000-01-23T04:56:07.000+00:00
         shipment_code: shipment_code
@@ -1947,11 +1967,13 @@ components:
         supplier_id:
           title: supplier_id
           type: string
-        sku_ids:
-          items:
-            type: string
-          title: sku_ids
-          type: array
+        skus:
+          additionalProperties:
+            minimum: 1
+            type: integer
+          description: Map of sku_id to quantity required
+          title: skus
+          type: object
         carrier:
           title: carrier
           type: string
@@ -1975,15 +1997,14 @@ components:
         total: 0
         items:
         - route_id: route_id
+          skus:
+            key: 1
           expected_delivery_date: 2000-01-23T04:56:07.000+00:00
           created_at: 2000-01-23T04:56:07.000+00:00
           shipment_code: shipment_code
           order_date: 2000-01-23T04:56:07.000+00:00
           carrier: carrier
           updated_at: 2000-01-23T04:56:07.000+00:00
-          sku_ids:
-          - sku_ids
-          - sku_ids
           destination_port_id: destination_port_id
           id: id
           origin_port_id: origin_port_id
@@ -2007,15 +2028,14 @@ components:
             status: status
           status: planned
         - route_id: route_id
+          skus:
+            key: 1
           expected_delivery_date: 2000-01-23T04:56:07.000+00:00
           created_at: 2000-01-23T04:56:07.000+00:00
           shipment_code: shipment_code
           order_date: 2000-01-23T04:56:07.000+00:00
           carrier: carrier
           updated_at: 2000-01-23T04:56:07.000+00:00
-          sku_ids:
-          - sku_ids
-          - sku_ids
           destination_port_id: destination_port_id
           id: id
           origin_port_id: origin_port_id
@@ -2608,7 +2628,7 @@ components:
         article_id: article_id
         risk_level: low
         updated_at: 2000-01-23T04:56:07.000+00:00
-        risk_score: 8
+        risk_score: 7
         reasoning: reasoning
         created_at: 2000-01-23T04:56:07.000+00:00
         id: id
@@ -2673,7 +2693,7 @@ components:
         - article_id: article_id
           risk_level: low
           updated_at: 2000-01-23T04:56:07.000+00:00
-          risk_score: 8
+          risk_score: 7
           reasoning: reasoning
           created_at: 2000-01-23T04:56:07.000+00:00
           id: id
@@ -2685,7 +2705,7 @@ components:
         - article_id: article_id
           risk_level: low
           updated_at: 2000-01-23T04:56:07.000+00:00
-          risk_score: 8
+          risk_score: 7
           reasoning: reasoning
           created_at: 2000-01-23T04:56:07.000+00:00
           id: id

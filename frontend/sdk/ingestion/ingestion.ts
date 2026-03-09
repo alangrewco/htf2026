@@ -73,7 +73,7 @@ export const getListIngestionRunsUrl = (params?: ListIngestionRunsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/ingestion/runs?${stringifiedParams}` : `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/ingestion/runs`
+  return stringifiedParams.length > 0 ? `http://localhost:8080/api/v1/ingestion/runs?${stringifiedParams}` : `http://localhost:8080/api/v1/ingestion/runs`
 }
 
 export const listIngestionRuns = async (params?: ListIngestionRunsParams, options?: RequestInit): Promise<listIngestionRunsResponse> => {
@@ -96,7 +96,7 @@ export const listIngestionRuns = async (params?: ListIngestionRunsParams, option
 
 
 
-export const getListIngestionRunsKey = (params?: ListIngestionRunsParams,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/ingestion/runs`, ...(params ? [params]: [])] as const;
+export const getListIngestionRunsKey = (params?: ListIngestionRunsParams,) => [`http://localhost:8080/api/v1/ingestion/runs`, ...(params ? [params]: [])] as const;
 
 export type ListIngestionRunsQueryResult = NonNullable<Awaited<ReturnType<typeof listIngestionRuns>>>
 
@@ -156,7 +156,7 @@ export const getCreateIngestionRunUrl = () => {
 
   
 
-  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/ingestion/runs`
+  return `http://localhost:8080/api/v1/ingestion/runs`
 }
 
 export const createIngestionRun = async (createIngestionRunRequest: CreateIngestionRunRequest, options?: RequestInit): Promise<createIngestionRunResponse> => {
@@ -185,7 +185,7 @@ export const getCreateIngestionRunMutationFetcher = ( options?: RequestInit) => 
     return createIngestionRun(arg, options);
   }
 }
-export const getCreateIngestionRunMutationKey = () => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/ingestion/runs`] as const;
+export const getCreateIngestionRunMutationKey = () => [`http://localhost:8080/api/v1/ingestion/runs`] as const;
 
 export type CreateIngestionRunMutationResult = NonNullable<Awaited<ReturnType<typeof createIngestionRun>>>
 
@@ -240,7 +240,7 @@ export const getGetIngestionRunUrl = (runId: string,) => {
 
   
 
-  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/ingestion/runs/${runId}`
+  return `http://localhost:8080/api/v1/ingestion/runs/${runId}`
 }
 
 export const getIngestionRun = async (runId: string, options?: RequestInit): Promise<getIngestionRunResponse> => {
@@ -263,7 +263,7 @@ export const getIngestionRun = async (runId: string, options?: RequestInit): Pro
 
 
 
-export const getGetIngestionRunKey = (runId: string,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/ingestion/runs/${runId}`] as const;
+export const getGetIngestionRunKey = (runId: string,) => [`http://localhost:8080/api/v1/ingestion/runs/${runId}`] as const;
 
 export type GetIngestionRunQueryResult = NonNullable<Awaited<ReturnType<typeof getIngestionRun>>>
 
@@ -313,7 +313,7 @@ export const getGetIngestionStatusUrl = () => {
 
   
 
-  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/ingestion/status`
+  return `http://localhost:8080/api/v1/ingestion/status`
 }
 
 export const getIngestionStatus = async ( options?: RequestInit): Promise<getIngestionStatusResponse> => {
@@ -336,7 +336,7 @@ export const getIngestionStatus = async ( options?: RequestInit): Promise<getIng
 
 
 
-export const getGetIngestionStatusKey = () => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/ingestion/status`] as const;
+export const getGetIngestionStatusKey = () => [`http://localhost:8080/api/v1/ingestion/status`] as const;
 
 export type GetIngestionStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getIngestionStatus>>>
 

@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ShipmentEvent } from './shipmentEvent';
+import type { ShipmentSkus } from './shipmentSkus';
 import type { ShipmentStatus } from './shipmentStatus';
 
 export interface Shipment {
@@ -16,7 +17,8 @@ export interface Shipment {
   destination_port_id: string;
   route_id: string;
   supplier_id: string;
-  sku_ids: string[];
+  /** Map of sku_id to quantity required */
+  skus: ShipmentSkus;
   carrier: string;
   order_date: string;
   expected_delivery_date: string;

@@ -65,7 +65,7 @@ export const getListArticlesUrl = (params?: ListArticlesParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/articles?${stringifiedParams}` : `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/articles`
+  return stringifiedParams.length > 0 ? `http://localhost:8080/api/v1/articles?${stringifiedParams}` : `http://localhost:8080/api/v1/articles`
 }
 
 export const listArticles = async (params?: ListArticlesParams, options?: RequestInit): Promise<listArticlesResponse> => {
@@ -88,7 +88,7 @@ export const listArticles = async (params?: ListArticlesParams, options?: Reques
 
 
 
-export const getListArticlesKey = (params?: ListArticlesParams,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/articles`, ...(params ? [params]: [])] as const;
+export const getListArticlesKey = (params?: ListArticlesParams,) => [`http://localhost:8080/api/v1/articles`, ...(params ? [params]: [])] as const;
 
 export type ListArticlesQueryResult = NonNullable<Awaited<ReturnType<typeof listArticles>>>
 
@@ -143,7 +143,7 @@ export const getGetArticleUrl = (articleId: string,) => {
 
   
 
-  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/articles/${articleId}`
+  return `http://localhost:8080/api/v1/articles/${articleId}`
 }
 
 export const getArticle = async (articleId: string, options?: RequestInit): Promise<getArticleResponse> => {
@@ -166,7 +166,7 @@ export const getArticle = async (articleId: string, options?: RequestInit): Prom
 
 
 
-export const getGetArticleKey = (articleId: string,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/articles/${articleId}`] as const;
+export const getGetArticleKey = (articleId: string,) => [`http://localhost:8080/api/v1/articles/${articleId}`] as const;
 
 export type GetArticleQueryResult = NonNullable<Awaited<ReturnType<typeof getArticle>>>
 
@@ -221,7 +221,7 @@ export const getGetArticleEnrichmentUrl = (articleId: string,) => {
 
   
 
-  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/articles/${articleId}/enrichment`
+  return `http://localhost:8080/api/v1/articles/${articleId}/enrichment`
 }
 
 export const getArticleEnrichment = async (articleId: string, options?: RequestInit): Promise<getArticleEnrichmentResponse> => {
@@ -244,7 +244,7 @@ export const getArticleEnrichment = async (articleId: string, options?: RequestI
 
 
 
-export const getGetArticleEnrichmentKey = (articleId: string,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/articles/${articleId}/enrichment`] as const;
+export const getGetArticleEnrichmentKey = (articleId: string,) => [`http://localhost:8080/api/v1/articles/${articleId}/enrichment`] as const;
 
 export type GetArticleEnrichmentQueryResult = NonNullable<Awaited<ReturnType<typeof getArticleEnrichment>>>
 

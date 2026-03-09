@@ -306,6 +306,9 @@ function DataSectionContent() {
     portName,
     supplierName: resolveSupplierName,
     skuName: resolveSkuName,
+    skuMap,
+    supplierMap,
+    shipmentMap,
   } = useReferenceData();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -406,7 +409,7 @@ function DataSectionContent() {
                     key={shipment.id}
                     shipment={shipment}
                     index={i}
-                    skuNames={shipment.sku_ids
+                    skuNames={Object.keys(shipment.skus || {})
                       .map((id) => resolveSkuName(id))
                       .sort((a, b) => a.localeCompare(b))}
                     supplierName={resolveSupplierName(shipment.supplier_id)}
@@ -452,16 +455,22 @@ function DataSectionContent() {
           sku={selectedSku}
           open={!!selectedSku}
           onOpenChange={(o) => !o && setSelectedSku(null)}
+          onOpenSupplier={(id) => { setSelectedSku(null); setSelectedSupplier(supplierMap.get(id) || null); }}
+          onOpenShipment={(id) => { setSelectedSku(null); setSelectedShipment(shipmentMap.get(id) || null); }}
         />
         <ShipmentDetailModal
           shipment={selectedShipment}
           open={!!selectedShipment}
           onOpenChange={(o) => !o && setSelectedShipment(null)}
+          onOpenSku={(id) => { setSelectedShipment(null); setSelectedSku(skuMap.get(id) || null); }}
+          onOpenSupplier={(id) => { setSelectedShipment(null); setSelectedSupplier(supplierMap.get(id) || null); }}
         />
         <SupplierDetailModal
           supplier={selectedSupplier}
           open={!!selectedSupplier}
           onOpenChange={(o) => !o && setSelectedSupplier(null)}
+          onOpenSku={(id) => { setSelectedSupplier(null); setSelectedSku(skuMap.get(id) || null); }}
+          onOpenShipment={(id) => { setSelectedSupplier(null); setSelectedShipment(shipmentMap.get(id) || null); }}
         />
       </div>
     </TooltipProvider>

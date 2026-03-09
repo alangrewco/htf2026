@@ -64,7 +64,7 @@ export const getListIncidentsUrl = (params?: ListIncidentsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/incidents?${stringifiedParams}` : `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/incidents`
+  return stringifiedParams.length > 0 ? `http://localhost:8080/api/v1/incidents?${stringifiedParams}` : `http://localhost:8080/api/v1/incidents`
 }
 
 export const listIncidents = async (params?: ListIncidentsParams, options?: RequestInit): Promise<listIncidentsResponse> => {
@@ -87,7 +87,7 @@ export const listIncidents = async (params?: ListIncidentsParams, options?: Requ
 
 
 
-export const getListIncidentsKey = (params?: ListIncidentsParams,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/incidents`, ...(params ? [params]: [])] as const;
+export const getListIncidentsKey = (params?: ListIncidentsParams,) => [`http://localhost:8080/api/v1/incidents`, ...(params ? [params]: [])] as const;
 
 export type ListIncidentsQueryResult = NonNullable<Awaited<ReturnType<typeof listIncidents>>>
 
@@ -142,7 +142,7 @@ export const getGetIncidentUrl = (incidentId: string,) => {
 
   
 
-  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/incidents/${incidentId}`
+  return `http://localhost:8080/api/v1/incidents/${incidentId}`
 }
 
 export const getIncident = async (incidentId: string, options?: RequestInit): Promise<getIncidentResponse> => {
@@ -165,7 +165,7 @@ export const getIncident = async (incidentId: string, options?: RequestInit): Pr
 
 
 
-export const getGetIncidentKey = (incidentId: string,) => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/incidents/${incidentId}`] as const;
+export const getGetIncidentKey = (incidentId: string,) => [`http://localhost:8080/api/v1/incidents/${incidentId}`] as const;
 
 export type GetIncidentQueryResult = NonNullable<Awaited<ReturnType<typeof getIncident>>>
 

@@ -1,5 +1,4 @@
 import sys
-import traceback
 from pathlib import Path
 from typing import Dict, Tuple, Union
 
@@ -32,7 +31,6 @@ service = ReferenceService()
 
 
 def _error_response(err: AppError):
-    # Note: AppError constructor handles its own traceback print when in DEV mode
     envelope = ErrorEnvelope(
         error=ErrorObject(
             code=err.code,
@@ -44,9 +42,6 @@ def _error_response(err: AppError):
 
 
 def _unknown_error(err: Exception):
-    print(f"\n>>> UNEXPECTED ERROR: {err}")
-    traceback.print_exc()
-    print("<<<\n")
     envelope = ErrorEnvelope(
         error=ErrorObject(
             code="INTERNAL_ERROR",

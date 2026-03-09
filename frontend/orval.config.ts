@@ -7,7 +7,8 @@ export default defineConfig({
       target: 'sdk/server.ts',
       schemas: 'sdk/model',
       client: 'swr',
-      baseUrl: 'https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1',
+      // baseUrl: 'https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1',
+      baseUrl: 'http://localhost:8080/api/v1',
       mock: true,
     },
     input: {

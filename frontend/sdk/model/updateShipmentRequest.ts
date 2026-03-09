@@ -7,6 +7,7 @@
  */
 import type { ShipmentEvent } from './shipmentEvent';
 import type { ShipmentStatus } from './shipmentStatus';
+import type { UpdateShipmentRequestSkus } from './updateShipmentRequestSkus';
 
 export interface UpdateShipmentRequest {
   shipment_code?: string;
@@ -15,7 +16,8 @@ export interface UpdateShipmentRequest {
   destination_port_id?: string;
   route_id?: string;
   supplier_id?: string;
-  sku_ids?: string[];
+  /** Map of sku_id to quantity required */
+  skus?: UpdateShipmentRequestSkus;
   carrier?: string;
   order_date?: string;
   expected_delivery_date?: string;

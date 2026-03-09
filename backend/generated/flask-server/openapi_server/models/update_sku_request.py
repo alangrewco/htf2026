@@ -16,7 +16,7 @@ class UpdateSkuRequest(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, sku_code=None, name=None, description=None, unit_of_measure=None, status=None, risk_score=None, risk_level=None, category=None, supplier_ids=None):  # noqa: E501
+    def __init__(self, sku_code=None, name=None, description=None, unit_of_measure=None, status=None, risk_score=None, risk_level=None, required_qty=None, category=None, supplier_ids=None):  # noqa: E501
         """UpdateSkuRequest - a model defined in OpenAPI
 
         :param sku_code: The sku_code of this UpdateSkuRequest.  # noqa: E501
@@ -33,6 +33,8 @@ class UpdateSkuRequest(Model):
         :type risk_score: int
         :param risk_level: The risk_level of this UpdateSkuRequest.  # noqa: E501
         :type risk_level: SkuRiskLevel
+        :param required_qty: The required_qty of this UpdateSkuRequest.  # noqa: E501
+        :type required_qty: int
         :param category: The category of this UpdateSkuRequest.  # noqa: E501
         :type category: str
         :param supplier_ids: The supplier_ids of this UpdateSkuRequest.  # noqa: E501
@@ -46,6 +48,7 @@ class UpdateSkuRequest(Model):
             'status': MasterStatus,
             'risk_score': int,
             'risk_level': SkuRiskLevel,
+            'required_qty': int,
             'category': str,
             'supplier_ids': List[str]
         }
@@ -58,6 +61,7 @@ class UpdateSkuRequest(Model):
             'status': 'status',
             'risk_score': 'risk_score',
             'risk_level': 'risk_level',
+            'required_qty': 'required_qty',
             'category': 'category',
             'supplier_ids': 'supplier_ids'
         }
@@ -69,6 +73,7 @@ class UpdateSkuRequest(Model):
         self._status = status
         self._risk_score = risk_score
         self._risk_level = risk_level
+        self._required_qty = required_qty
         self._category = category
         self._supplier_ids = supplier_ids
 
@@ -209,7 +214,7 @@ class UpdateSkuRequest(Model):
         if risk_score is not None and risk_score > 100:  # noqa: E501
             raise ValueError("Invalid value for `risk_score`, must be a value less than or equal to `100`")  # noqa: E501
         if risk_score is not None and risk_score < -1:  # noqa: E501
-            raise ValueError("Invalid value for `risk_score`, must be a value greater than or equal to `0`")  # noqa: E501
+            raise ValueError("Invalid value for `risk_score`, must be a value greater than or equal to `-1`")  # noqa: E501
 
         self._risk_score = risk_score
 
@@ -233,6 +238,29 @@ class UpdateSkuRequest(Model):
         """
 
         self._risk_level = risk_level
+
+    @property
+    def required_qty(self) -> int:
+        """Gets the required_qty of this UpdateSkuRequest.
+
+
+        :return: The required_qty of this UpdateSkuRequest.
+        :rtype: int
+        """
+        return self._required_qty
+
+    @required_qty.setter
+    def required_qty(self, required_qty: int):
+        """Sets the required_qty of this UpdateSkuRequest.
+
+
+        :param required_qty: The required_qty of this UpdateSkuRequest.
+        :type required_qty: int
+        """
+        if required_qty is not None and required_qty < 0:  # noqa: E501
+            raise ValueError("Invalid value for `required_qty`, must be a value greater than or equal to `0`")  # noqa: E501
+
+        self._required_qty = required_qty
 
     @property
     def category(self) -> str:
