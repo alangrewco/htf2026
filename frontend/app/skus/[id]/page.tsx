@@ -66,7 +66,14 @@ export default function SkuDetailPage() {
                                     <Package className={`h-5 w-5 ${conf.color}`} />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h2 className="text-lg leading-none font-semibold">{sku.name}</h2>
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="text-lg leading-none font-semibold">{sku.name}</h2>
+                                        {sku.risk_score !== -1 && (
+                                            <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20 text-[10px] h-5 px-1.5 flex items-center gap-1 shrink-0">
+                                                🔗 SAP
+                                            </Badge>
+                                        )}
+                                    </div>
                                     <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
                                         <span className="font-mono text-xs">{sku.sku_code}</span>
                                         <span>·</span>

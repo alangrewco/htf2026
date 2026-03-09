@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
-import { Truck, Users, MapPin, CheckCircle2, ShieldCheck, Navigation, Anchor, PackageCheck, FileText, ArrowLeft, ChevronRight } from "lucide-react";
+import { Truck, Users, MapPin, CheckCircle2, ShieldCheck, Navigation, Anchor, PackageCheck, FileText, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -63,7 +63,14 @@ export default function ShipmentDetailPage() {
                                     <Truck className={`h-5 w-5 ${conf.color}`} />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h2 className="text-lg leading-none font-semibold">{shipment.shipment_code}</h2>
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="text-lg leading-none font-semibold">{shipment.shipment_code}</h2>
+                                        {((shipment as { risk_score?: number }).risk_score !== -1) && (
+                                            <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20 text-[10px] h-5 px-1.5 flex items-center gap-1 shrink-0">
+                                                🔗 SAP
+                                            </Badge>
+                                        )}
+                                    </div>
                                     <p className="mt-1">
                                         <Badge variant="outline" className={`${conf.bg} ${conf.color}`}>{conf.label}</Badge>
                                     </p>
