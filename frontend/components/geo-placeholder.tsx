@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { GlobeInstance } from "globe.gl";
-import { Globe, MapPin, Navigation } from "lucide-react";
+import { Anchor, Globe, MapPin, Navigation } from "lucide-react";
+import { ROUTE_PATHS, type RouteNode } from "@/lib/fixtures/reference/routes";
 
 type GlobeSignal = {
   id: string;
@@ -84,6 +85,28 @@ const escapeHtml = (value: string): string =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
+const routeColors = [
+  "#ff3366", "#33ccff", "#ff9933", "#66ff33", 
+  "#cc33ff", "#ffcc00", "#00ffcc", "#ff0066", 
+  "#99ff00", "#3366ff", "#ff5050", "#ffff66"
+];
+
+const pathsData = Object.entries(ROUTE_PATHS).map(([routeId, nodes], index) => ({
+  id: routeId,
+  path: nodes,
+  color: routeColors[index % routeColors.length],
+}));
+
+const portsData = Object.entries(ROUTE_PATHS).flatMap(([routeId, nodes], index) =>
+  nodes
+    .filter((node) => node.isPort)
+    .map((node) => ({
+      ...node,
+      color: routeColors[index % routeColors.length],
+      routeId,
+    }))
+);
+
 export function GeoPlaceholder() {
   const [globeReady, setGlobeReady] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -127,6 +150,61 @@ export function GeoPlaceholder() {
         .labelColor(() => "#e2e8f0")
         .labelAltitude(0.015)
         .labelResolution(5)
+        .pathsData(pathsData)
+        .pathPoints("path")
+        .pathPointLat((p: unknown) => (p as RouteNode).lat)
+        .pathPointLng((p: unknown) => (p as RouteNode).lng)
+        .pathColor((d: unknown) => (d as { color: string }).color)
+        .pathDashLength(0.08)
+        .pathDashGap(0.01)
+        .pathDashAnimateTime(12000)
+        .htmlElementsData(portsData)
+        .htmlElement((d: unknown) => {
+          const data = d as RouteNode & { color: string; routeId: string };
+          const el = document.createElement("div");
+          el.style.position = "relative";
+          el.style.pointerEvents = "auto";
+          el.style.cursor = "help";
+
+          const icon = document.createElement("div");
+          icon.innerHTML = "⚓";
+          icon.style.color = data.color;
+          icon.style.fontSize = "16px";
+          icon.style.lineHeight = "1";
+
+          const tooltip = document.createElement("div");
+          const routeName = data.routeId.replace(/^route_|_1$/g, "").replace(/_/g, " ");
+          const formattedRoute = routeName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          
+          tooltip.innerHTML = `
+            <div style="font-weight:600;margin-bottom:4px;">${escapeHtml(data.portName || "Port")}</div>
+            <div style="margin-bottom:4px;">Major regional shipping hub node.</div>
+            <div style="opacity:0.85;">Route · ${escapeHtml(formattedRoute)}</div>
+          `;
+          tooltip.style.position = "absolute";
+          tooltip.style.bottom = "100%";
+          tooltip.style.left = "50%";
+          tooltip.style.transform = "translate(-50%, -8px)";
+          tooltip.style.backgroundColor = "rgba(15,23,42,0.9)";
+          tooltip.style.color = "#e2e8f0";
+          tooltip.style.padding = "10px 12px";
+          tooltip.style.borderRadius = "10px";
+          tooltip.style.border = "1px solid rgba(148,163,184,0.25)";
+          tooltip.style.fontSize = "13px";
+          tooltip.style.whiteSpace = "nowrap";
+          tooltip.style.pointerEvents = "none";
+          tooltip.style.opacity = "0";
+          tooltip.style.transition = "opacity 0.2s ease";
+          tooltip.style.zIndex = "1000";
+          
+          el.appendChild(icon);
+          el.appendChild(tooltip);
+          
+          el.onmouseenter = () => { tooltip.style.opacity = "1"; };
+          el.onmouseleave = () => { tooltip.style.opacity = "0"; };
+          
+          return el;
+        })
         .pointsData(HARDCODED_SIGNALS)
         .pointOfView({ lat: 20, lng: 15, altitude: 2.1 }, 0);
 
@@ -184,11 +262,15 @@ export function GeoPlaceholder() {
         <div className="mt-2 flex items-center gap-3 text-[10px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <MapPin className="h-3 w-3" />
-            {HARDCODED_SIGNALS.length} mapped
+            {HARDCODED_SIGNALS.length} alerts
           </span>
           <span className="inline-flex items-center gap-1">
             <Navigation className="h-3 w-3" />
-            {HARDCODED_SIGNALS.length} tracked
+            {pathsData.length} routes mapped
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Anchor className="h-3 w-3" />
+            {portsData.length} ports
           </span>
         </div>
       </div>
