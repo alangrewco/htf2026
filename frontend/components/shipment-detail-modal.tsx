@@ -1,12 +1,14 @@
 "use client";
 
-import { Truck, Users, MapPin, CheckCircle2, ShieldCheck, Navigation, Anchor, PackageCheck, FileText } from "lucide-react";
+import { Truck, Users, MapPin, CheckCircle2, ShieldCheck, Navigation, Anchor, PackageCheck, FileText, Maximize2, X, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Shipment } from "@/sdk/model";
 import { ShipmentStatus } from "@/sdk/model";
+import { useRouter } from "next/navigation";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 import { statusConfig, InfoRow, SectionLabel } from "./detail-shared";
 
@@ -33,29 +35,53 @@ export function ShipmentDetailModal({
     onOpenSku?: (id: string) => void;
     onOpenSupplier?: (id: string) => void;
 }) {
+    const router = useRouter();
     const { portName, skuName, supplierName } = useReferenceData();
     if (!shipment) return null;
     const conf = statusConfig[shipment.status] ?? statusConfig[ShipmentStatus.planned];
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl max-h-[85vh] p-0 overflow-hidden border-border/50 bg-card/95 backdrop-blur-xl">
-                <ScrollArea className="max-h-[85vh]">
-                    <div className="pt-10 px-6 pb-6 space-y-6">
-                        {/* Header */}
-                        <DialogHeader className="space-y-3">
-                            <div className="flex items-start gap-4">
-                                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${conf.bg} border border-border/30`}>
-                                    <Truck className={`h-5 w-5 ${conf.color}`} />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <DialogTitle className="text-lg font-semibold">{shipment.shipment_code}</DialogTitle>
-                                    <DialogDescription className="mt-1">
-                                        <Badge variant="outline" className={`${conf.bg} ${conf.color}`}>{conf.label}</Badge>
-                                    </DialogDescription>
-                                </div>
+            <DialogContent className="sm:max-w-2xl max-h-[85vh] p-0 overflow-hidden border-border/50 bg-card/95 backdrop-blur-xl flex flex-col" showCloseButton={false}>
+                {/* Header Container */}
+                <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-border/50 shrink-0">
+                    <DialogHeader className="space-y-3 flex-1">
+                        <div className="flex items-start gap-4">
+                            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${conf.bg} border border-border/30`}>
+                                <Truck className={`h-5 w-5 ${conf.color}`} />
                             </div>
-                        </DialogHeader>
+                            <div className="min-w-0 flex-1">
+                                <DialogTitle className="text-lg font-semibold">{shipment.shipment_code}</DialogTitle>
+                                <DialogDescription className="mt-1">
+                                    <Badge variant="outline" className={`${conf.bg} ${conf.color}`}>{conf.label}</Badge>
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </DialogHeader>
+                    {/* Expand and Close Buttons */}
+                    <div className="flex items-center gap-1 shrink-0 ml-4">
+                        <button
+                            onClick={() => {
+                                onOpenChange(false);
+                                router.push(`/shipments/${shipment.id}`);
+                            }}
+                            aria-label="Open full page"
+                            className="flex h-7 w-7 items-center justify-center rounded-md opacity-70 text-foreground hover:opacity-100 hover:bg-accent/50 transition-opacity"
+                        >
+                            <Maximize2 className="h-4 w-4" />
+                        </button>
+                        <button
+                            onClick={() => onOpenChange(false)}
+                            aria-label="Close"
+                            className="flex h-7 w-7 items-center justify-center rounded-md opacity-70 text-foreground hover:opacity-100 hover:bg-accent/50 transition-opacity"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="p-6 space-y-6">
 
                         {/* Route Visualization */}
                         <div className="rounded-lg border border-border/50 bg-muted/10 p-4">
@@ -161,6 +187,19 @@ export function ShipmentDetailModal({
                                 </div>
                             </>
                         )}
+
+                        <Separator />
+                        <Button
+                            variant="ghost"
+                            className="w-full justify-between text-xs text-muted-foreground hover:text-foreground border border-transparent hover:border-border/50"
+                            onClick={() => {
+                                onOpenChange(false);
+                                router.push(`/shipments/${shipment.id}`);
+                            }}
+                        >
+                            View detailed logistics & nearby events
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
                     </div>
                 </ScrollArea>
             </DialogContent>

@@ -301,15 +301,29 @@ function ActionDetailModal({
                   What Happened
                 </h4>
                 <ul className="space-y-1.5">
-                  {card.whatHappened.map((item, i) => (
-                    <li
-                      key={i}
-                      className="flex items-start gap-2 text-sm leading-relaxed"
-                    >
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-muted-foreground shrink-0" />
-                      <span className="text-foreground/90">{item}</span>
-                    </li>
-                  ))}
+                  {card.whatHappened.map((item, i) => {
+                    const match = item.match(/(.*?)\s*\(\[(.*?)\]\(#\)\)$/);
+                    const text = match ? match[1] : item;
+                    const citation = match ? match[2] : null;
+
+                    return (
+                          <li
+                        key={i}
+                        className="flex items-start gap-2.5 text-sm leading-relaxed"
+                      >
+                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                        <div className="text-foreground/90 flex-1 leading-snug">
+                          {text}
+                          {citation && (<>
+                            <br/>
+                            <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 mt-0.5 rounded border border-border/50 bg-muted/20 text-muted-foreground/80 text-[10px] tracking-wide font-medium whitespace-nowrap hover:bg-muted/40 hover:text-foreground transition-colors">
+                              {citation}
+                            </a>
+                          </>)}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
 
