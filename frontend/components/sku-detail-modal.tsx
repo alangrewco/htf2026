@@ -1,6 +1,6 @@
 "use client";
 
-import { Package, Circle } from "lucide-react";
+import { Package, Circle, Maximize2, X, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -32,63 +32,105 @@ export function SKUDetailModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl max-h-[85vh] p-0 overflow-hidden border-border/50 bg-card/95 backdrop-blur-xl">
-                <ScrollArea className="max-h-[85vh]">
-                    <div className="pt-10 px-6 pb-6 space-y-6">
-                        {/* Header */}
-                        <DialogHeader className="space-y-3">
-                            <div className="flex items-start gap-4">
-                                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${conf.bg} ${conf.border} border`}>
-                                    <Package className={`h-5 w-5 ${conf.color}`} />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <DialogTitle className="text-lg font-semibold">{sku.name}</DialogTitle>
-                                    <DialogDescription className="flex items-center gap-2 mt-1">
-                                        <span className="font-mono text-xs">{sku.sku_code}</span>
-                                        <span>·</span>
-                                        <span>{sku.category}</span>
-                                    </DialogDescription>
-                                </div>
-                                <Badge variant="outline" className={`${conf.bg} ${conf.color} ${conf.border} shrink-0`}>{sku.risk_level} risk</Badge>
+            <DialogContent className="sm:max-w-2xl max-h-[85vh] p-0 overflow-hidden border-border/50 bg-card/95 backdrop-blur-xl flex flex-col" showCloseButton={false}>
+                {/* Header Container */}
+                <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-border/50 shrink-0">
+                    <DialogHeader className="space-y-3 flex-1">
+                        <div className="flex items-start gap-4">
+                            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${conf.bg} ${conf.border} border`}>
+                                <Package className={`h-5 w-5 ${conf.color}`} />
                             </div>
-                        </DialogHeader>
+                            <div className="min-w-0 flex-1">
+                                <DialogTitle className="text-lg font-semibold">{sku.name}</DialogTitle>
+                                <DialogDescription className="flex items-center gap-2 mt-1">
+                                    <span className="font-mono text-xs">{sku.sku_code}</span>
+                                    <span>·</span>
+                                    <span>{sku.category}</span>
+                                </DialogDescription>
+                            </div>
+                            <Badge variant="outline" className={`${conf.bg} ${conf.color} ${conf.border} shrink-0`}>{sku.risk_level} risk</Badge>
+                        </div>
+                    </DialogHeader>
+                    {/* Expand and Close Buttons */}
+                    <div className="flex items-center gap-1 shrink-0 ml-4">
+                        <button
+                            onClick={() => {
+                                onOpenChange(false);
+                                router.push(`/skus/${sku.id}`);
+                            }}
+                            aria-label="Open full page"
+                            className="flex h-7 w-7 items-center justify-center rounded-md opacity-70 text-foreground hover:opacity-100 hover:bg-accent/50 transition-opacity"
+                        >
+                            <Maximize2 className="h-4 w-4" />
+                        </button>
+                        <button
+                            onClick={() => onOpenChange(false)}
+                            aria-label="Close"
+                            className="flex h-7 w-7 items-center justify-center rounded-md opacity-70 text-foreground hover:opacity-100 hover:bg-accent/50 transition-opacity"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="p-6 space-y-6">
 
                         {/* Risk Score Bar */}
                         {sku.risk_score < 0 ? (
-                            <div className="rounded-lg p-3 bg-muted/5 border border-border/50">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-medium text-muted-foreground">Risk Score</span>
-                                    <span className="text-sm font-bold text-muted-foreground">Pending Analysis</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
-                                        <div className="h-full rounded-full transition-all duration-500 bg-muted" style={{ width: "100%" }} />
+                            <div
+                                onClick={() => {
+                                    onOpenChange(false);
+                                    router.push(`/skus/${sku.id}`);
+                                }}
+                                className="rounded-lg p-3 bg-muted/5 border border-border/50 cursor-pointer hover:bg-muted/10 transition-colors group flex items-center gap-3"
+                            >
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs font-medium text-muted-foreground">Risk Score</span>
+                                        <span className="text-sm font-bold text-muted-foreground">Pending Analysis</span>
                                     </div>
-                                    <Button 
-                                        size="sm" 
-                                        variant="secondary" 
-                                        className="h-7 text-[10px] shrink-0" 
-                                        onClick={() => {
-                                            onOpenChange(false);
-                                            router.push("/jobs?openModal=true");
-                                        }}
-                                    >
-                                        Start Analysis
-                                    </Button>
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
+                                            <div className="h-full rounded-full transition-all duration-500 bg-muted" style={{ width: "100%" }} />
+                                        </div>
+                                        <Button 
+                                            size="sm" 
+                                            variant="secondary" 
+                                            className="h-7 text-[10px] shrink-0" 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onOpenChange(false);
+                                                router.push("/jobs?openModal=true");
+                                            }}
+                                        >
+                                            Start Analysis
+                                        </Button>
+                                    </div>
                                 </div>
+                                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity shrink-0" />
                             </div>
                         ) : (
-                            <div className={`rounded-lg p-3 ${conf.bg} border ${conf.border}`}>
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-medium text-muted-foreground">Risk Score</span>
-                                    <span className={`text-sm font-bold ${conf.color}`}>{sku.risk_score}/100</span>
+                            <div 
+                                onClick={() => {
+                                    onOpenChange(false);
+                                    router.push(`/skus/${sku.id}`);
+                                }}
+                                className={`rounded-lg p-3 ${conf.bg} border ${conf.border} cursor-pointer hover:opacity-80 transition-opacity group flex items-center gap-3`}
+                            >
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs font-medium text-muted-foreground">Risk Score</span>
+                                        <span className={`text-sm font-bold ${conf.color}`}>{sku.risk_score}/100</span>
+                                    </div>
+                                    <div className="h-2 w-full rounded-full bg-muted/50 overflow-hidden">
+                                        <div
+                                            className={`h-full rounded-full transition-all duration-500 ${sku.risk_score >= 70 ? "bg-urgency-critical" : sku.risk_score >= 40 ? "bg-urgency-warning" : "bg-urgency-safe"}`}
+                                            style={{ width: `${sku.risk_score}%` }}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="h-2 w-full rounded-full bg-muted/50 overflow-hidden">
-                                    <div
-                                        className={`h-full rounded-full transition-all duration-500 ${sku.risk_score >= 70 ? "bg-urgency-critical" : sku.risk_score >= 40 ? "bg-urgency-warning" : "bg-urgency-safe"}`}
-                                        style={{ width: `${sku.risk_score}%` }}
-                                    />
-                                </div>
+                                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity shrink-0" />
                             </div>
                         )}
 
