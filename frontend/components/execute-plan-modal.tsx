@@ -50,6 +50,8 @@ export function ExecutePlanModal({
   const [waitingForUser, setWaitingForUser] = useState(false);
   const [input, setInput] = useState("");
   const [allDone, setAllDone] = useState(false);
+  const [showFeedbackInput, setShowFeedbackInput] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [draftEdits, setDraftEdits] = useState<Record<string, { to: string; subject: string; body: string }>>({});
   const [isPaused, setIsPaused] = useState(false);
   const isPausedRef = useRef(isPaused);
@@ -76,6 +78,8 @@ export function ExecutePlanModal({
       setWaitingForUser(false);
       setInput("");
       setAllDone(false);
+      setShowFeedbackInput(false);
+      setFeedbackSubmitted(false);
       setDraftEdits({});
       runningRef.current = false;
       // Start execution after a brief delay
@@ -269,7 +273,20 @@ export function ExecutePlanModal({
       timestamp: new Date(),
     });
     setInput("");
-  }, [input, addMessage]);
+
+    if (allDone) {
+      setTimeout(() => {
+        addMessage({
+          id: `exec-assistant-feedback-${Date.now()}`,
+          role: "assistant",
+          content: "Thank you for the feedback. Next time, I will be more concise in writing emails.",
+          timestamp: new Date(),
+        });
+      }, 600);
+      setFeedbackSubmitted(true);
+      setShowFeedbackInput(false);
+    }
+  }, [input, addMessage, allDone]);
 
   if (typeof window === "undefined" || !open) return null;
 
@@ -474,16 +491,55 @@ export function ExecutePlanModal({
                 </div>
               ) : allDone ? (
                 /* All done */
-                <div className="flex items-center justify-center">
-                  <Button
-                    size="sm"
-                    className="gap-2 text-xs"
-                    onClick={onClose}
+                showFeedbackInput ? (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }}
+                    className="flex-1 flex items-center gap-2 bg-muted/30 border border-border/50 rounded-xl px-4 py-2.5 w-full"
                   >
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Done — Close
-                  </Button>
-                </div>
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Enter your feedback..."
+                      className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none min-w-0"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!input.trim()}
+                      className={`p-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${input.trim()
+                          ? "bg-primary text-primary-foreground hover:bg-primary/80"
+                          : "text-muted-foreground opacity-40 cursor-not-allowed"
+                        }`}
+                    >
+                      <SendHorizonal className="h-4 w-4" />
+                    </button>
+                  </form>
+                ) : (
+                  <div className="flex items-center justify-center gap-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-2 text-xs"
+                      onClick={() => setShowFeedbackInput(true)}
+                      disabled={feedbackSubmitted}
+                    >
+                      <Mail className="h-3.5 w-3.5" />
+                      Feedback
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="gap-2 text-xs"
+                      onClick={onClose}
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Close
+                    </Button>
+                  </div>
+                )
               ) : (
                 /* Normal / running — status + pause button above chat input */
                 <div className="flex flex-col gap-3">
