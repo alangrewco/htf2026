@@ -16,7 +16,7 @@ class UpdateShipmentRequest(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, shipment_code=None, status=None, origin_port_id=None, destination_port_id=None, route_id=None, supplier_id=None, sku_ids=None, carrier=None, order_date=None, expected_delivery_date=None, events=None):  # noqa: E501
+    def __init__(self, shipment_code=None, status=None, origin_port_id=None, destination_port_id=None, route_id=None, supplier_id=None, skus=None, carrier=None, order_date=None, expected_delivery_date=None, events=None):  # noqa: E501
         """UpdateShipmentRequest - a model defined in OpenAPI
 
         :param shipment_code: The shipment_code of this UpdateShipmentRequest.  # noqa: E501
@@ -31,8 +31,8 @@ class UpdateShipmentRequest(Model):
         :type route_id: str
         :param supplier_id: The supplier_id of this UpdateShipmentRequest.  # noqa: E501
         :type supplier_id: str
-        :param sku_ids: The sku_ids of this UpdateShipmentRequest.  # noqa: E501
-        :type sku_ids: List[str]
+        :param skus: The skus of this UpdateShipmentRequest.  # noqa: E501
+        :type skus: Dict[str, int]
         :param carrier: The carrier of this UpdateShipmentRequest.  # noqa: E501
         :type carrier: str
         :param order_date: The order_date of this UpdateShipmentRequest.  # noqa: E501
@@ -49,7 +49,7 @@ class UpdateShipmentRequest(Model):
             'destination_port_id': str,
             'route_id': str,
             'supplier_id': str,
-            'sku_ids': List[str],
+            'skus': Dict[str, int],
             'carrier': str,
             'order_date': datetime,
             'expected_delivery_date': datetime,
@@ -63,7 +63,7 @@ class UpdateShipmentRequest(Model):
             'destination_port_id': 'destination_port_id',
             'route_id': 'route_id',
             'supplier_id': 'supplier_id',
-            'sku_ids': 'sku_ids',
+            'skus': 'skus',
             'carrier': 'carrier',
             'order_date': 'order_date',
             'expected_delivery_date': 'expected_delivery_date',
@@ -76,7 +76,7 @@ class UpdateShipmentRequest(Model):
         self._destination_port_id = destination_port_id
         self._route_id = route_id
         self._supplier_id = supplier_id
-        self._sku_ids = sku_ids
+        self._skus = skus
         self._carrier = carrier
         self._order_date = order_date
         self._expected_delivery_date = expected_delivery_date
@@ -220,25 +220,27 @@ class UpdateShipmentRequest(Model):
         self._supplier_id = supplier_id
 
     @property
-    def sku_ids(self) -> List[str]:
-        """Gets the sku_ids of this UpdateShipmentRequest.
+    def skus(self) -> Dict[str, int]:
+        """Gets the skus of this UpdateShipmentRequest.
 
+        Map of sku_id to quantity required  # noqa: E501
 
-        :return: The sku_ids of this UpdateShipmentRequest.
-        :rtype: List[str]
+        :return: The skus of this UpdateShipmentRequest.
+        :rtype: Dict[str, int]
         """
-        return self._sku_ids
+        return self._skus
 
-    @sku_ids.setter
-    def sku_ids(self, sku_ids: List[str]):
-        """Sets the sku_ids of this UpdateShipmentRequest.
+    @skus.setter
+    def skus(self, skus: Dict[str, int]):
+        """Sets the skus of this UpdateShipmentRequest.
 
+        Map of sku_id to quantity required  # noqa: E501
 
-        :param sku_ids: The sku_ids of this UpdateShipmentRequest.
-        :type sku_ids: List[str]
+        :param skus: The skus of this UpdateShipmentRequest.
+        :type skus: Dict[str, int]
         """
 
-        self._sku_ids = sku_ids
+        self._skus = skus
 
     @property
     def carrier(self) -> str:
