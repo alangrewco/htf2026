@@ -51,8 +51,12 @@ export function ExecutePlanModal({
   const [input, setInput] = useState("");
   const [allDone, setAllDone] = useState(false);
   const [draftEdits, setDraftEdits] = useState<Record<string, { to: string; subject: string; body: string }>>({});
-  // Cosmetic-only pause state — doesn't affect demo flow
   const [isPaused, setIsPaused] = useState(false);
+  const isPausedRef = useRef(isPaused);
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const runningRef = useRef(false);
@@ -104,7 +108,11 @@ export function ExecutePlanModal({
     (idx: number) => {
       if (idx >= executionSteps.length) {
         // All done!
-        setTimeout(() => {
+        const attemptDone = () => {
+          if (isPausedRef.current) {
+            setTimeout(attemptDone, 250);
+            return;
+          }
           addMessage({
             id: `exec-done-${Date.now()}`,
             role: "assistant",
@@ -114,7 +122,8 @@ export function ExecutePlanModal({
           });
           setAllDone(true);
           runningRef.current = false;
-        }, 600);
+        };
+        setTimeout(attemptDone, 600);
         return;
       }
 
@@ -132,8 +141,11 @@ export function ExecutePlanModal({
       });
 
       if (step.type === "autonomous") {
-        // Auto-advance after delay
-        setTimeout(() => {
+        const attemptComplete = () => {
+          if (isPausedRef.current) {
+            setTimeout(attemptComplete, 250);
+            return;
+          }
           updateLastAssistantStep("done");
           // Show preview result
           if (step.autonomousPreview) {
@@ -145,8 +157,18 @@ export function ExecutePlanModal({
             });
           }
           // Move to next step
-          setTimeout(() => processStep(idx + 1), 800);
-        }, 1500 + Math.random() * 1000);
+          const attemptNext = () => {
+            if (isPausedRef.current) {
+              setTimeout(attemptNext, 250);
+              return;
+            }
+            processStep(idx + 1);
+          };
+          setTimeout(attemptNext, 800);
+        };
+
+        // Auto-advance after delay
+        setTimeout(attemptComplete, 1500 + Math.random() * 1000);
       } else {
         // semi-autonomous or manual — wait for user
         setWaitingForUser(true);
@@ -172,7 +194,15 @@ export function ExecutePlanModal({
       content: `Starting execution of **"${actionLabel}"**. I'll walk you through each step — some I can handle automatically, others will need your input.`,
       timestamp: new Date(),
     });
-    setTimeout(() => processStep(0), 1000);
+    
+    const attemptStart = () => {
+      if (isPausedRef.current) {
+        setTimeout(attemptStart, 250);
+        return;
+      }
+      processStep(0);
+    };
+    setTimeout(attemptStart, 1000);
   }, [actionLabel, addMessage, processStep]);
 
   const handleUserAction = useCallback(
@@ -199,7 +229,11 @@ export function ExecutePlanModal({
       runningRef.current = true;
 
       // Acknowledge and move on
-      setTimeout(() => {
+      const attemptAck = () => {
+        if (isPausedRef.current) {
+          setTimeout(attemptAck, 250);
+          return;
+        }
         const ack =
           step.type === "semi-autonomous"
             ? "Great — I'll send that out now. ✅"
@@ -210,8 +244,17 @@ export function ExecutePlanModal({
           content: ack,
           timestamp: new Date(),
         });
-        setTimeout(() => processStep(stepIdx + 1), 800);
-      }, 600);
+        
+        const attemptNext = () => {
+          if (isPausedRef.current) {
+            setTimeout(attemptNext, 250);
+            return;
+          }
+          processStep(stepIdx + 1);
+        };
+        setTimeout(attemptNext, 800);
+      };
+      setTimeout(attemptAck, 600);
     },
     [currentStepIdx, executionSteps, addMessage, updateLastAssistantStep, processStep]
   );
@@ -447,8 +490,12 @@ export function ExecutePlanModal({
                   {/* Running status row */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      Executing plan…
+                      {isPaused ? (
+                        <PauseCircle className="h-3.5 w-3.5" />
+                      ) : (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      )}
+                      {isPaused ? "Paused" : "Executing…"}
                     </div>
                     <button
                       onClick={() => setIsPaused((p) => !p)}
