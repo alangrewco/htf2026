@@ -555,7 +555,9 @@ export default function NewsPage() {
                     </a>
                   </div>
                   <iframe
-                    src={selectedArticle.source_url} 
+                    // Due to content block issues, we hardcode to wikipedia:
+                    src="https://en.wikipedia.org/wiki/2025%E2%80%932026_China%E2%80%93Japan_diplomatic_crisis" 
+                    // src={selectedArticle.source_url}
                     className="w-full h-full border-0 bg-white"
                     title={`Source article for ${selectedArticle.headline}`}
                     sandbox="allow-same-origin allow-scripts"
