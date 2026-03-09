@@ -57,7 +57,7 @@ export const getGetCompanyProfileUrl = () => {
 
   
 
-  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/company/profile`
+  return `http://localhost:8080/api/v1/company/profile`
 }
 
 export const getCompanyProfile = async ( options?: RequestInit): Promise<getCompanyProfileResponse> => {
@@ -80,7 +80,7 @@ export const getCompanyProfile = async ( options?: RequestInit): Promise<getComp
 
 
 
-export const getGetCompanyProfileKey = () => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/company/profile`] as const;
+export const getGetCompanyProfileKey = () => [`http://localhost:8080/api/v1/company/profile`] as const;
 
 export type GetCompanyProfileQueryResult = NonNullable<Awaited<ReturnType<typeof getCompanyProfile>>>
 
@@ -140,7 +140,7 @@ export const getUpdateCompanyProfileUrl = () => {
 
   
 
-  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/company/profile`
+  return `http://localhost:8080/api/v1/company/profile`
 }
 
 export const updateCompanyProfile = async (updateCompanyProfileRequest: UpdateCompanyProfileRequest, options?: RequestInit): Promise<updateCompanyProfileResponse> => {
@@ -169,7 +169,7 @@ export const getUpdateCompanyProfileMutationFetcher = ( options?: RequestInit) =
     return updateCompanyProfile(arg, options);
   }
 }
-export const getUpdateCompanyProfileMutationKey = () => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/company/profile`] as const;
+export const getUpdateCompanyProfileMutationKey = () => [`http://localhost:8080/api/v1/company/profile`] as const;
 
 export type UpdateCompanyProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateCompanyProfile>>>
 
@@ -219,7 +219,7 @@ export const getGetRiskProfileUrl = () => {
 
   
 
-  return `https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/config/risk-profile`
+  return `http://localhost:8080/api/v1/config/risk-profile`
 }
 
 export const getRiskProfile = async ( options?: RequestInit): Promise<getRiskProfileResponse> => {
@@ -242,7 +242,7 @@ export const getRiskProfile = async ( options?: RequestInit): Promise<getRiskPro
 
 
 
-export const getGetRiskProfileKey = () => [`https://htf2026-backend-4mqbzcv3ya-uc.a.run.app/api/v1/config/risk-profile`] as const;
+export const getGetRiskProfileKey = () => [`http://localhost:8080/api/v1/config/risk-profile`] as const;
 
 export type GetRiskProfileQueryResult = NonNullable<Awaited<ReturnType<typeof getRiskProfile>>>
 
