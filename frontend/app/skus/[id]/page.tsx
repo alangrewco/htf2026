@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 import { Package, Circle, ArrowLeft, Truck } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import type { Shipment, Supplier } from "@/sdk/model";
+import { ShipmentDetailModal, SupplierDetailModal } from "@/components/detail-modals";
 
 const riskReports = {
     low: `**Risk Analysis Report**\n\n- Supplier reliability is high with a 98% on-time delivery rate over the past year.\n- No significant geopolitical or weather events currently impacting the main shipping routes ([Global Trade Monitor](#)).\n- Required quantities are well within the planned pipeline.\n- Inventory buffers are maintained at recommended levels.`,
@@ -20,8 +23,11 @@ import { NavbarSpacer } from "@/components/navbar";
 export default function SkuDetailPage() {
     const { id } = useParams<{ id: string }>();
     const router = useRouter();
-    const { skus, supplierName, shipmentsBySku } = useReferenceData();
+    const { skus, supplierName, shipmentsBySku, supplierMap, shipmentMap } = useReferenceData();
     const sku = skus.find(s => s.id === id);
+
+    const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
+    const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
     if (!sku) {
         return (
@@ -94,7 +100,7 @@ export default function SkuDetailPage() {
                                             <SectionLabel>Suppliers</SectionLabel>
                                             <div className="flex flex-wrap gap-2 mt-3">
                                                 {sku.supplier_ids.map((sId) => (
-                                                    <Badge key={sId} variant="outline" className="bg-muted/30 text-xs py-1.5 px-3">
+                                                    <Badge key={sId} variant="outline" className="bg-muted/30 text-xs py-1.5 px-3 cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setSelectedSupplier(supplierMap.get(sId) || null)}>
                                                         {supplierName(sId)}
                                                     </Badge>
                                                 ))}
@@ -115,8 +121,13 @@ export default function SkuDetailPage() {
                                                     const latestEvent = shipment.events && shipment.events.length > 0 
                                                         ? shipment.events[shipment.events.length - 1] 
                                                         : null;
+                                                    
+                                                    const eventTime = latestEvent 
+                                                        ? new Date(latestEvent.event_time).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+                                                        : "";
+
                                                     return (
-                                                        <div key={shipment.id} onClick={() => router.push(`/shipments/${shipment.id}`)} className="cursor-pointer group flex flex-col rounded-xl border border-border/50 bg-card p-4 hover:border-border hover:shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring gap-2">
+                                                        <div key={shipment.id} onClick={() => setSelectedShipment(shipmentMap.get(shipment.id) || null)} className="cursor-pointer group flex flex-col rounded-xl border border-border/50 bg-card p-4 hover:border-border hover:shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring gap-2">
                                                             <div className="flex items-start justify-between mb-3">
                                                                 <div className="flex items-center gap-2">
                                                                     <Truck className="h-4 w-4 text-muted-foreground" />
@@ -127,8 +138,12 @@ export default function SkuDetailPage() {
                                                                 </Badge>
                                                             </div>
                                                             {latestEvent && (
-                                                                <div className="text-xs text-muted-foreground/80 line-clamp-1 mb-1">
-                                                                    <span className="font-medium text-muted-foreground">{latestEvent.location}</span> &middot; {latestEvent.status}
+                                                                <div className="text-xs text-muted-foreground/80 mb-1">
+                                                                    <span className="font-medium text-foreground/90 line-clamp-1">{latestEvent.description}</span>
+                                                                    <div className="mt-1 flex items-center justify-between text-[10px] opacity-80">
+                                                                        <span>{latestEvent.location}</span>
+                                                                        <span>{eventTime}</span>
+                                                                    </div>
                                                                 </div>
                                                             )}
                                                             <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
@@ -251,6 +266,22 @@ export default function SkuDetailPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Modals from connections */}
+            <ShipmentDetailModal
+                shipment={selectedShipment}
+                open={!!selectedShipment}
+                onOpenChange={(o) => !o && setSelectedShipment(null)}
+                onOpenSku={(id) => { setSelectedShipment(null); router.push(`/skus/${id}`); }}
+                onOpenSupplier={(id) => { setSelectedShipment(null); setSelectedSupplier(supplierMap.get(id) || null); }}
+            />
+            <SupplierDetailModal
+                supplier={selectedSupplier}
+                open={!!selectedSupplier}
+                onOpenChange={(o) => !o && setSelectedSupplier(null)}
+                onOpenSku={(id) => { setSelectedSupplier(null); router.push(`/skus/${id}`); }}
+                onOpenShipment={(id) => { setSelectedSupplier(null); setSelectedShipment(shipmentMap.get(id) || null); }}
+            />
         </div>
     );
 }
