@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 import { useListArticles } from "@/sdk/articles/articles";
@@ -16,6 +16,8 @@ import { ROUTE_PATHS } from "@/lib/fixtures/reference/routes";
 import { ShipmentMap } from "@/components/shipment-map";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
+import { SKUDetailModal, SupplierDetailModal } from "@/components/detail-modals";
+import type { Sku, Supplier } from "@/sdk/model";
 
 const HARDCODED_GEO = [
   { match: "Houston", lat: 29.7604, lng: -95.3698 },
@@ -53,8 +55,11 @@ function getEventIcon(type: string) {
 export default function ShipmentDetailPage() {
     const { id } = useParams<{ id: string }>();
     const router = useRouter();
-    const { shipments, portName, skuName, supplierName } = useReferenceData();
+    const { shipments, portName, skuName, supplierName, supplierMap, skuMap } = useReferenceData();
     const { data: articlesResponse } = useListArticles();
+    
+    const [selectedSku, setSelectedSku] = useState<Sku | null>(null);
+    const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
     
     const shipment = shipments.find(s => s.id === id);
 
@@ -175,7 +180,7 @@ export default function ShipmentDetailPage() {
                                     <div className="grid grid-cols-2 gap-4 mt-3">
                                         <InfoRow icon={Anchor} label="Carrier" value={shipment.carrier || "—"} />
                                         <InfoRow icon={Users} label="Supplier" value={
-                                            <span className="hover:underline cursor-pointer text-primary" onClick={() => router.push(`/suppliers/${shipment.supplier_id}`)}>{supplierName(shipment.supplier_id)}</span>
+                                            <span className="hover:underline cursor-pointer text-primary" onClick={() => setSelectedSupplier(supplierMap.get(shipment.supplier_id) || null)}>{supplierName(shipment.supplier_id)}</span>
                                         } />
                                     </div>
                                 </div>
@@ -185,7 +190,7 @@ export default function ShipmentDetailPage() {
                                     <SectionLabel>Manifest Items</SectionLabel>
                                     <div className="flex flex-wrap gap-1.5 mt-3">
                                         {Object.entries(shipment.skus || {}).map(([skuId, qty]) => (
-                                            <Badge key={skuId} variant="outline" className="bg-muted/30 text-xs py-1.5 px-3 cursor-pointer hover:bg-muted/50 transition-colors border-border/60" onClick={() => router.push(`/skus/${skuId}`)}>
+                                            <Badge key={skuId} variant="outline" className="bg-muted/30 text-xs py-1.5 px-3 cursor-pointer hover:bg-muted/50 transition-colors border-border/60" onClick={() => setSelectedSku(skuMap.get(skuId) || null)}>
                                                 {skuName(skuId)} <span className="text-muted-foreground ml-1">(x{qty as number})</span>
                                             </Badge>
                                         ))}
@@ -320,6 +325,23 @@ export default function ShipmentDetailPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Modals from connections */}
+            <SKUDetailModal
+                sku={selectedSku}
+                open={!!selectedSku}
+                onOpenChange={(o) => !o && setSelectedSku(null)}
+                // We're already on the shipment page, so if they click a shipment from a SKU modal, just navigate there!
+                onOpenShipment={(id) => { setSelectedSku(null); router.push(`/shipments/${id}`); }}
+                onOpenSupplier={(id) => { setSelectedSku(null); setSelectedSupplier(supplierMap.get(id) || null); }}
+            />
+            <SupplierDetailModal
+                supplier={selectedSupplier}
+                open={!!selectedSupplier}
+                onOpenChange={(o) => !o && setSelectedSupplier(null)}
+                onOpenSku={(id) => { setSelectedSupplier(null); setSelectedSku(skuMap.get(id) || null); }}
+                onOpenShipment={(id) => { setSelectedSupplier(null); router.push(`/shipments/${id}`); }}
+            />
         </div>
     );
 }
