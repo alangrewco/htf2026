@@ -51,9 +51,9 @@ export default function SkuDetailPage() {
                     Back
                 </button>
 
-                <div className="rounded-xl border border-border/50 bg-card/95 backdrop-blur-xl flex flex-col shadow-sm flex-1 min-h-0 overflow-hidden">
+                <div className="flex flex-col flex-1 min-h-0">
                     {/* Header Container */}
-                    <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-border/50 shrink-0">
+                    <div className="flex items-start justify-between pb-6 shrink-0 border-b border-border/50">
                         <div className="flex flex-col gap-2 text-center sm:text-left space-y-3 flex-1">
                             <div className="flex items-start gap-4">
                                 <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${conf.bg} ${conf.border} border`}>
@@ -72,10 +72,10 @@ export default function SkuDetailPage() {
                         </div>
                     </div>
 
-                    <div className="flex flex-1 min-h-0 min-w-0 flex-col md:flex-row border-t border-border/50">
+                    <div className="flex flex-1 min-h-0 min-w-0 flex-col md:flex-row pt-6">
                         {/* LEFT COLUMN - Details & Analytics */}
-                        <ScrollArea className="flex-1 min-w-0 md:border-r border-border/50">
-                            <div className="p-6 md:p-8 space-y-8">
+                        <ScrollArea className="flex-1 min-w-0 md:border-r border-border/50 md:pr-8">
+                            <div className="pb-8 space-y-8">
                                 {/* SKU Information */}
                                 <div>
                                     <SectionLabel>SKU Details</SectionLabel>
@@ -112,8 +112,11 @@ export default function SkuDetailPage() {
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
                                                 {skuShipments.map((shipment) => {
                                                     const shipmentConf = statusConfig[shipment.status];
+                                                    const latestEvent = shipment.events && shipment.events.length > 0 
+                                                        ? shipment.events[shipment.events.length - 1] 
+                                                        : null;
                                                     return (
-                                                        <div key={shipment.id} onClick={() => router.push(`/shipments/${shipment.id}`)} className="cursor-pointer group flex flex-col rounded-xl border border-border/50 bg-card p-4 hover:border-border hover:shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring">
+                                                        <div key={shipment.id} onClick={() => router.push(`/shipments/${shipment.id}`)} className="cursor-pointer group flex flex-col rounded-xl border border-border/50 bg-card p-4 hover:border-border hover:shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring gap-2">
                                                             <div className="flex items-start justify-between mb-3">
                                                                 <div className="flex items-center gap-2">
                                                                     <Truck className="h-4 w-4 text-muted-foreground" />
@@ -123,7 +126,12 @@ export default function SkuDetailPage() {
                                                                     {shipmentConf?.label || shipment.status}
                                                                 </Badge>
                                                             </div>
-                                                            <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
+                                                            {latestEvent && (
+                                                                <div className="text-xs text-muted-foreground/80 line-clamp-1 mb-1">
+                                                                    <span className="font-medium text-muted-foreground">{latestEvent.location}</span> &middot; {latestEvent.status}
+                                                                </div>
+                                                            )}
+                                                            <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
                                                                 <span>Qty: <span className="font-medium text-foreground">{shipment.skus?.[sku.id] || 0}</span></span>
                                                             </div>
                                                         </div>
@@ -176,8 +184,8 @@ export default function SkuDetailPage() {
                         </ScrollArea>
 
                         {/* RIGHT COLUMN - Risk Analysis */}
-                        <ScrollArea className="w-full md:w-[45%] shrink-0 min-w-0 bg-muted/5">
-                            <div className="p-6 md:p-8 space-y-6">
+                        <ScrollArea className="w-full md:w-[45%] shrink-0 min-w-0 md:pl-8">
+                            <div className="pb-8 space-y-6">
                                 {/* Risk Score Bar */}
                                 {sku.risk_score < 0 ? (
                                     <div className="rounded-xl p-4 md:p-5 bg-card border border-border/50 flex items-center gap-3 shadow-sm">
