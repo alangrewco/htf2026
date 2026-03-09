@@ -791,6 +791,7 @@ components:
         - status
         - risk_score
         - risk_level
+        - required_qty
         - category
         - supplier_ids
         - created_at
@@ -814,6 +815,9 @@ components:
           maximum: 100
         risk_level:
           $ref: '#/components/schemas/SkuRiskLevel'
+        required_qty:
+          type: integer
+          minimum: 0
         category:
           type: string
         supplier_ids:
@@ -829,7 +833,7 @@ components:
 
     CreateSkuRequest:
       type: object
-      required: [sku_code, name, description, unit_of_measure, status, risk_score, risk_level, category, supplier_ids]
+      required: [sku_code, name, description, unit_of_measure, status, risk_score, risk_level, required_qty, category, supplier_ids]
       properties:
         sku_code:
           type: string
@@ -847,6 +851,9 @@ components:
           maximum: 100
         risk_level:
           $ref: '#/components/schemas/SkuRiskLevel'
+        required_qty:
+          type: integer
+          minimum: 0
         category:
           type: string
         supplier_ids:
@@ -875,6 +882,9 @@ components:
           maximum: 100
         risk_level:
           $ref: '#/components/schemas/SkuRiskLevel'
+        required_qty:
+          type: integer
+          minimum: 0
         category:
           type: string
         supplier_ids:
@@ -997,7 +1007,7 @@ components:
         - destination_port_id
         - route_id
         - supplier_id
-        - sku_ids
+        - skus
         - carrier
         - order_date
         - expected_delivery_date
@@ -1019,10 +1029,12 @@ components:
           type: string
         supplier_id:
           type: string
-        sku_ids:
-          type: array
-          items:
-            type: string
+        skus:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 1
+          description: Map of sku_id to quantity required
         carrier:
           type: string
         order_date:
@@ -1051,7 +1063,7 @@ components:
         - destination_port_id
         - route_id
         - supplier_id
-        - sku_ids
+        - skus
         - carrier
         - order_date
         - expected_delivery_date
@@ -1069,10 +1081,12 @@ components:
           type: string
         supplier_id:
           type: string
-        sku_ids:
-          type: array
-          items:
-            type: string
+        skus:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 1
+          description: Map of sku_id to quantity required
         carrier:
           type: string
         order_date:
@@ -1103,10 +1117,12 @@ components:
           type: string
         supplier_id:
           type: string
-        sku_ids:
-          type: array
-          items:
-            type: string
+        skus:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 1
+          description: Map of sku_id to quantity required
         carrier:
           type: string
         order_date:
