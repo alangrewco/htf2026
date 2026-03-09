@@ -20,6 +20,8 @@ export interface UpdateSkuRequest {
    */
   risk_score?: number;
   risk_level?: SkuRiskLevel;
+  /** @minimum 0 */
+  required_qty?: number;
   category?: string;
   supplier_ids?: string[];
 }
