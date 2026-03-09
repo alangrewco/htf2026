@@ -27,6 +27,7 @@ class TestReferenceController(BaseTestCase):
             "status": "active",
             "risk_score": 42,
             "risk_level": "medium",
+            "required_qty": 0,
             "category": "lighting",
             "supplier_ids": [],
         }
@@ -88,6 +89,7 @@ class TestReferenceController(BaseTestCase):
             "status": "active",
             "risk_score": 35,
             "risk_level": "low",
+            "required_qty": 0,
             "category": "lighting",
             "supplier_ids": [],
         }
@@ -148,7 +150,7 @@ class TestReferenceController(BaseTestCase):
             "destination_port_id": ports["items"][1]["id"],
             "route_id": routes["items"][0]["id"],
             "supplier_id": supplier["id"],
-            "sku_ids": [sku["id"]],
+            "skus": {sku["id"]: 1},
             "carrier": "Maersk",
             "order_date": "2026-03-01T10:00:00Z",
             "expected_delivery_date": "2026-03-10T10:00:00Z",
