@@ -406,7 +406,7 @@ function DataSectionContent() {
                     key={shipment.id}
                     shipment={shipment}
                     index={i}
-                    skuNames={shipment.sku_ids
+                    skuNames={Object.keys(shipment.skus || {})
                       .map((id) => resolveSkuName(id))
                       .sort((a, b) => a.localeCompare(b))}
                     supplierName={resolveSupplierName(shipment.supplier_id)}

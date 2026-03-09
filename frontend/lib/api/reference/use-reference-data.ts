@@ -116,7 +116,8 @@ export const useReferenceData = () => {
   const shipmentsBySku = useMemo(() => {
     const map = new Map<string, ApiShipment[]>();
     for (const s of rawShipments) {
-      for (const skuId of s.sku_ids) {
+      const skus = s.skus || {};
+      for (const skuId of Object.keys(skus)) {
         const existing = map.get(skuId);
         if (existing) existing.push(s);
         else map.set(skuId, [s]);

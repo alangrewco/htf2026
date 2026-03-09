@@ -44,7 +44,7 @@ class ReferenceService:
         self._ensure_initialized()
         self._require(
             payload,
-            ["sku_code", "name", "description", "unit_of_measure", "status", "risk_score", "risk_level", "category", "supplier_ids"],
+            ["sku_code", "name", "description", "unit_of_measure", "status", "risk_score", "risk_level", "required_qty", "category", "supplier_ids"],
         )
         status = self._validate_master_status(payload.status)
         risk_score = self._validate_risk_score(payload.risk_score)
@@ -66,6 +66,7 @@ class ReferenceService:
                 status=status,
                 risk_score=risk_score,
                 risk_level=risk_level,
+                required_qty=payload.required_qty,
                 category=payload.category,
                 supplier_ids_json=payload.supplier_ids,
                 created_at=now,
@@ -105,6 +106,9 @@ class ReferenceService:
                 changed = True
             if payload.risk_level is not None:
                 row.risk_level = self._validate_sku_risk_level(payload.risk_level)
+                changed = True
+            if payload.required_qty is not None:
+                row.required_qty = payload.required_qty
                 changed = True
             if payload.category is not None:
                 row.category = payload.category
@@ -210,7 +214,7 @@ class ReferenceService:
                 "destination_port_id",
                 "route_id",
                 "supplier_id",
-                "sku_ids",
+                "skus",
                 "carrier",
                 "order_date",
                 "expected_delivery_date",
@@ -237,7 +241,7 @@ class ReferenceService:
                 destination_port_id=payload.destination_port_id,
                 route_id=payload.route_id,
                 supplier_id=payload.supplier_id,
-                sku_ids_json=payload.sku_ids,
+                skus_json=payload.skus,
                 carrier=payload.carrier,
                 order_date=order_date,
                 expected_delivery_date=expected_delivery_date,
@@ -277,8 +281,8 @@ class ReferenceService:
             if payload.supplier_id is not None:
                 row.supplier_id = payload.supplier_id
                 changed = True
-            if payload.sku_ids is not None:
-                row.sku_ids_json = payload.sku_ids
+            if payload.skus is not None:
+                row.skus_json = payload.skus
                 changed = True
             if payload.carrier is not None:
                 row.carrier = payload.carrier
@@ -306,7 +310,7 @@ class ReferenceService:
                         "destination_port_id": row.destination_port_id,
                         "route_id": row.route_id,
                         "supplier_id": row.supplier_id,
-                        "sku_ids": row.sku_ids_json,
+                        "skus": row.skus_json,
                     },
                 )(),
             )
@@ -342,9 +346,9 @@ class ReferenceService:
         if not repo.route_exists(payload.route_id):
             errors["route_id"] = payload.route_id
 
-        missing_skus = repo.sku_ids_exist(payload.sku_ids)
+        missing_skus = repo.sku_ids_exist(list(payload.skus.keys()))
         if missing_skus:
-            errors["missing_sku_ids"] = missing_skus
+            errors["missing_skus"] = missing_skus
 
         if errors:
             raise ValidationError("Invalid shipment references.", errors)
@@ -445,6 +449,7 @@ class ReferenceService:
             status=row.status,
             risk_score=row.risk_score,
             risk_level=row.risk_level,
+            required_qty=row.required_qty,
             category=row.category,
             supplier_ids=row.supplier_ids_json or [],
             created_at=row.created_at,
@@ -476,7 +481,7 @@ class ReferenceService:
             destination_port_id=row.destination_port_id,
             route_id=row.route_id,
             supplier_id=row.supplier_id,
-            sku_ids=row.sku_ids_json,
+            skus=row.skus_json,
             carrier=row.carrier,
             order_date=row.order_date,
             expected_delivery_date=row.expected_delivery_date,

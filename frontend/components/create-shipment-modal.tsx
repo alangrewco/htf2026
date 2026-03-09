@@ -3,10 +3,10 @@
 import { useState, useCallback } from "react";
 import {
   WizardShell,
+  StepIndicator,
   ImportSection,
   FormField,
   SelectField,
-  PairPicker,
   type PickerItem,
 } from "@/components/create-modal-shared";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ import { useSWRConfig } from "swr";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-const STEPS = ["Shipment Details", "SKU & Supplier Pairs"];
+const STEPS = ["Shipment Details", "SKU Quantities"];
 
 // ── Main Component ───────────────────────────────────────
 
@@ -42,23 +42,24 @@ export function CreateShipmentModal({
     status: "planned" as CreateShipmentRequest["status"],
     origin_port_id: "",
     destination_port_id: "",
+    supplier_id: "",
     carrier: "",
     order_date: "",
     expected_delivery_date: "",
   });
 
-  // Step 2: SKU/Supplier pairs
-  const [pairs, setPairs] = useState<
-    { key: string; skuId: string; supplierId: string }[]
-  >([{ key: crypto.randomUUID(), skuId: "", supplierId: "" }]);
+  // Step 2: SKU & Qty Pairs
+  const [skuPairs, setSkuPairs] = useState<
+    { key: string; skuId: string; qty: number }[]
+  >([{ key: crypto.randomUUID(), skuId: "", qty: 1 }]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const reset = useCallback(() => {
     setStep(0);
     setDirection(1);
-    setForm({ shipment_code: "", status: "planned", origin_port_id: "", destination_port_id: "", carrier: "", order_date: "", expected_delivery_date: "" });
-    setPairs([{ key: crypto.randomUUID(), skuId: "", supplierId: "" }]);
+    setForm({ shipment_code: "", status: "planned", origin_port_id: "", destination_port_id: "", supplier_id: "", carrier: "", order_date: "", expected_delivery_date: "" });
+    setSkuPairs([{ key: crypto.randomUUID(), skuId: "", qty: 1 }]);
   }, []);
 
   const handleOpenChange = useCallback(
@@ -71,39 +72,32 @@ export function CreateShipmentModal({
 
   const canAdvance =
     step === 0
-      ? Boolean(form.shipment_code && form.origin_port_id && form.destination_port_id)
-      : pairs.some((p) => p.skuId && p.supplierId);
+      ? Boolean(form.shipment_code && form.origin_port_id && form.destination_port_id && form.supplier_id)
+      : skuPairs.some((p) => p.skuId && p.qty > 0);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // Collect all valid pairs grouped by supplier
-      const validPairs = pairs.filter((p) => p.skuId && p.supplierId);
+      const validPairs = skuPairs.filter((p) => p.skuId && p.qty > 0);
 
-      // Group by supplierId — the API takes a single supplier_id per shipment
-      const bySupplier = new Map<string, string[]>();
+      const skusMap: Record<string, number> = {};
       for (const p of validPairs) {
-        const existing = bySupplier.get(p.supplierId);
-        if (existing) existing.push(p.skuId);
-        else bySupplier.set(p.supplierId, [p.skuId]);
+        skusMap[p.skuId] = (skusMap[p.skuId] || 0) + p.qty;
       }
 
-      // Create one shipment per unique supplier (API constraint: single supplier_id)
-      for (const [supplierId, skuIds] of bySupplier) {
-        await createShipment.trigger({
-          shipment_code: form.shipment_code + (bySupplier.size > 1 ? `-${supplierId.slice(-4)}` : ""),
-          status: form.status,
-          origin_port_id: form.origin_port_id,
-          destination_port_id: form.destination_port_id,
-          route_id: "",
-          supplier_id: supplierId,
-          sku_ids: [...new Set(skuIds)],
-          carrier: form.carrier,
-          order_date: form.order_date ? new Date(form.order_date).toISOString() : new Date().toISOString(),
-          expected_delivery_date: form.expected_delivery_date ? new Date(form.expected_delivery_date).toISOString() : new Date().toISOString(),
-          events: [],
-        });
-      }
+      await createShipment.trigger({
+        shipment_code: form.shipment_code,
+        status: form.status,
+        origin_port_id: form.origin_port_id,
+        destination_port_id: form.destination_port_id,
+        route_id: "",
+        supplier_id: form.supplier_id,
+        skus: skusMap,
+        carrier: form.carrier,
+        order_date: form.order_date ? new Date(form.order_date).toISOString() : new Date().toISOString(),
+        expected_delivery_date: form.expected_delivery_date ? new Date(form.expected_delivery_date).toISOString() : new Date().toISOString(),
+        events: [],
+      });
 
       mutate((key: unknown) => typeof key === "string", undefined, { revalidate: true });
       handleOpenChange(false);
@@ -199,6 +193,14 @@ export function CreateShipmentModal({
                 ]}
               />
             </FormField>
+            <FormField label="Supplier" required>
+              <SelectField
+                value={form.supplier_id}
+                onChange={(v) => setForm((f) => ({ ...f, supplier_id: v }))}
+                options={supplierPickerItems.map(s => ({ value: s.id, label: s.label }))}
+                placeholder="Select supplier…"
+              />
+            </FormField>
             <FormField label="Carrier">
               <Input
                 className="h-8 text-xs"
@@ -230,25 +232,59 @@ export function CreateShipmentModal({
       )}
 
       {step === 1 && (
-        <PairPicker
-          pairs={pairs}
-          onAddPair={() =>
-            setPairs((prev) => [
-              ...prev,
-              { key: crypto.randomUUID(), skuId: "", supplierId: "" },
-            ])
-          }
-          onRemovePair={(key) =>
-            setPairs((prev) => prev.filter((p) => p.key !== key))
-          }
-          onUpdatePair={(key, field, value) =>
-            setPairs((prev) =>
-              prev.map((p) => (p.key === key ? { ...p, [field]: value } : p))
-            )
-          }
-          skuItems={skuPickerItems}
-          supplierItems={supplierPickerItems}
-        />
+        <div className="space-y-3">
+          <label className="text-xs font-medium text-foreground/80">
+            SKUs in this shipment
+          </label>
+          {skuPairs.map((pair) => (
+            <div
+              key={pair.key}
+              className="flex items-start gap-2 rounded-lg border border-border/50 bg-card/50 p-3"
+            >
+              <div className="flex-1 space-y-2">
+                <SelectField
+                  value={pair.skuId}
+                  onChange={(v) =>
+                    setSkuPairs((prev) =>
+                      prev.map((p) => (p.key === pair.key ? { ...p, skuId: v } : p))
+                    )
+                  }
+                  options={skuPickerItems.map((s) => ({ value: s.id, label: s.label }))}
+                  placeholder="Select SKU…"
+                />
+                <Input
+                  type="number"
+                  min={1}
+                  className="h-8 text-xs"
+                  placeholder="Quantity"
+                  value={pair.qty}
+                  onChange={(e) =>
+                    setSkuPairs((prev) =>
+                      prev.map((p) =>
+                        p.key === pair.key ? { ...p, qty: parseInt(e.target.value) || 0 } : p
+                      )
+                    )
+                  }
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setSkuPairs((prev) => prev.filter((p) => p.key !== pair.key))}
+                className="mt-1 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+              >
+                <span className="sr-only">Remove</span>
+                &times;
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => setSkuPairs((prev) => [...prev, { key: crypto.randomUUID(), skuId: "", qty: 1 }])}
+            className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors cursor-pointer"
+          >
+            Add SKU
+          </button>
+        </div>
       )}
     </WizardShell>
   );

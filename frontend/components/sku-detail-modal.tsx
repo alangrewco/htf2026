@@ -97,6 +97,7 @@ export function SKUDetailModal({
                             <div className="grid grid-cols-2 gap-4">
                                 <InfoRow icon={Package} label="Unit of Measure" value={sku.unit_of_measure} />
                                 <InfoRow icon={Circle} label="Status" value={sku.status} />
+                                <InfoRow icon={Package} label="Required Qty" value={sku.required_qty?.toString() || "0"} />
                             </div>
                         </div>
 
@@ -129,6 +130,9 @@ export function SKUDetailModal({
                                                 <div key={shipment.id} className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/10 px-4 py-2.5">
                                                     <div className="flex items-center gap-3">
                                                         <span className="text-sm font-mono font-medium">{shipment.shipment_code}</span>
+                                                        <Badge variant="outline" className="text-[10px] bg-muted/30">
+                                                            Qty: {shipment.skus?.[sku.id] || 0}
+                                                        </Badge>
                                                     </div>
                                                     <div className="flex items-center gap-3">
                                                         <Badge variant="outline" className={`text-[10px] ${shipmentConf?.bg} ${shipmentConf?.color}`}>
@@ -142,6 +146,45 @@ export function SKUDetailModal({
                                 </div>
                             </>
                         )}
+
+                        {/* Quantity Tracking Checkout */}
+                        {skuShipments.length > 0 && (() => {
+                            let onTime = 0;
+                            let planned = 0;
+                            let delayed = 0;
+                            skuShipments.forEach(s => {
+                                const qty = s.skus?.[sku.id] || 0;
+                                if (s.status === "in_transit" || s.status === "delivered") onTime += qty;
+                                else if (s.status === "planned") planned += qty;
+                                else if (s.status === "delayed") delayed += qty;
+                            });
+                            return (
+                                <>
+                                    <Separator />
+                                    <div>
+                                        <SectionLabel>Quantity Tracking</SectionLabel>
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+                                            <div className="rounded-lg border border-border/50 bg-muted/10 p-3 flex flex-col items-center justify-center">
+                                                <div className="text-[10px] uppercase text-muted-foreground font-semibold tracking-wide">Required</div>
+                                                <div className="text-xl font-bold mt-1">{sku.required_qty || 0}</div>
+                                            </div>
+                                            <div className="rounded-lg border border-border/50 bg-urgency-safe/10 border-urgency-safe/20 p-3 flex flex-col items-center justify-center">
+                                                <div className="text-[10px] uppercase text-urgency-safe font-semibold tracking-wide">On Time</div>
+                                                <div className="text-xl font-bold text-urgency-safe mt-1">{onTime}</div>
+                                            </div>
+                                            <div className="rounded-lg border border-border/50 bg-primary/10 border-primary/20 p-3 flex flex-col items-center justify-center">
+                                                <div className="text-[10px] uppercase text-primary font-semibold tracking-wide">Planned</div>
+                                                <div className="text-xl font-bold text-primary mt-1">{planned}</div>
+                                            </div>
+                                            <div className="rounded-lg border border-border/50 bg-urgency-critical/10 border-urgency-critical/20 p-3 flex flex-col items-center justify-center">
+                                                <div className="text-[10px] uppercase text-urgency-critical font-semibold tracking-wide">Delayed</div>
+                                                <div className="text-xl font-bold text-urgency-critical mt-1">{delayed}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            );
+                        })()}
                     </div>
                 </ScrollArea>
             </DialogContent>

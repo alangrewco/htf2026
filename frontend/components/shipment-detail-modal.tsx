@@ -83,9 +83,9 @@ export function ShipmentDetailModal({
                         <div>
                             <SectionLabel>SKUs in Shipment</SectionLabel>
                             <div className="flex flex-wrap gap-1.5">
-                                {shipment.sku_ids.map((skuId) => (
+                                {Object.entries(shipment.skus || {}).map(([skuId, qty]) => (
                                     <Badge key={skuId} variant="outline" className="bg-muted/30 text-[10px] font-mono">
-                                        {skuName(skuId)}
+                                        {skuName(skuId)} (x{qty as number})
                                     </Badge>
                                 ))}
                             </div>

@@ -18,6 +18,7 @@ class SkuRecord(Base):
     risk_score: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     risk_level: Mapped[str] = mapped_column(String(32), nullable=False, default="low")
     category: Mapped[str] = mapped_column(String(120), nullable=False, default="general")
+    required_qty: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     supplier_ids_json: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
@@ -56,7 +57,7 @@ class ShipmentRecord(Base):
     destination_port_id: Mapped[str] = mapped_column(String(64), nullable=False)
     route_id: Mapped[str] = mapped_column(String(64), nullable=False)
     supplier_id: Mapped[str] = mapped_column(String(64), nullable=False)
-    sku_ids_json: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    skus_json: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
     carrier: Mapped[str] = mapped_column(String(120), nullable=False, default="Unknown")
     order_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     expected_delivery_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)

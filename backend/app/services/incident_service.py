@@ -138,7 +138,7 @@ class IncidentService:
                     "destination_port_id": x.destination_port_id,
                     "route_id": x.route_id,
                     "supplier_id": x.supplier_id,
-                    "sku_ids": x.sku_ids_json or [],
+                    "sku_ids": list((x.skus_json or {}).keys()),
                 }
                 for x in ref.list_shipments()
             ],

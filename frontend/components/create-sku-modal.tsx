@@ -96,6 +96,7 @@ export function CreateSkuModal({
     // -1 indicates freshly created SKU that yet to be analyzed.
     risk_score: -1,
     risk_level: SkuRiskLevel.low,
+    required_qty: 0,
     category: "",
     supplier_ids: [],
   });
@@ -116,7 +117,7 @@ export function CreateSkuModal({
   const reset = useCallback(() => {
     setStep(0);
     setDirection(1);
-    setSkuForm({ sku_code: "", name: "", description: "", unit_of_measure: "", status: MasterStatus.active, risk_score: 0, risk_level: SkuRiskLevel.low, category: "", supplier_ids: [] });
+    setSkuForm({ sku_code: "", name: "", description: "", unit_of_measure: "", status: MasterStatus.active, risk_score: 0, risk_level: SkuRiskLevel.low, required_qty: 0, category: "", supplier_ids: [] });
     setSelectedSupplierIds([]);
     setInlineSuppliers([]);
     setEditingSupplier(null);
@@ -211,7 +212,7 @@ export function CreateSkuModal({
             destination_port_id: sh.destination_port_id,
             route_id: "",
             supplier_id: supplierId,
-            sku_ids: [newSkuId],
+            skus: { [newSkuId]: skuForm.required_qty || 1 },
             carrier: sh.carrier,
             order_date: sh.order_date
               ? new Date(sh.order_date).toISOString()
@@ -310,24 +311,36 @@ export function CreateSkuModal({
               onChange={(e) => setSkuForm((f) => ({ ...f, description: e.target.value }))}
             />
           </FormField>
-          <FormField label="Category" required>
-            <SelectField
-              value={skuForm.category}
-              onChange={(v) => setSkuForm((f) => ({ ...f, category: v }))}
-              options={[
-                { value: "Connectivity", label: "Connectivity" },
-                { value: "Electrical", label: "Electrical" },
-                { value: "Electronics", label: "Electronics" },
-                { value: "Hardware", label: "Hardware" },
-                { value: "Metal Components", label: "Metal Components" },
-                { value: "Packaging", label: "Packaging" },
-                { value: "Sealing", label: "Sealing" },
-                { value: "Structural", label: "Structural" },
-                { value: "Thermal", label: "Thermal" },
-              ]}
-              placeholder="Select category"
-            />
-          </FormField>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Category" required>
+              <SelectField
+                value={skuForm.category}
+                onChange={(v) => setSkuForm((f) => ({ ...f, category: v }))}
+                options={[
+                  { value: "Connectivity", label: "Connectivity" },
+                  { value: "Electrical", label: "Electrical" },
+                  { value: "Electronics", label: "Electronics" },
+                  { value: "Hardware", label: "Hardware" },
+                  { value: "Metal Components", label: "Metal Components" },
+                  { value: "Packaging", label: "Packaging" },
+                  { value: "Sealing", label: "Sealing" },
+                  { value: "Structural", label: "Structural" },
+                  { value: "Thermal", label: "Thermal" },
+                ]}
+                placeholder="Select category"
+              />
+            </FormField>
+            <FormField label="Required Qty" required>
+              <Input
+                type="number"
+                min={0}
+                className="h-8 text-xs"
+                placeholder="0"
+                value={skuForm.required_qty === 0 ? "" : skuForm.required_qty}
+                onChange={(e) => setSkuForm((f) => ({ ...f, required_qty: parseInt(e.target.value) || 0 }))}
+              />
+            </FormField>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Unit of Measure">
               <Input
