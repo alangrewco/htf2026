@@ -40,6 +40,7 @@ def test_reference_service_create_and_update(service):
             status='active',
             risk_score=50,
             risk_level='medium',
+            required_qty=0,
             category='lighting',
             supplier_ids=[],
         )
@@ -67,7 +68,7 @@ def test_reference_service_create_and_update(service):
             destination_port_id=ports.items[1].id,
             route_id=routes.items[0].id,
             supplier_id=supplier.id,
-            sku_ids=[sku.id],
+            skus={sku.id: 1},
             carrier='Maersk',
             order_date='2026-03-01T10:00:00Z',
             expected_delivery_date='2026-03-10T10:00:00Z',
@@ -124,6 +125,7 @@ def test_create_shipment_rejects_invalid_event_shape(service):
             status='active',
             risk_score=25,
             risk_level='low',
+            required_qty=0,
             category='electronics',
             supplier_ids=[supplier.id],
         )
@@ -138,7 +140,7 @@ def test_create_shipment_rejects_invalid_event_shape(service):
                 destination_port_id=ports.items[1].id,
                 route_id=routes.items[0].id,
                 supplier_id=supplier.id,
-                sku_ids=[sku.id],
+                skus={sku.id: 1},
                 carrier='Maersk',
                 order_date='2026-03-01T10:00:00Z',
                 expected_delivery_date='2026-03-10T10:00:00Z',
