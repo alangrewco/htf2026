@@ -1,6 +1,6 @@
 "use client";
 
-import { Truck, Users, MapPin, Circle } from "lucide-react";
+import { Truck, Users, MapPin, CheckCircle2, ShieldCheck, Navigation, Anchor, PackageCheck, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -9,6 +9,16 @@ import type { Shipment } from "@/sdk/model";
 import { ShipmentStatus } from "@/sdk/model";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
 import { statusConfig, InfoRow, SectionLabel } from "./detail-shared";
+
+function getEventIcon(type: string) {
+    if (type.includes("order") || type.includes("booking")) return FileText;
+    if (type.includes("depart")) return Anchor;
+    if (type.includes("transit")) return Navigation;
+    if (type.includes("arrive")) return MapPin;
+    if (type.includes("customs")) return ShieldCheck;
+    if (type.includes("deliver")) return PackageCheck;
+    return CheckCircle2;
+}
 
 export function ShipmentDetailModal({
     shipment,
@@ -103,28 +113,38 @@ export function ShipmentDetailModal({
                                             .map((event, i, arr) => {
                                                 const isFirst = i === 0;
                                                 const isLast = i === arr.length - 1;
+                                                const EventIcon = getEventIcon(event.type);
                                                 return (
                                                     <div key={`${event.id}`} className="flex gap-4">
                                                         {/* Timeline connector */}
                                                         <div className="flex flex-col items-center">
-                                                            {isFirst ? (
-                                                                <div className="h-3 w-3 rounded-full bg-primary ring-2 ring-primary/30 mt-1" />
-                                                            ) : (
-                                                                <Circle className="h-3 w-3 text-muted-foreground mt-1 fill-muted-foreground/20" />
-                                                            )}
-                                                            {!isLast && <div className="w-px flex-1 bg-border/50 my-1" />}
+                                                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${isFirst ? "bg-primary text-primary-foreground ring-4 ring-primary/20" : "bg-muted/50 text-muted-foreground"}`}>
+                                                                <EventIcon className="h-4 w-4" />
+                                                            </div>
+                                                            {!isLast && <div className="w-px flex-1 bg-border/60 my-2" />}
                                                         </div>
                                                         {/* Content */}
-                                                        <div className={`pb-4 ${isFirst ? "" : "opacity-70"}`}>
-                                                            <div className="text-[11px] text-muted-foreground">
-                                                                {new Date(event.event_time).toLocaleString()} · {event.location}
+                                                        <div className={`pb-6 pt-1 ${isFirst ? "" : "opacity-70"}`}>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <div className={`text-sm font-semibold tracking-tight ${isFirst ? "text-foreground" : ""}`}>
+                                                                    {event.description}
+                                                                </div>
+                                                                {event.status !== "ok" && (
+                                                                    <Badge variant="outline" className="text-[10px] bg-urgency-warning/10 text-urgency-warning border-urgency-warning/20">
+                                                                        {event.status}
+                                                                    </Badge>
+                                                                )}
                                                             </div>
-                                                            <div className="text-sm">{event.description}</div>
-                                                            {event.status !== "ok" && (
-                                                                <Badge variant="outline" className="mt-1 text-[10px] bg-urgency-warning/10 text-urgency-warning border-urgency-warning/20">
-                                                                    {event.status}
-                                                                </Badge>
-                                                            )}
+                                                            <div className="text-[11px] text-muted-foreground font-medium mb-0.5">
+                                                                {new Date(event.event_time).toLocaleString(undefined, {
+                                                                    weekday: 'short', month: 'short', day: 'numeric',
+                                                                    hour: 'numeric', minute: '2-digit'
+                                                                })}
+                                                            </div>
+                                                            <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                                                                <MapPin className="h-3 w-3" />
+                                                                {event.location}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 );

@@ -14,7 +14,12 @@ export const mockShipmentListResponse: ShipmentListResponse = {
       carrier: "COSCO",
       order_date: "2026-02-10T08:00:00Z",
       expected_delivery_date: "2026-03-28T00:00:00Z",
-      events: [],
+      events: [
+        { id: "e1", type: "order_placed", description: "Order received by carrier", event_time: "2026-02-10T08:00:00Z", location: "Sup-1 Facility", status: "ok", metadata: {} },
+        { id: "e2", type: "departed_origin", description: "Departed from Origin Port", event_time: "2026-02-12T14:30:00Z", location: "Port of Shanghai", status: "ok", metadata: {} },
+        { id: "e3", type: "in_transit", description: "Vessel in transit - Pacific Ocean", event_time: "2026-02-18T09:15:00Z", location: "Pacific Ocean", status: "ok", metadata: {} },
+        { id: "e4", type: "delayed", description: "Port congestion at destination", event_time: "2026-03-02T16:00:00Z", location: "Port of Houston (Approach)", status: "warning", metadata: {} }
+      ],
       created_at: "2026-02-10T08:00:00Z",
       updated_at: "2026-03-04T16:00:00Z",
     },
@@ -30,7 +35,12 @@ export const mockShipmentListResponse: ShipmentListResponse = {
       carrier: "Evergreen",
       order_date: "2026-02-14T08:00:00Z",
       expected_delivery_date: "2026-03-22T00:00:00Z",
-      events: [],
+      events: [
+        { id: "e1", type: "order_placed", description: "Order received", event_time: "2026-02-14T08:00:00Z", location: "Supplier Facility", status: "ok", metadata: {} },
+        { id: "e2", type: "customs_clearance", description: "Export customs clearance completed", event_time: "2026-02-15T10:00:00Z", location: "Port of Shanghai", status: "ok", metadata: {} },
+        { id: "e3", type: "departed_origin", description: "Vessel departed", event_time: "2026-02-16T18:45:00Z", location: "Port of Shanghai", status: "ok", metadata: {} },
+        { id: "e4", type: "in_transit", description: "Severe weather condition causing rerouting", event_time: "2026-02-25T11:20:00Z", location: "North Pacific", status: "warning", metadata: {} }
+      ],
       created_at: "2026-02-14T08:00:00Z",
       updated_at: "2026-03-04T16:05:00Z",
     },
@@ -46,7 +56,11 @@ export const mockShipmentListResponse: ShipmentListResponse = {
       carrier: "Maersk",
       order_date: "2026-02-01T08:00:00Z",
       expected_delivery_date: "2026-03-18T00:00:00Z",
-      events: [],
+      events: [
+        { id: "e1", type: "departed_origin", description: "Departed Rotterdam", event_time: "2026-02-02T10:00:00Z", location: "Port of Rotterdam", status: "ok", metadata: {} },
+        { id: "e2", type: "in_transit", description: "Passing English Channel", event_time: "2026-02-05T08:00:00Z", location: "English Channel", status: "ok", metadata: {} },
+        { id: "e3", type: "in_transit", description: "Mid-Atlantic crossing", event_time: "2026-02-15T14:30:00Z", location: "Atlantic Ocean", status: "ok", metadata: {} }
+      ],
       created_at: "2026-02-01T08:00:00Z",
       updated_at: "2026-03-04T16:10:00Z",
     },
@@ -62,7 +76,11 @@ export const mockShipmentListResponse: ShipmentListResponse = {
       carrier: "Yang Ming",
       order_date: "2026-02-09T08:00:00Z",
       expected_delivery_date: "2026-03-20T00:00:00Z",
-      events: [],
+      events: [
+        { id: "e1", type: "order_placed", description: "Carrier booking confirmed", event_time: "2026-02-09T08:00:00Z", location: "Hong Kong", status: "ok", metadata: {} },
+        { id: "e2", type: "departed_origin", description: "Departed Hong Kong", event_time: "2026-02-11T16:20:00Z", location: "Port of Hong Kong", status: "ok", metadata: {} },
+        { id: "e3", type: "in_transit", description: "Vessel tracking updated", event_time: "2026-02-28T09:00:00Z", location: "Pacific Ocean", status: "ok", metadata: {} }
+      ],
       created_at: "2026-02-09T08:00:00Z",
       updated_at: "2026-03-04T16:12:00Z",
     },
@@ -110,7 +128,13 @@ export const mockShipmentListResponse: ShipmentListResponse = {
       carrier: "Hapag-Lloyd",
       order_date: "2026-02-15T08:00:00Z",
       expected_delivery_date: "2026-02-28T00:00:00Z",
-      events: [],
+      events: [
+        { id: "e1", type: "order_placed", description: "Order processed", event_time: "2026-02-15T09:30:00Z", location: "Manzanillo", status: "ok", metadata: {} },
+        { id: "e2", type: "departed_origin", description: "Departed Port", event_time: "2026-02-17T11:00:00Z", location: "Port of Manzanillo", status: "ok", metadata: {} },
+        { id: "e3", type: "arrived_destination", description: "Arrived at Destination", event_time: "2026-02-25T14:45:00Z", location: "Port of Houston", status: "ok", metadata: {} },
+        { id: "e4", type: "customs_clearance", description: "Import customs cleared", event_time: "2026-02-26T10:15:00Z", location: "Houston Customs", status: "ok", metadata: {} },
+        { id: "e5", type: "delivered", description: "Delivered to Warehouse", event_time: "2026-02-28T08:00:00Z", location: "Houston Facility", status: "ok", metadata: {} }
+      ],
       created_at: "2026-02-15T08:00:00Z",
       updated_at: "2026-03-01T08:00:00Z",
     },
