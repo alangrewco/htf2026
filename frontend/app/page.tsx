@@ -13,7 +13,7 @@ export default function Home() {
       <section
         id="home-section"
         className="snap-section flex flex-col"
-        style={{ height: "calc(100vh - 80px)" }}
+        style={{ height: "calc(100vh - 84px)" }}
       >
         <NavbarSpacer />
 
