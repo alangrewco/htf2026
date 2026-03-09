@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useReferenceData } from "@/lib/api/reference/use-reference-data";
-import { useListArticles } from "@/sdk/articles/articles";
+// import { useListArticles } from "@/sdk/articles/articles";
 import { Truck, Users, MapPin, CheckCircle2, ShieldCheck, Navigation, Anchor, PackageCheck, FileText, ArrowLeft, Radio } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { SKUDetailModal, SupplierDetailModal } from "@/components/detail-modals";
 import type { Sku, Supplier } from "@/sdk/model";
+import { mockArticleListResponse } from "@/lib/fixtures/articles";
 
 const HARDCODED_GEO = [
   { match: "Houston", lat: 29.7604, lng: -95.3698 },
@@ -56,7 +57,12 @@ export default function ShipmentDetailPage() {
     const { id } = useParams<{ id: string }>();
     const router = useRouter();
     const { shipments, portName, skuName, supplierName, supplierMap, skuMap } = useReferenceData();
-    const { data: articlesResponse } = useListArticles();
+    // const { data: articlesResponse } = useListArticles();
+    
+    // Always use mock data to ensure the map demo always has nearby alerts.
+    // In a real scenario, this page would depend mostly on articles returned from a real query
+    // involving the geolocation logic.
+    const actualArticlesResponse = useMemo(() => ({ data: mockArticleListResponse }), []);
     
     const [selectedSku, setSelectedSku] = useState<Sku | null>(null);
     const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
@@ -75,7 +81,7 @@ export default function ShipmentDetailPage() {
 
     const articlesWithGeo = useMemo(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const items = (articlesResponse?.data as any)?.items || [];
+        const items = ((actualArticlesResponse?.data as any)?.items) || [];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return items.map((a: any) => {
             const geo = HARDCODED_GEO.find(g => a.title.includes(g.match) || (g.orMatch && a.title.includes(g.orMatch)));
@@ -90,7 +96,7 @@ export default function ShipmentDetailPage() {
             };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }).filter((a: any) => a.hasGeo).sort((a: any, b: any) => a.distance - b.distance);
-    }, [articlesResponse, shipLocation]);
+    }, [actualArticlesResponse, shipLocation]);
 
     if (!shipment) {
         return (
