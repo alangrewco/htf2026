@@ -35,56 +35,14 @@ function getPlaceholderResponse(
   cardTitle: string,
   msgCount: number
 ): { content: string; showConfirm: boolean } {
-  const lower = userInput.toLowerCase();
-
-  // After 3+ exchanges, propose a research plan
-  if (msgCount >= 3) {
+  if (msgCount === 1) {
     return {
-      content: `Great discussion! Based on everything we've explored for "${cardTitle}", here's my **proposed research plan**:\n\n1. **Identify alternative suppliers** in low-risk regions matching current specs\n2. **Run cost-benefit analysis** comparing rerouting vs. backup procurement\n3. **Model timeline scenarios** for each option (best / expected / worst case)\n4. **Draft stakeholder summary** with recommended action\n\nIf this looks good, press **Confirm** below and I'll update the action plan with these findings.`,
-      showConfirm: true,
-    };
-  }
-
-  if (
-    lower.includes("change") ||
-    lower.includes("modify") ||
-    lower.includes("instead") ||
-    lower.includes("switch")
-  ) {
-    return {
-      content: `Good call — I can adjust the plan for "${cardTitle}". Want me to explore different suppliers, a different timeline, or an entirely different approach? Tell me more and I'll draft revised options.`,
+      content: "finding the new news so check again soon, do you have any feedback in the meantime?",
       showConfirm: false,
     };
   }
-
-  if (
-    lower.includes("alternative") ||
-    lower.includes("what if") ||
-    lower.includes("brainstorm") ||
-    lower.includes("other option")
-  ) {
-    return {
-      content: `Here are some alternative strategies for "${cardTitle}":\n\n1. **Split the order** across two suppliers to reduce dependency risk\n2. **Negotiate expedited terms** with the current supplier for partial early delivery\n3. **Source from spot market** for the most critical SKUs\n\nWant me to dig deeper into any of these? I can model the cost and timeline for each.`,
-      showConfirm: false,
-    };
-  }
-
-  if (lower.includes("cost") || lower.includes("budget") || lower.includes("price")) {
-    return {
-      content: `For "${cardTitle}", the cost drivers are freight premiums, supplier pricing tier, and urgency fees. I can brainstorm cost-saving angles — like partial shipments, or negotiating volume discounts with the backup supplier. Want me to explore those?`,
-      showConfirm: false,
-    };
-  }
-
-  if (lower.includes("risk") || lower.includes("safe")) {
-    return {
-      content: `Risk factors for "${cardTitle}" include supplier reliability, transit uncertainty, and market volatility. I can brainstorm mitigation overlays — splitting orders, adding contingency triggers, or hedging with futures. Which angle interests you?`,
-      showConfirm: false,
-    };
-  }
-
   return {
-    content: `That's a great angle on "${cardTitle}". I can help by:\n- **Brainstorming** new strategies or variations\n- **Modifying** the current plan (swap suppliers, adjust timing)\n- **Exploring trade-offs** between different approaches\n\nJust let me know what you'd like to dig into!`,
+    content: "feedback taken, next time I will ...",
     showConfirm: false,
   };
 }
